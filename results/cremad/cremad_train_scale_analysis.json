@@ -1,0 +1,84 @@
+{
+  "n_diverged": 0,
+  "baseline_dominance_mean": 0.07455781400203705,
+  "a1_v1": {
+    "dominance": 0.07455781400203705,
+    "dominance_sd": 0.031150219006551728,
+    "abs_imbalance": 0.07455781400203705,
+    "rho_fusion": 1.2211732187118693,
+    "rho_enc": 1.2211732187118693,
+    "compensation": null,
+    "gain": 0.24761905670166015,
+    "acc_av": 0.4929251790046692
+  },
+  "a5_v1": {
+    "dominance": 0.29918367266654966,
+    "dominance_sd": 0.018588983688145534,
+    "abs_imbalance": 0.29918367266654966,
+    "rho_fusion": 2.3144164788130923,
+    "rho_enc": 0.46288329829126995,
+    "compensation": 0.4861396179282057,
+    "gain": 0.0450340211391449,
+    "acc_av": 0.5136054575443267
+  },
+  "a10_v1": {
+    "dominance": 0.32789115607738495,
+    "dominance_sd": 0.0294252064631089,
+    "abs_imbalance": 0.32789115607738495,
+    "rho_fusion": 3.2441579464569466,
+    "rho_enc": 0.3244157991797305,
+    "compensation": 0.4948468188462303,
+    "gain": 0.013197273015975952,
+    "acc_av": 0.5114285707473755
+  },
+  "a1_v5": {
+    "dominance": 0.05578230917453766,
+    "dominance_sd": 0.03332292208555791,
+    "abs_imbalance": 0.05578230917453766,
+    "rho_fusion": 1.1796043328134536,
+    "rho_enc": 5.898021519188891,
+    "compensation": 1.1013403891894074,
+    "gain": 0.2627210795879364,
+    "acc_av": 0.489659857749939
+  },
+  "a1_v10": {
+    "dominance": 0.008979588747024536,
+    "dominance_sd": 0.007997175004552212,
+    "abs_imbalance": 0.008979588747024536,
+    "rho_fusion": 1.0244566340847332,
+    "rho_enc": 10.24456595844592,
+    "compensation": 1.0097081015299199,
+    "gain": 0.29482993483543396,
+    "acc_av": 0.4757823169231415
+  },
+  "slope_dominance_vs_log2imposed": 0.04944924929373048,
+  "spearman_imposed_vs_dominance": 0.9219231451126612,
+  "spearman_imposed_vs_rho_enc": -0.9727360302853928,
+  "compensation_audio10": {
+    "imposed_ratio": 10.0,
+    "rho_enc_final": 0.3244157991797305,
+    "rho_fusion_final": 3.2441579464569466,
+    "compensation_frac": 0.4948468188462303
+  },
+  "compensation_video10": {
+    "imposed_ratio": 0.1,
+    "rho_enc_final": 10.24456595844592,
+    "rho_fusion_final": 1.0244566340847332,
+    "compensation_frac": 1.0097081015299199
+  },
+  "normalization": {
+    "a10_v1": {
+      "none_dominance": 0.32789115607738495,
+      "zscore_dominance": 0.10993197560310364,
+      "none_rho_fusion": 3.2441579464569466,
+      "zscore_rho_fusion": 0.9682106139961132
+    },
+    "a1_v10": {
+      "none_dominance": 0.008979588747024536,
+      "zscore_dominance": 0.10394557416439057,
+      "none_rho_fusion": 1.0244566340847332,
+      "zscore_rho_fusion": 0.9687944122808319
+    }
+  },
+  "verdict": "SUPPORT"
+}

@@ -4,6 +4,40 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-20 — CREMA-D training-time scale (H6). Verdict: SUPPORT. Pre-registered (PREREGISTRATION_CREMAD_TRAINING_SCALE.md)
+
+**Question (H6).** Does imposing modality scale DURING training (in-graph, encoders
+trainable) cause persistent learned modality imbalance? (R3 was frozen-rep and couldn't test this.)
+
+**Config.** In-graph ScaleInjector (scale_first=True), conditions none {baseline,
+audio×5/×10, video×5/×10} + zscore {baseline, audio×10, video×10}, 5 seeds, 30 ep, same
+architecture as R1-R3, cached ENCODER INPUTS (encoders trainable). 40 runs, 0 diverged.
+
+**Result (none, test).** Learned dominance (acc_audio−acc_video) & gain by imposed audio scale:
+- baseline: dom 0.075, gain 0.248, ρ_fus 1.22
+- audio×5: dom 0.299, gain 0.045, ρ_fus 2.31, ρ_enc 0.46, comp 0.49
+- audio×10: dom **0.328**, gain **0.013**, ρ_fus 3.24, ρ_enc 0.32, comp 0.49
+- video×5: dom 0.056, gain 0.263, ρ_enc 5.90, comp 1.10
+- video×10: dom 0.009, gain 0.295, ρ_enc 10.24, comp 1.01
+Slope(dom vs log2 imposed)=0.049, Spearman=**0.922**.
+
+**Key findings.** (1) Training-time scale CAUSALLY changes learned contribution (vs R3 frozen
+= null) — RESOLVES the R3 gap. (2) DIRECTIONAL ASYMMETRY: amplifying the stronger modality
+(audio) entrenches its dominance + collapses gain (persistent); amplifying the weaker (video)
+is fully compensated + preserves gain. (3) COMPENSATION: encoders counteract imposed scale
+(ρ_enc opposite slope) — FULL for video (ρ_fus≈1), PARTIAL ~49% for audio (ρ_fus 3.2) because
+the loss rewards the useful modality. (4) z-score BLOCKS the pathway: audio×10 dom 0.328→0.110,
+ρ_fus 3.24→0.97.
+
+**Transfer.** E2 (training-time causal) TRANSFERS; E1/E4-EXTREME (compensation) PARTIALLY (utility-
+dependent); E3/E4 (normalization=scale channel) TRANSFERS; E4 (amplify dominant entrenches) CONSISTENT.
+
+**Verdict → SUPPORT** (narrow claim per interpretation rule; directional-asymmetry + partial-comp
+qualifications). GO/NO-GO INCLUDE-50 = conditional GO (await authorization; do not auto-start).
+Report: reports/CREMAD_TRAINING_SCALE_REPORT.md. R1-R3 & E1-E5 immutable.
+
+---
+
 ## 2026-09-20 — CREMA-D R1/R2/R3 executed. Verdict: PARTIAL SUPPORT. (frozen protocol)
 
 **Config.** Cached features (0 failures) → 10 models (none/zscore × 5 seeds), 30 ep, sum
