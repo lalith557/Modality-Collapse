@@ -1,0 +1,64 @@
+# =============================================================================
+# E1 - Early-rho diagnostic (H1). See PREREGISTRATION.md.
+# Population varies: seed, scale ratio, information diff (margin), noise diff
+# (sigma), encoder init (via seed), fusion (sum|concat). A clean 'equal' family
+# holds information exactly equal.
+# =============================================================================
+experiment: e1_diagnostic
+
+seed_policy:
+  seeds: [0, 1, 2, 3, 4]
+  deterministic: true
+
+device:
+  type: cuda
+  allow_cpu: false
+
+data:                          # base data spec (families override margins/sigmas/alpha)
+  n_classes: 8
+  n_dim_a: 32
+  n_dim_v: 32
+  prototype_margin: 1.5        # headroom regime
+  sigma_a: 1.0
+  sigma_v: 1.0
+  alpha_a: 1.0
+  alpha_v: 1.0
+  n_train: 4000
+  n_val: 1000
+  n_test: 2000
+  prototype_seed: 12345
+
+model:
+  hidden_dim: 64
+  rep_dim: 32
+  fusion: sum                  # overridden per run (sum|concat)
+  normalization: none
+  activation: relu
+  head: linear
+
+train:
+  epochs: 40
+  batch_size: 256
+  lr: 0.001
+  lr_a: null
+  lr_v: null
+  optimizer: adam
+  weight_decay: 0.0
+
+scale_injection:
+  enabled: false
+
+diagnostic:
+  early_epoch: 5               # PRE-REGISTERED primary early checkpoint
+  measure_every_epoch: true
+
+population:
+  scales_equal: [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0]   # symmetric geometric
+  fusions: [sum, concat]
+  # info-difference family (scale=1): (margin_a, margin_v) pairs
+  info_margin_pairs: [[1.5, 1.05], [1.5, 1.28], [1.28, 1.5], [1.05, 1.5]]
+  # noise-difference family (scale=1): (sigma_a, sigma_v) pairs
+  noise_sigma_pairs: [[1.0, 1.4], [1.0, 1.2], [1.2, 1.0], [1.4, 1.0]]
+
+output:
+  root: results

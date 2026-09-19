@@ -4,6 +4,59 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-19 — E1 (early-ρ diagnostic, H1). Pre-registered (see PREREGISTRATION.md)
+
+**Hypothesis (H1).** `log(rho_epoch5)` predicts later modality dominance
+`D = Δ_A − Δ_V`, **beyond** merely measuring the injected scale.
+
+**Config.** `configs/diagnostic.yaml`. n=**150 runs** (5 seeds × factors).
+Population varies: scale ratio (equal-info family, geometric), information
+difference (margin_A≠margin_V, scale=1), noise difference (σ_A≠σ_V, scale=1),
+fusion (sum/concat), seed/init. Primary predictor `log(rho5)`; primary outcome
+final `D` (test); AUROC of `A_stronger` at each horizon epoch. All on GPU.
+
+**Result.**
+- **AUROC(early ρ → dominance @ epoch k):** 0.91 (ep1–7) → 0.77 (ep10) → 0.57
+  (ep15) → **0.40 (ep40, reversed).** Crosses chance ≈ epoch 14.
+- **Overall Spearman(log ρ5, D_final) = 0.06 [−0.09, 0.21]** (CI incl. 0).
+  → pre-registered PRIMARY outcome (final dominance): **not predicted.**
+- **Beyond-scale controls:** partial Spearman | log(scale) = **0.60 [0.49, 0.70]**;
+  balanced-scale subfamily = **0.65 [0.51, 0.77]**; incremental R² of ρ5 over
+  scale = **+0.425**. → ρ5 *does* carry info beyond injected scale.
+- **Per-family Spearman(ρ5, D_final):** equal **−0.825**, info_diff **+0.957**,
+  noise_diff **+0.25** — while `trueAsym(snr_A−snr_V)→D_final = 0.97` in BOTH
+  info_diff and noise_diff. So ρ5 tracks the *information* asymmetry (aligned) but
+  **largely misses the *noise* asymmetry** (0.25 vs 0.97).
+- Sanity: `corr(trueAsym, D_final) = 0.94` — final dominance IS predictable, just
+  not from ρ5 alone.
+
+**Interpretation (honest).** Early ρ is a **strong predictor of the *transient*
+(early-training) dominance** that scale disparity induces (AUROC≈0.91 for the first
+~7 epochs) but **not of the *converged* outcome** — the relationship decays to
+chance (~ep14) and **reverses** (encoders over-compensate the up-scaled modality,
+so high ρ5 → that modality ends slightly *weaker*). ρ is also **confounded by the
+source of magnitude**: magnitude from signal/scale/info ⇒ "stronger" (ρ aligned),
+but magnitude from noise ⇒ "weaker" (ρ misses it). The near-zero overall Spearman
+is a *cancellation* of these opposing family effects, not absence of signal.
+
+**Verdict.** As pre-registered (predict *final* dominance): **UNSUPPORTED**
+(Spearman 0.06; AUROC reversed to 0.40). Restricted to the transient regime it was
+designed for (early dominance, ep≤7): **SUPPORTED** (AUROC 0.91). Net honest label:
+**PARTIALLY SUPPORTED** — a strong *early-warning* diagnostic, not a predictor of
+the converged state, and blind to noise-driven collapse. Verdict rule was frozen
+before running; not adjusted post-hoc.
+
+**Failure modes.** ρ conflates signal- and noise-magnitude; converged dominance is
+compensated/reversed; sum-vs-concat pooled (fusion breakdown in CSV).
+
+**Next action.** E3 (normalization = enforced compensation): does it remove the
+early imbalance ρ detects? Later: a *normalized/expected* ρ (ρ minus its
+noise-explained part) as a de-confounded diagnostic (H1′).
+
+**Figures.** `results/figures/e1/primary/e1_{auroc_by_epoch,early_rho_vs_final_dominance,rho_trajectory_examples}.png`.
+
+---
+
 ## 2026-09-19 — E2 (synthetic causal scale sweep), Milestone 1
 
 **Hypothesis (H2).** With information held fixed (verified by an alpha-invariant

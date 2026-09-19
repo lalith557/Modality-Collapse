@@ -88,13 +88,16 @@ def generate_dataset(params: dict[str, Any]) -> SyntheticDataset:
     n_classes = int(p["n_classes"])
     da, dv = int(p["n_dim_a"]), int(p["n_dim_v"])
     margin = float(p["prototype_margin"])
+    # Per-modality margin (information asymmetry); fall back to the shared margin.
+    margin_a = float(p.get("margin_a", margin))
+    margin_v = float(p.get("margin_v", margin))
     sa, sv = float(p["sigma_a"]), float(p["sigma_v"])
     aa, av = float(p["alpha_a"]), float(p["alpha_v"])
     proto_seed = int(p["prototype_seed"])
     data_seed = int(p.get("data_seed", 0))
 
-    protos_a = make_prototypes(n_classes, da, margin, proto_seed)
-    protos_v = make_prototypes(n_classes, dv, margin, proto_seed + 1)
+    protos_a = make_prototypes(n_classes, da, margin_a, proto_seed)
+    protos_v = make_prototypes(n_classes, dv, margin_v, proto_seed + 1)
 
     sizes = {"train": int(p["n_train"]), "val": int(p["n_val"]), "test": int(p["n_test"])}
     tensors: dict = {}
@@ -116,11 +119,12 @@ def generate_dataset(params: dict[str, Any]) -> SyntheticDataset:
 
     meta = {
         "n_classes": n_classes, "n_dim_a": da, "n_dim_v": dv,
-        "prototype_margin": margin, "sigma_a": sa, "sigma_v": sv,
+        "prototype_margin": margin, "margin_a": margin_a, "margin_v": margin_v,
+        "sigma_a": sa, "sigma_v": sv,
         "alpha_a": aa, "alpha_v": av, "alpha_ratio": aa / av,
         "prototype_seed": proto_seed, "data_seed": data_seed,
         "sizes": sizes,
-        "snr_a": margin / sa, "snr_v": margin / sv,   # theoretical (scale-invariant)
+        "snr_a": margin_a / sa, "snr_v": margin_v / sv,   # theoretical (scale-invariant)
     }
     return SyntheticDataset(tensors=tensors, meta=meta)
 
