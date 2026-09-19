@@ -4,6 +4,56 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-19 — E3 (per-modality normalization, H3) + compensation analysis
+
+**Hypothesis (H3).** Per-modality normalization prevents the **early** optimization
+imbalance caused by scale disparity (not merely improves final accuracy).
+
+**Config.** `configs/normalization.yaml`. norms {none, layernorm, zscore,
+batchnorm} × 7 symmetric geometric scales {0.05..20} × 5 seeds (paired) =
+**140 runs**, 40 epochs, headroom regime, sum fusion. Checkpoints 1/3/5/10/final.
+
+**Result (mean over 5 seeds; extreme = scales {0.05,0.1,10,20}).**
+| norm | early \|D\|@ext (ep5) | final \|D\|@ext | test_acc | resid\|logρ\| | conv_ep |
+|---|---:|---:|---:|---:|---:|
+| none | 0.152 | 0.036 | **0.690** | 0.452 | 10.6 |
+| layernorm | 0.020 | 0.013 | 0.648 | 0.011 | 3.5 |
+| zscore | 0.025 | 0.019 | 0.668 | 0.014 | 3.8 |
+| batchnorm | 0.019 | 0.018 | 0.645 | 0.009 | 3.5 |
+
+- **Early-imbalance reduction vs none (ep5, extreme):** layernorm +0.132±0.024,
+  zscore +0.127±0.023, batchnorm +0.133±0.024 — all **CI-separated** (n=20). ≈87% cut.
+- **Final accuracy vs none:** layernorm −0.047±0.003, zscore −0.027±0.003,
+  batchnorm −0.049±0.002 — all **CI-separated NEGATIVE**. Normalization costs 3–5 pts.
+- **Convergence:** 10.6 → ~3.5 epochs (≈3× faster).
+- **Compensation (scale=20):** none relaxes log ρ from ratio 0.82 → residual 0.17
+  over ~20 epochs (slow, incomplete); layernorm/zscore ≈0 from epoch 0 (structural);
+  batchnorm 0.82 → 0 by epoch 5 (running-stat warmup). Normalization removes the
+  need for *learned* compensation.
+
+**Interpretation (honest).** Normalization **is a cure for the early/transient
+imbalance** and a strong training-dynamics accelerant (flat ρ, flat early |D|, ~3×
+faster convergence), and it removes the learned-compensation the plain encoder must
+otherwise perform. But it is **not a final-performance improver** here — it slightly
+**reduces** final accuracy (LayerNorm/BatchNorm worst at −0.05; z-score gentlest at
+−0.027), because in this clean equal-information regime the plain encoder already
+compensates by convergence and normalization discards representation geometry. So
+H3's "minimal cure" claim holds for **transient collapse / dynamics**, not for
+converged accuracy.
+
+**Failure modes.** BatchNorm couples batch samples (running-stat eval); z-score is
+fit once at init (stats drift as encoder changes) — yet all three cure the early
+imbalance. Final-accuracy cost may differ in a genuine-collapse regime (short
+training / optimization imbalance) where none stays collapsed — untested here.
+
+**Next action.** E4: does normalization still cure when collapse is
+optimization-driven (scale × learning-rate), where the plain encoder *cannot*
+compensate? That is the regime where normalization might also help final accuracy.
+
+**Figures.** `results/figures/e3/primary/e3_{norm_vs_scale_contribution,norm_rho_trajectory,norm_convergence,norm_effect_size,compensation}.png`.
+
+---
+
 ## 2026-09-19 — E1 (early-ρ diagnostic, H1). Pre-registered (see PREREGISTRATION.md)
 
 **Hypothesis (H1).** `log(rho_epoch5)` predicts later modality dominance

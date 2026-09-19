@@ -42,4 +42,9 @@ def make_norm(kind: str, dim: int) -> nn.Module:
         return nn.LayerNorm(dim)
     if kind == "zscore":
         return ZScoreNorm(dim)
+    if kind == "batchnorm":
+        # Per-modality BatchNorm1d. Caveat: uses batch statistics in train and
+        # running statistics in eval (couples samples within a batch); reported
+        # with that caveat rather than as a per-sample normalizer.
+        return nn.BatchNorm1d(dim)
     raise ValueError(f"unknown normalization '{kind}'")

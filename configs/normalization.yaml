@@ -1,0 +1,60 @@
+# =============================================================================
+# E3 - Per-modality normalization intervention (H3). See PREREGISTRATION.md.
+# Primary question: does normalization prevent the EARLY optimization imbalance
+# caused by scale disparity (not merely improve final accuracy)?
+# =============================================================================
+experiment: e3_cure
+
+seed_policy:
+  seeds: [0, 1, 2, 3, 4]     # same seeds across interventions (paired)
+  deterministic: true
+
+device:
+  type: cuda
+  allow_cpu: false
+
+data:
+  n_classes: 8
+  n_dim_a: 32
+  n_dim_v: 32
+  prototype_margin: 1.5      # headroom regime (same as E2 primary)
+  sigma_a: 1.0
+  sigma_v: 1.0
+  alpha_a: 1.0
+  alpha_v: 1.0
+  n_train: 4000
+  n_val: 1000
+  n_test: 2000
+  prototype_seed: 12345
+
+model:
+  hidden_dim: 64
+  rep_dim: 32
+  fusion: sum
+  normalization: none        # overridden per intervention
+  activation: relu
+  head: linear
+
+train:
+  epochs: 40
+  batch_size: 256
+  lr: 0.001
+  lr_a: null
+  lr_v: null
+  optimizer: adam
+  weight_decay: 0.0
+
+scale_injection:
+  enabled: false
+
+diagnostic:
+  early_epoch: 5
+
+e3:
+  interventions: [none, layernorm, zscore, batchnorm]
+  scales: [0.05, 0.1, 0.2, 1.0, 5.0, 10.0, 20.0]   # symmetric geometric
+  checkpoints: [1, 3, 5, 10]     # 'final' always added
+  scale_mode: geometric
+
+output:
+  root: results

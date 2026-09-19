@@ -84,7 +84,8 @@ def train_model(cfg: dict, ds, device: torch.device, seed: int) -> dict:
         row = dict(measure_rho(model, a_va, v_va))
         c = contribution_metrics(model, a_va, v_va, y_va, n_classes)
         row.update({"val_acc_av": c["acc_av"], "val_delta_a": c["delta_a"],
-                    "val_delta_v": c["delta_v"], "val_gain": c["multimodal_gain"]})
+                    "val_delta_v": c["delta_v"], "val_gain": c["multimodal_gain"],
+                    "val_f1_av": c["f1_av"]})
         return row
 
     # epoch 0 diagnostic (at initialization, before any update)
