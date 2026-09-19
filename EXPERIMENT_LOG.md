@@ -4,6 +4,45 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-19 — E4-EXTREME (extreme-ratio + long-horizon). Pre-registered (PREREGISTRATION_E4_EXTREME.md)
+
+**Question.** Does stronger aligned scale×LR asymmetry convert graded imbalance into
+persistent collapse, or does the encoder keep compensating?
+
+**Config.** 25 targeted conditions (scale-only, LR-only, aligned, opposed @ 20/100/400×,
+both directions) × {none, zscore} × 5 seeds @40ep, + aligned/refs @100 & 200ep = **390
+runs**. Same generator/architecture/frozen collapse def as E4. GPU, 0 diverged.
+
+**Result (baseline weak 0.192).**
+- **Dose-response (severity, none):** scale-only 0.05/0.04/**0.08** (compensated even
+  at 400×!); LR-only 0.23/0.55/0.88; aligned 0.55/0.99/**1.00**; opposed 0/0/0.
+  Monotone (Spearman 1.0). Residual |logρ| aligned 1.66→4.05→4.81.
+- **Long horizon (200 ep):** scale-400 recovers (transient); aligned-20 hovers ~0.08;
+  aligned-100 creeps to 0.025; **aligned-400 flat ≈0 through 200ep, ρ GROWS to 6.3
+  (runaway)**. None recover. PC survives long for aligned 20/100/400.
+- **z-score decomposition (400×):** scale-only→0.208 (full recovery), LR-only→0.083,
+  aligned→0.083, opposed→0.084 — z-score maps ALL to the LR-driven floor: removes the
+  scale channel, leaves the LR channel.
+
+**Interpretation (honest).** A genuine PERSISTENT-collapse regime exists (survives 200ep,
+monotone dose) — but it is **optimization(LR)-driven, NOT scale-driven**: static scale is
+compensable at every magnitude; LR asymmetry (learning-speed starvation) drives collapse;
+scale alignment amplifies it to totality; z-score fixes only the scale channel.
+
+**Classification → EXTREME-A (TRUE PERSISTENT REGIME)**, with the caveat above.
+
+**Failure modes.** 400× LR (lr_V=5e-5) partly starves the weak modality (extreme, though
+graded 20→100 establishes the mechanism); operational "persistence" = 200ep; sum fusion
+only; z-score init-time stats. Analysis dose() indexing bug fixed post-hoc (runs
+deterministic/unaffected; dose recomputed from CSV).
+
+**Next action (decision tree → EXTREME-A ⇒ E5).** GO to E5 (OGM-GE) targeted at the
+aligned-collapse region: z-score fixes scale channel, OGM-GE (gradient modulation) should
+address the LR channel z-score cannot — sharp mechanistic test. Hold CREMA-D/INCLUDE.
+Full report: reports/E4_EXTREME_FINAL_REPORT.md.
+
+---
+
 ## 2026-09-19 — E4 (scale × learning-rate boundary). Pre-registered (PREREGISTRATION_E4.md)
 
 **Question.** Does asymmetric optimization (per-encoder LR ratio) block the learned
