@@ -4,6 +4,39 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-20 — CREMA-D R1/R2/R3 executed. Verdict: PARTIAL SUPPORT. (frozen protocol)
+
+**Config.** Cached features (0 failures) → 10 models (none/zscore × 5 seeds), 30 ep, sum
+fusion, matched CNN encoders. Test = frozen 18 actors. See CREMAD_FINAL_REPORT.md.
+
+**R1 (vanilla, test).** acc_av 0.493±0.019; **natural ρ=1.221±0.043** (MILD audio>video
+scale disparity); grad ratio audio/video 2.74; Δ_audio 0.322, Δ_video 0.248, gain 0.248.
+→ real feature-scale disparity EXISTS but mild.
+
+**R2 (zscore−none, paired).** ρ 1.221→0.965 (d−3.6,p.001); grad ratio 2.74→0.14
+(d−5.2,p.0003) — z-score removes scale disparity + rebalances gradients. BUT
+abs_imbalance 0.075→0.103 (ns), gain 0.248→0.191 (ns), acc_av 0.493→0.467 (p.014, HURTS).
+→ scale-channel intervention, not a performance improver (E3/E4 nuance transfers exactly).
+
+**R3 (frozen-rep scale c: audio×c, video×1/c; test).** Intervention WORKS: Spearman(c,ρ)
+=0.99, ρ 0.012→122. **Relative dominance FLAT** (slope −0.004, spearman −0.31) — magnitude
+does NOT reassign dominance. **Multimodal gain = sharp inverted-U peaked at c=1** (0.248 →
+≤0 at extremes); acc_av 0.493→0.17-0.25. → magnitude causally destroys INTEGRATION when
+perturbed, but doesn't reassign dominance (consistent with "static scale compensable":
+linear head absorbs constant scale).
+
+**Transfer.** Transfers: observational scale disparity (R1); normalization scale-channel
+effect (R2, ↔E3/E4); static-scale-compensability (R3 flat dominance, ↔E4/E4-EXTREME).
+NOT transferred (as tested): positive causal scale→dominance — R3 is frozen-rep/no-retrain,
+can't test the training-time E2 pathway. Ambiguous: magnitude→gain inverted-U (integration
+brittleness, not competition). E5/OGM not run (per instruction).
+
+**Verdict → PARTIAL SUPPORT.** GO/NO-GO for INCLUDE-50 = **HOLD**: central causal claim needs
+a TRAINING-TIME scale intervention on real data (new preregistration) before INCLUDE-50.
+0 failures, 0 divergence, GPU peak <8GB. Raw media + feature cache NOT committed.
+
+---
+
 ## 2026-09-20 — CREMA-D media UNBLOCKED + pipeline validated (smoke PASSED). No R1-R3 run.
 
 **Unblock.** LFS was accessible (not over quota). Obtained real media from official

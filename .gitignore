@@ -35,3 +35,7 @@ Thumbs.db
 # Keep results small: ignore the heavy raw per-run dumps but KEEP figures/tables/processed CSVs.
 # (comment the next line out if you want full raw provenance in git)
 # results/raw/
+
+# CREMA-D derived feature cache (large; regenerate via experiments/cremad_extract.py)
+data/cremad/cache/
+*.npy
