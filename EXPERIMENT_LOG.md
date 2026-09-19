@@ -4,6 +4,30 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-20 — CREMA-D real-world validation — BLOCKED (media absent). Pre-registered (PREREGISTRATION_CREMAD.md)
+
+**Goal.** Test whether the synthetic feature-scale mechanism transfers to real
+audio-video data (R1 observational, R2 normalization, R3 controlled scale intervention).
+
+**Blocker (Phase 2 audit).** Local `CREMA-D-master` has **only git-LFS pointer stubs**
+(all 7442 audio + 7442 video = 130 B each; stub declares real size ~72 KB). Folder has
+**no `.git`** → `git lfs pull` impossible locally. **media_present = 0/0.** No audio/
+video to encode → R1–R3 cannot run. Did NOT fabricate results.
+
+**Done (media-independent).** Structural audit: 7442 clips, 91 actors, 6 emotions
+(ANG/DIS/FEA/HAP/SAD 1271, NEU 1087), 12 sentences, 43F/48M. Frozen **actor-disjoint**
+split (seed 42, sex-stratified, 70/10/20): train 64 actors/5234, val 9/738, test
+18/1470, **0 actor overlap (asserted)**. Manifest built (`data/cremad_manifest.py` →
+data/cremad/ + results/cremad/). Full protocol pre-registered.
+
+**Classification → CREMA-E (INVALID — data availability). Decision → NO-GO/STOP** before
+INCLUDE-50 (same media risk, larger). Resolve media first (clone CREMA-D repo + LFS
+pull [may hit LFS quota], or provide a local media copy). Once manifest reports
+media_present>0, R1–R3 run under the frozen protocol with no further design choices.
+Report: reports/CREMAD_FINAL_REPORT.md.
+
+---
+
 ## 2026-09-20 — E5 (OGM-GE mechanistic comparison). Pre-registered (PREREGISTRATION_E5.md)
 
 **Question.** Do z-score (scale channel) and OGM-GE (optimization channel) correct
