@@ -1,0 +1,179 @@
+{
+  "baseline_weak": 0.1916800093650818,
+  "main_table_weak": {
+    "Balanced": {
+      "vanilla": 0.192,
+      "zscore": 0.185,
+      "ogm": 0.188,
+      "both": 0.182
+    },
+    "Scale-only 100x": {
+      "vanilla": 0.184,
+      "zscore": 0.202,
+      "ogm": 0.182,
+      "both": 0.193
+    },
+    "LR-only 100x": {
+      "vanilla": 0.086,
+      "zscore": 0.102,
+      "ogm": 0.085,
+      "both": 0.107
+    },
+    "Aligned 20x": {
+      "vanilla": 0.087,
+      "zscore": 0.139,
+      "ogm": 0.087,
+      "both": 0.133
+    },
+    "Aligned 100x": {
+      "vanilla": 0.002,
+      "zscore": 0.113,
+      "ogm": 0.003,
+      "both": 0.112
+    },
+    "Opposed 100x": {
+      "vanilla": 0.209,
+      "zscore": 0.104,
+      "ogm": 0.202,
+      "both": 0.094
+    }
+  },
+  "main_table_acc": {
+    "Balanced": {
+      "vanilla": 0.699,
+      "zscore": 0.663,
+      "ogm": 0.697,
+      "both": 0.665
+    },
+    "Scale-only 100x": {
+      "vanilla": 0.677,
+      "zscore": 0.67,
+      "ogm": 0.677,
+      "both": 0.673
+    },
+    "LR-only 100x": {
+      "vanilla": 0.537,
+      "zscore": 0.57,
+      "ogm": 0.531,
+      "both": 0.561
+    },
+    "Aligned 20x": {
+      "vanilla": 0.54,
+      "zscore": 0.618,
+      "ogm": 0.537,
+      "both": 0.62
+    },
+    "Aligned 100x": {
+      "vanilla": 0.447,
+      "zscore": 0.573,
+      "ogm": 0.452,
+      "both": 0.572
+    },
+    "Opposed 100x": {
+      "vanilla": 0.681,
+      "zscore": 0.559,
+      "ogm": 0.68,
+      "both": 0.567
+    }
+  },
+  "comparisons": {
+    "C1_scaleonly_vanilla_vs_zscore": {
+      "mean_diff": 0.017599992752075206,
+      "ci95": 0.01352485802087625,
+      "cohen_d": 1.1406458990895096,
+      "p": 0.06326771358182093,
+      "m1_mean": 0.1840800189971924,
+      "m2_mean": 0.20168001174926756
+    },
+    "C1_scaleonly_vanilla_vs_ogm": {
+      "mean_diff": -0.0020800089836120585,
+      "ci95": 0.0028661625152034405,
+      "cohen_d": -0.6361147530700915,
+      "p": 0.22798341949610332,
+      "m1_mean": 0.1840800189971924,
+      "m2_mean": 0.1820000100135803
+    },
+    "C2_lronly_vanilla_vs_ogm": {
+      "mean_diff": -0.0001199924945831321,
+      "ci95": 0.004718024466121418,
+      "cohen_d": -0.022292817603827883,
+      "p": 0.9626331496688446,
+      "m1_mean": 0.08559999823570252,
+      "m2_mean": 0.08548000574111939
+    },
+    "C2_lronly_vanilla_vs_zscore": {
+      "mean_diff": 0.016520001888275144,
+      "ci95": 0.010834101664780212,
+      "cohen_d": 1.3365593710119699,
+      "p": 0.04039244646400457,
+      "m1_mean": 0.08559999823570252,
+      "m2_mean": 0.10212000012397766
+    },
+    "C4_aligned100_vanilla_vs_ogm": {
+      "mean_diff": 0.0007200038433074951,
+      "ci95": 0.001166822556336248,
+      "cohen_d": 0.5408801804095594,
+      "p": 0.2930844150158862,
+      "m1_mean": 0.0021199977397918703,
+      "m2_mean": 0.0028400015830993652
+    },
+    "C4_aligned100_zscore_vs_ogm": {
+      "mean_diff": -0.11032000660896302,
+      "ci95": 0.010942770429172478,
+      "cohen_d": -8.836861741347224,
+      "p": 3.869366701778899e-05,
+      "m1_mean": 0.11316000819206237,
+      "m2_mean": 0.0028400015830993652
+    },
+    "C4_aligned100_ogm_vs_both": {
+      "mean_diff": 0.10960000157356262,
+      "ci95": 0.007986609351614918,
+      "cohen_d": 12.028713673191241,
+      "p": 1.1359075535406412e-05,
+      "m1_mean": 0.0028400015830993652,
+      "m2_mean": 0.11244000315666199
+    },
+    "C4_aligned100_vanilla_vs_both": {
+      "mean_diff": 0.11032000541687012,
+      "ci95": 0.008489857540036796,
+      "cohen_d": 11.390031911485453,
+      "p": 1.4114358312378604e-05,
+      "m1_mean": 0.0021199977397918703,
+      "m2_mean": 0.11244000315666199
+    }
+  },
+  "grad_ratio_aligned100": {
+    "vanilla": 41.38139344909568,
+    "zscore": 0.5156327001974217,
+    "ogm": 42.562057390018715,
+    "both": 0.5313023397625725
+  },
+  "positive_control": {
+    "A_easier": {
+      "vanilla": 0.034,
+      "zscore": 0.032,
+      "ogm": 0.033,
+      "both": 0.031,
+      "ogm_minus_vanilla": -0.001
+    },
+    "V_easier": {
+      "vanilla": 0.035,
+      "zscore": 0.025,
+      "ogm": 0.036,
+      "both": 0.025,
+      "ogm_minus_vanilla": 0.001
+    }
+  },
+  "ogm_works_in_native_setting": false,
+  "ogm_modulation_active": true,
+  "ogm_k_aligned": {
+    "k_a": 0.7843889922595016,
+    "k_b": 0.7866445845533662
+  },
+  "flags": {
+    "zscore_fixes_scale": false,
+    "ogm_fixes_lr": false,
+    "zscore_fails_lr": true
+  },
+  "classification": "E5-D \u2014 OGM-GE does not correct the induced collapse (modulation active but ineffective)"
+}

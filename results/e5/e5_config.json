@@ -1,0 +1,111 @@
+{
+  "alpha": 0.1,
+  "gamma": 0.5,
+  "epochs": 40,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "arms": [
+    "vanilla",
+    "zscore",
+    "ogm",
+    "both"
+  ],
+  "conditions": [
+    [
+      "balanced",
+      1.0,
+      1.0,
+      {}
+    ],
+    [
+      "scale_only",
+      100.0,
+      1.0,
+      {}
+    ],
+    [
+      "scale_only",
+      0.01,
+      1.0,
+      {}
+    ],
+    [
+      "lr_only",
+      1.0,
+      100.0,
+      {}
+    ],
+    [
+      "lr_only",
+      1.0,
+      0.01,
+      {}
+    ],
+    [
+      "aligned_mod",
+      20.0,
+      20.0,
+      {}
+    ],
+    [
+      "aligned_mod",
+      0.05,
+      0.05,
+      {}
+    ],
+    [
+      "aligned_strong",
+      100.0,
+      100.0,
+      {}
+    ],
+    [
+      "aligned_strong",
+      0.01,
+      0.01,
+      {}
+    ],
+    [
+      "opposed",
+      100.0,
+      0.01,
+      {}
+    ],
+    [
+      "opposed",
+      0.01,
+      100.0,
+      {}
+    ],
+    [
+      "difficulty",
+      1.0,
+      1.0,
+      {
+        "margin_a": 2.5,
+        "margin_v": 1.0
+      }
+    ],
+    [
+      "difficulty",
+      1.0,
+      1.0,
+      {
+        "margin_a": 1.0,
+        "margin_v": 2.5
+      }
+    ]
+  ],
+  "base_lr": 0.001,
+  "fusion": "sum",
+  "collapse": {
+    "final_window": 5,
+    "halved": 0.5,
+    "stable": 0.6
+  }
+}

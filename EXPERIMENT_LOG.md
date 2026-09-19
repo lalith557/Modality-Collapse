@@ -4,6 +4,50 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-20 — E5 (OGM-GE mechanistic comparison). Pre-registered (PREREGISTRATION_E5.md)
+
+**Question.** Do z-score (scale channel) and OGM-GE (optimization channel) correct
+SEPARABLE components of modality imbalance? (H5-A/B/C.)
+
+**Config.** 4 arms {vanilla, z-score, OGM-GE, z-score+OGM-GE} × conditions
+{balanced, scale-only 100×, LR-only 100×, aligned 20×/100×, opposed 100×, +
+difficulty positive control} × 5 seeds = **260 runs**, 40ep, sum fusion. OGM-GE
+faithful (baselines/ogm_ge.py): per-modality softmax discrepancy, k=1−tanh(α·ratio),
+α=0.1, γ=0.5, applied to encoder grads. Frozen collapse def. 0 diverged.
+
+**Result (weak-modality contribution, baseline 0.192).**
+| cond | vanilla | z-score | OGM-GE | both |
+|---|---|---|---|---|
+| scale-only100 | 0.184 | 0.202 | 0.182 | 0.193 |
+| LR-only100 | 0.086 | 0.102 | **0.085** | 0.107 |
+| aligned20 | 0.087 | 0.139 | **0.087** | 0.133 |
+| aligned100 | 0.002 | **0.113** | **0.003** | 0.112 |
+| opposed100 | 0.209 | 0.104(hurts) | 0.202 | 0.094 |
+- z-score vs OGM on aligned100: d=−8.8, p=4e-5. OGM on LR-only: Δ=−0.000, p=0.96.
+  OGM→both: +0.110 = the z-score component (OGM adds nothing).
+- **Mechanism:** aligned |g_A|/|g_V| = 41 (vanilla) → 0.52 (z-score, fixed at source)
+  → 42.6 (OGM, unchanged). OGM modulation ACTIVE (k_A→0.57) but ineffective.
+- Positive control (difficulty): OGM Δweak ±0.001 (active, no effect — low headroom).
+
+**Interpretation (honest).** z-score corrects the scale/magnitude channel by
+rebalancing gradients at the source; OGM-GE (faithful, active) corrects NEITHER the
+scale nor the LR channel here — it attenuates the dominant update but can't enlarge
+the suppressed rep or unstarve the weak encoder. Decomposition only HALF-supported:
+z-score↔scale holds; NO tested method fixes the optimization channel. H5-B/C not
+supported. Our LR proxy (imposed starvation) ≠ OGM's greedy-dynamics target — so this
+is not a fair test of OGM in general (implementation verified faithful, not E5-E).
+
+**Classification → E5-D** (OGM-GE does not correct the induced collapse; implementation active).
+
+**Decision → HOLD** before real data. Scale channel is clean & real-data-testable;
+optimization channel unresolved. Min claim: scale-magnitude disparity → collapse via
+rep-magnitude suppression + gradient imbalance; normalization fixes it in the scale
+regime (neutral/harmful otherwise). Next: EITHER validate the narrowed scale-channel
+claim on CREMA-D, OR induce a natural greedy-dynamics (shared-LR) collapse where OGM
+applies and re-run E5. Full report: reports/E5_FINAL_REPORT.md.
+
+---
+
 ## 2026-09-19 — E4-EXTREME (extreme-ratio + long-horizon). Pre-registered (PREREGISTRATION_E4_EXTREME.md)
 
 **Question.** Does stronger aligned scale×LR asymmetry convert graded imbalance into
