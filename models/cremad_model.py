@@ -21,9 +21,13 @@ from models.heads import make_head
 class CremadMultimodalModel(nn.Module):
     def __init__(self, n_classes: int, rep_dim: int = 64, fusion: str = "sum",
                  normalization: str = "none", head: str = "linear",
-                 scale_injection: dict | None = None):
+                 scale_injection: dict | None = None, scale_first: bool = False):
         super().__init__()
         self.fusion = fusion
+        # scale_first=False (default) -> enc -> norm -> scale  (R1-R3 semantics).
+        # scale_first=True           -> enc -> scale -> norm  (so normalization can
+        #                               remove an imposed scale; used for H6).
+        self.scale_first = scale_first
         self.enc_a = AudioCNN(rep_dim)     # audio
         self.enc_v = VideoCNN(rep_dim)     # video
         self.norm_a = make_norm(normalization, rep_dim)
@@ -33,12 +37,20 @@ class CremadMultimodalModel(nn.Module):
                                    si.get("enabled", False))
         self.head = make_head(head, fused_dim(fusion, rep_dim, rep_dim), n_classes, 64)
 
+    def raw_encode(self, x_a, x_v):
+        """Encoder outputs BEFORE norm/scale (the 'learned' representation)."""
+        return self.enc_a(x_a), self.enc_v(x_v)
+
     def encode(self, x_a, x_v):
-        h_a = self.norm_a(self.enc_a(x_a))
-        h_v = self.norm_v(self.enc_v(x_v))
-        if self.scale.enabled:
-            h_a = self.scale.alpha_a * h_a
-            h_v = self.scale.alpha_v * h_v
+        h_a = self.enc_a(x_a); h_v = self.enc_v(x_v)
+        if self.scale_first:
+            if self.scale.enabled:
+                h_a = self.scale.alpha_a * h_a; h_v = self.scale.alpha_v * h_v
+            h_a = self.norm_a(h_a); h_v = self.norm_v(h_v)
+        else:
+            h_a = self.norm_a(h_a); h_v = self.norm_v(h_v)
+            if self.scale.enabled:
+                h_a = self.scale.alpha_a * h_a; h_v = self.scale.alpha_v * h_v
         return h_a, h_v
 
     def forward(self, x_a, x_v, mask_a: float = 1.0, mask_v: float = 1.0, return_reps: bool = False):
