@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Checkpoints / large binaries (commit only explicitly-selected ones)
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Datasets (never commit raw media / large data)
+data/raw/
+data/cache/
+*.wav
+*.mp3
+*.flv
+*.mp4
+*.avi
+*.npz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Keep results small: ignore the heavy raw per-run dumps but KEEP figures/tables/processed CSVs.
+# (comment the next line out if you want full raw provenance in git)
+# results/raw/

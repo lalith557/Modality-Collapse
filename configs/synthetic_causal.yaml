@@ -1,0 +1,67 @@
+# =============================================================================
+# E2 - Causal Scale Experiment (H2)
+# Controlled synthetic environment. Information content is held fixed while
+# feature magnitude (alpha) is varied. See data/synthetic.py for the model:
+#     x_m = alpha_m * (mu_y^m + sigma_m * epsilon)
+# =============================================================================
+experiment: e2_causal
+
+seed_policy:
+  seeds: [0, 1, 2, 3, 4]     # 5 seeds for reported results; use 3 for debugging
+  deterministic: true
+
+device:
+  type: cuda                 # user requirement: run on GPU
+  allow_cpu: false           # fail loudly if CUDA is unavailable
+  amp: false                 # tiny models -> no mixed precision needed
+
+data:
+  n_classes: 8
+  n_dim_a: 32
+  n_dim_v: 32
+  prototype_margin: 1.5      # headroom regime: ~0.55 unimodal probe acc (room for collapse to hurt)
+  sigma_a: 1.0               # per-modality noise std (controls info)
+  sigma_v: 1.0
+  alpha_a: 1.0               # feature-magnitude multiplier (overridden by sweep)
+  alpha_v: 1.0
+  n_train: 4000
+  n_val: 1000
+  n_test: 2000
+  prototype_seed: 12345      # FIXED across the whole sweep -> identical info structure
+
+model:
+  hidden_dim: 64
+  rep_dim: 32                # h_a and h_v dim; must match for sum fusion
+  fusion: sum                # sum | concat
+  normalization: none        # none | layernorm | zscore  (E3 varies this)
+  activation: relu
+
+train:
+  epochs: 40
+  batch_size: 256
+  lr: 0.001
+  lr_a: null                 # per-modality encoder lr (E4); null = shared lr
+  lr_v: null
+  optimizer: adam
+  weight_decay: 0.0
+
+scale_injection:
+  enabled: false             # E2 drives scale via DATA alpha, not rep-level injection
+  location: fusion_boundary
+  alpha_a: 1.0
+  alpha_v: 1.0
+
+diagnostic:
+  measure_every_epoch: true
+  early_epoch: 5             # PRE-REGISTERED early checkpoint for H1
+
+sweep:
+  variable: alpha_ratio      # alpha_a / alpha_v
+  # scale_mode:
+  #   geometric  -> alpha_a=sqrt(ratio), alpha_v=1/sqrt(ratio)  (symmetric; ratio is the ONLY variable)
+  #   anchored_v -> alpha_v=1, alpha_a=ratio                    (asymmetric; only A becomes tiny)
+  scale_mode: geometric
+  ratios: [0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
+
+output:
+  root: results

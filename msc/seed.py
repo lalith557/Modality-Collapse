@@ -1,0 +1,24 @@
+"""Deterministic seeding across python / numpy / torch."""
+from __future__ import annotations
+
+import os
+import random
+
+import numpy as np
+import torch
+
+
+def set_seed(seed: int, deterministic: bool = True) -> None:
+    """Seed all RNGs. When ``deterministic`` also make cuDNN reproducible.
+
+    Note: full determinism can slow things down slightly; acceptable for the
+    tiny models used here.
+    """
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    if deterministic:
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False

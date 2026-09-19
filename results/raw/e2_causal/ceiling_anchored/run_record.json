@@ -1,0 +1,140 @@
+{
+  "created_utc": "2026-09-19T13:37:04.885578+00:00",
+  "git_hash": null,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.12",
+  "config": {
+    "experiment": "e2_causal",
+    "seed_policy": {
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "deterministic": true
+    },
+    "device": {
+      "type": "cuda",
+      "allow_cpu": false,
+      "amp": false
+    },
+    "data": {
+      "n_classes": 8,
+      "n_dim_a": 32,
+      "n_dim_v": 32,
+      "prototype_margin": 3.0,
+      "sigma_a": 1.0,
+      "sigma_v": 1.0,
+      "alpha_a": 1.0,
+      "alpha_v": 1.0,
+      "n_train": 4000,
+      "n_val": 1000,
+      "n_test": 2000,
+      "prototype_seed": 12345
+    },
+    "model": {
+      "hidden_dim": 64,
+      "rep_dim": 32,
+      "fusion": "sum",
+      "normalization": "none",
+      "activation": "relu"
+    },
+    "train": {
+      "epochs": 40,
+      "batch_size": 256,
+      "lr": 0.001,
+      "lr_a": null,
+      "lr_v": null,
+      "optimizer": "adam",
+      "weight_decay": 0.0
+    },
+    "scale_injection": {
+      "enabled": false,
+      "location": "fusion_boundary",
+      "alpha_a": 1.0,
+      "alpha_v": 1.0
+    },
+    "diagnostic": {
+      "measure_every_epoch": true,
+      "early_epoch": 5
+    },
+    "sweep": {
+      "variable": "alpha_ratio",
+      "scale_mode": "geometric",
+      "ratios": [
+        0.05,
+        0.1,
+        0.2,
+        0.5,
+        1.0,
+        2.0,
+        5.0,
+        10.0,
+        20.0
+      ]
+    },
+    "output": {
+      "root": "results"
+    }
+  },
+  "role": "e2_experiment",
+  "tag": "ceiling_anchored",
+  "device": {
+    "device": "cuda",
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "capability": [
+      8,
+      9
+    ],
+    "total_mem_mb": 8585.2,
+    "torch_version": "2.11.0+cu128",
+    "cuda_version": "12.8"
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "ratios": [
+    0.05,
+    0.1,
+    0.2,
+    0.5,
+    1.0,
+    2.0,
+    5.0,
+    10.0,
+    20.0
+  ],
+  "scale_mode": "geometric",
+  "qc_warnings": [],
+  "h2_verdict": {
+    "verdict": "PARTIAL",
+    "spearman_ratio_vs_dominance": 0.478691859678984,
+    "delta_v_at_balanced": 0.09900001287460328,
+    "delta_v_at_ratio>=10": 0.09745000004768371,
+    "delta_a_at_balanced": 0.09980000257492065,
+    "delta_a_at_ratio<=0.1": 0.09840000271797181,
+    "note": "Preliminary automated read; the report interprets, not the code."
+  },
+  "h1_bonus": {
+    "pearson_r": 0.5087713642436096,
+    "pearson_p": 0.00035878233583799937,
+    "spearman_r": 0.43702634321960016,
+    "spearman_p": 0.002684741580580993
+  },
+  "artifacts": {
+    "runs_csv": "C:\\Users\\Lalith Gona\\HTML\\Deep Learning Project 2\\modality-scale-collapse\\results\\processed\\e2_causal_ceiling_anchored_runs.csv",
+    "figures": [
+      "C:\\Users\\Lalith Gona\\HTML\\Deep Learning Project 2\\modality-scale-collapse\\results\\figures\\ceiling_anchored\\e2_scale_vs_contribution.png",
+      "C:\\Users\\Lalith Gona\\HTML\\Deep Learning Project 2\\modality-scale-collapse\\results\\figures\\ceiling_anchored\\e2_scale_vs_rho.png",
+      "C:\\Users\\Lalith Gona\\HTML\\Deep Learning Project 2\\modality-scale-collapse\\results\\figures\\ceiling_anchored\\e2_scale_vs_gain.png",
+      "C:\\Users\\Lalith Gona\\HTML\\Deep Learning Project 2\\modality-scale-collapse\\results\\figures\\ceiling_anchored\\e2_scale_vs_masked_acc.png"
+    ],
+    "summary": "C:\\Users\\Lalith Gona\\HTML\\Deep Learning Project 2\\modality-scale-collapse\\results\\tables\\e2_causal_ceiling_anchored_summary.md"
+  }
+}

@@ -1,0 +1,21 @@
+# Core (synthetic milestone) -- all present in the verified environment.
+# PyTorch MUST be a CUDA build. This environment uses torch 2.11.0+cu128:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu128
+torch>=2.4            # installed: 2.11.0+cu128 (CUDA 12.8)
+numpy>=1.26           # installed: 2.4.3
+pandas>=2.0           # installed: 2.3.3
+scikit-learn>=1.3     # installed: 1.8.0
+scipy>=1.11           # installed: 1.17.1
+matplotlib>=3.7       # installed: 3.10.8
+pyyaml>=6.0           # installed: 6.0.3
+tqdm>=4.66            # installed: 4.67.3
+pytest>=8.0           # installed: 9.0.3
+
+# Later phases (CREMA-D / INCLUDE-50) -- NOT required for the synthetic milestone:
+#   torchvision matching the torch CUDA build:
+#     pip install torchvision --index-url https://download.pytorch.org/whl/cu128
+#   torchaudio matching the torch CUDA build (current install is CPU-only, must be replaced):
+#     pip install torchaudio --index-url https://download.pytorch.org/whl/cu128
+#   librosa>=0.10        # audio log-mel features (CREMA-D)
+#   opencv-python>=4.8   # installed: 4.13.0 (video frames)
+#   mediapipe>=0.10      # installed: 0.10.35 (hand/face/pose keypoints, INCLUDE-50)

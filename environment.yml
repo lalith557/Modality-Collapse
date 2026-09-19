@@ -1,0 +1,27 @@
+# Optional conda environment. The reference machine uses a system Python 3.13 +
+# pip (no conda); this file is provided for portability. PyTorch is installed via
+# pip from the CUDA wheel index (conda-forge torch is often CPU-only).
+name: modality-scale-collapse
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy>=1.26
+  - pandas>=2.0
+  - scikit-learn>=1.3
+  - scipy>=1.11
+  - matplotlib>=3.7
+  - pyyaml>=6.0
+  - tqdm>=4.66
+  - pytest>=8.0
+  - pip
+  - pip:
+      # CUDA build -- pick the index matching your driver (cu128 here):
+      - --extra-index-url https://download.pytorch.org/whl/cu128
+      - torch>=2.4
+      # later phases:
+      # - torchvision
+      # - torchaudio
+      # - librosa>=0.10
+      # - opencv-python>=4.8
+      # - mediapipe>=0.10

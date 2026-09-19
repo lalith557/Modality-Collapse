@@ -1,0 +1,222 @@
+{
+  "created_utc": "2026-09-19T13:34:49.406011+00:00",
+  "git_hash": null,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.12",
+  "config": {
+    "experiment": "e2_causal",
+    "seed_policy": {
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "deterministic": true
+    },
+    "device": {
+      "type": "cuda",
+      "allow_cpu": false,
+      "amp": false
+    },
+    "data": {
+      "n_classes": 8,
+      "n_dim_a": 32,
+      "n_dim_v": 32,
+      "prototype_margin": 1.5,
+      "sigma_a": 1.0,
+      "sigma_v": 1.0,
+      "alpha_a": 1.0,
+      "alpha_v": 1.0,
+      "n_train": 4000,
+      "n_val": 1000,
+      "n_test": 2000,
+      "prototype_seed": 12345
+    },
+    "model": {
+      "hidden_dim": 64,
+      "rep_dim": 32,
+      "fusion": "sum",
+      "normalization": "none",
+      "activation": "relu"
+    },
+    "train": {
+      "epochs": 5,
+      "batch_size": 256,
+      "lr": 0.001,
+      "lr_a": null,
+      "lr_v": null,
+      "optimizer": "adam",
+      "weight_decay": 0.0
+    },
+    "scale_injection": {
+      "enabled": false,
+      "location": "fusion_boundary",
+      "alpha_a": 1.0,
+      "alpha_v": 1.0
+    },
+    "diagnostic": {
+      "measure_every_epoch": true,
+      "early_epoch": 5
+    },
+    "sweep": {
+      "variable": "alpha_ratio",
+      "scale_mode": "geometric",
+      "ratios": [
+        0.05,
+        0.1,
+        0.2,
+        0.5,
+        1.0,
+        2.0,
+        5.0,
+        10.0,
+        20.0
+      ]
+    },
+    "output": {
+      "root": "results"
+    }
+  },
+  "role": "e2_run",
+  "result": {
+    "seed": 3,
+    "alpha_ratio": 0.2,
+    "alpha_a": 0.4472135954999579,
+    "alpha_v": 2.23606797749979,
+    "n_params": 8648,
+    "runtime_sec": 0.18662285804748535,
+    "final_rho": 0.373044697412184,
+    "early_epoch": 5,
+    "early_rho": 0.373044697412184,
+    "early_log_rho": -0.98605703431338,
+    "test": {
+      "acc_av": 0.6200000047683716,
+      "acc_a": 0.41050001978874207,
+      "acc_v": 0.5010000467300415,
+      "f1_av": 0.6196847558021545,
+      "f1_a": 0.3702782392501831,
+      "f1_v": 0.49713340401649475,
+      "delta_a": 0.11899995803833008,
+      "delta_v": 0.20949998497962952,
+      "multimodal_gain": 0.11899995803833008,
+      "dominance_a_minus_v": -0.09050002694129944
+    },
+    "val": {
+      "acc_av": 0.6130000352859497,
+      "acc_a": 0.38700002431869507,
+      "acc_v": 0.503000020980835,
+      "f1_av": 0.6117561459541321,
+      "f1_a": 0.3471921980381012,
+      "f1_v": 0.5035300850868225,
+      "delta_a": 0.11000001430511475,
+      "delta_v": 0.22600001096725464,
+      "multimodal_gain": 0.11000001430511475,
+      "dominance_a_minus_v": -0.11599999666213989
+    }
+  },
+  "rho_history": [
+    {
+      "epoch": 0,
+      "mean_norm_a": 0.8486937880516052,
+      "mean_norm_v": 2.8324007987976074,
+      "var_norm_a": 0.015579316765069962,
+      "var_norm_v": 0.3580794930458069,
+      "p50_norm_a": 0.8360885977745056,
+      "p50_norm_v": 2.7963173389434814,
+      "rho": 0.29963760369361825,
+      "log_rho": -1.2051815222191142,
+      "val_acc_av": 0.15000000596046448,
+      "val_delta_a": 0.003999993205070496,
+      "val_delta_v": 0.03400000184774399,
+      "val_gain": 0.003999993205070496
+    },
+    {
+      "epoch": 1,
+      "mean_norm_a": 0.9150295853614807,
+      "mean_norm_v": 2.8535053730010986,
+      "var_norm_a": 0.02029235288500786,
+      "var_norm_v": 0.39578595757484436,
+      "p50_norm_a": 0.896173894405365,
+      "p50_norm_v": 2.8031728267669678,
+      "rho": 0.3206686043135509,
+      "log_rho": -1.1373470744449454,
+      "val_acc_av": 0.3750000298023224,
+      "val_delta_a": 0.058000028133392334,
+      "val_delta_v": 0.20500002801418304,
+      "val_gain": 0.058000028133392334
+    },
+    {
+      "epoch": 2,
+      "mean_norm_a": 0.9961465001106262,
+      "mean_norm_v": 3.197066307067871,
+      "var_norm_a": 0.031164025887846947,
+      "var_norm_v": 0.5358959436416626,
+      "p50_norm_a": 0.9779084324836731,
+      "p50_norm_v": 3.1271140575408936,
+      "rho": 0.3115814326116442,
+      "log_rho": -1.166094554014965,
+      "val_acc_av": 0.4830000102519989,
+      "val_delta_a": 0.08399999141693115,
+      "val_delta_v": 0.19900000095367432,
+      "val_gain": 0.08399999141693115
+    },
+    {
+      "epoch": 3,
+      "mean_norm_a": 1.1825356483459473,
+      "mean_norm_v": 3.7390036582946777,
+      "var_norm_a": 0.06143303960561752,
+      "var_norm_v": 0.8133674263954163,
+      "p50_norm_a": 1.14985191822052,
+      "p50_norm_v": 3.6487045288085938,
+      "rho": 0.31627025711049717,
+      "log_rho": -1.1511581868874448,
+      "val_acc_av": 0.5440000295639038,
+      "val_delta_a": 0.0990000069141388,
+      "val_delta_v": 0.20200002193450928,
+      "val_gain": 0.0990000069141388
+    },
+    {
+      "epoch": 4,
+      "mean_norm_a": 1.4596284627914429,
+      "mean_norm_v": 4.360168933868408,
+      "var_norm_a": 0.12902818620204926,
+      "var_norm_v": 1.1872632503509521,
+      "p50_norm_a": 1.4057923555374146,
+      "p50_norm_v": 4.279437065124512,
+      "rho": 0.33476419949087577,
+      "log_rho": -1.094328877115184,
+      "val_acc_av": 0.581000030040741,
+      "val_delta_a": 0.09600001573562622,
+      "val_delta_v": 0.20500001311302185,
+      "val_gain": 0.09600001573562622
+    },
+    {
+      "epoch": 5,
+      "mean_norm_a": 1.8175455331802368,
+      "mean_norm_v": 4.8721923828125,
+      "var_norm_a": 0.24370107054710388,
+      "var_norm_v": 1.5351482629776,
+      "p50_norm_a": 1.7628653049468994,
+      "p50_norm_v": 4.816623210906982,
+      "rho": 0.373044697412184,
+      "log_rho": -0.98605703431338,
+      "val_acc_av": 0.6130000352859497,
+      "val_delta_a": 0.11000001430511475,
+      "val_delta_v": 0.22600001096725464,
+      "val_gain": 0.11000001430511475
+    }
+  ],
+  "device": {
+    "device": "cuda",
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "capability": [
+      8,
+      9
+    ],
+    "total_mem_mb": 8585.2,
+    "torch_version": "2.11.0+cu128",
+    "cuda_version": "12.8"
+  }
+}
