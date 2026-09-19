@@ -1,0 +1,35 @@
+{
+  "n_clips": 7442,
+  "n_actors": 91,
+  "n_emotions": 6,
+  "n_sentences": 12,
+  "audio_categories": {
+    "present": 7442
+  },
+  "video_categories": {
+    "present": 7442
+  },
+  "duplicate_clip_ids": 0,
+  "disk_audio_files": 7442,
+  "manifest_minus_disk": 0,
+  "disk_minus_manifest": 0,
+  "sample_size": 72,
+  "audio_riff_signature_ok": 72,
+  "video_flv_signature_ok": 72,
+  "audio_decoded_ok": 72,
+  "video_decoded_ok": 72,
+  "audio_duration_s": {
+    "min": 1.4,
+    "max": 3.64,
+    "mean": 2.44
+  },
+  "audio_sample_rates": [
+    16000
+  ],
+  "video_frame_count": {
+    "min": 42,
+    "max": 109,
+    "mean": 73.0
+  },
+  "decode_failures": []
+}

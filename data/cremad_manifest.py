@@ -14,8 +14,20 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-CREMAD = Path(r"C:/Users/Lalith Gona/HTML/Deep Learning Project 2/CREMA-D-master")
 ROOT = Path(__file__).resolve().parents[1]
+_BASE = Path(r"C:/Users/Lalith Gona/HTML/Deep Learning Project 2")
+
+
+def _pick_media_root() -> Path:
+    """Prefer the LFS-pulled full clone if its media are real; else the stub copy."""
+    full = _BASE / "CREMA-D-full"
+    probe = full / "AudioWAV" / "1001_DFA_ANG_XX.wav"
+    if probe.exists() and probe.stat().st_size > 1024:
+        return full
+    return _BASE / "CREMA-D-master"
+
+
+CREMAD = _pick_media_root()
 EMO = {"ANG": 0, "DIS": 1, "FEA": 2, "HAP": 3, "NEU": 4, "SAD": 5}
 SPLIT_SEED = 42
 FRAC = {"train": 0.70, "val": 0.10, "test": 0.20}

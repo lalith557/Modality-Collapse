@@ -4,6 +4,35 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-20 — CREMA-D media UNBLOCKED + pipeline validated (smoke PASSED). No R1-R3 run.
+
+**Unblock.** LFS was accessible (not over quota). Obtained real media from official
+repo (github.com/CheyneyComputerScience/CREMA-D, HEAD 1658cd34): shallow no-smudge
+clone → `git lfs pull` audio + video into `../CREMA-D-full/` (~2.7 GB, outside repo).
+oid matches CREMA-D-master stub (same dataset).
+
+**Validation (results/cremad/cremad_validation.json).** 7442 clips/91 actors/6 emo/
+12 sent (IDENTITY_OK). audio present 7442/7442, video 7442/7442; 0 stub/zero/missing/
+dup; manifest↔disk consistent. Sample 72: RIFF 72/72, FLV 72/72, decoded 72/72, 0
+failures. Audio 16 kHz, 1.4-3.64 s. Video 42-109 frames. MEDIA_OK. Split preserved
+byte-identical (train 64/5234, val 9/738, test 18/1470, 0 overlap).
+
+**Pipeline (data/crema_d.py, models/cremad_{encoders,model}.py, experiments/cremad_smoke.py).**
+Audio→log-mel[1,64,188] (torchaudio+scipy), video→[8,1,64,64] (cv2/ffmpeg). Model
+mirrors MultimodalModel → reuses rho/masking/z-score/scale-injection unchanged.
+Encoders capacity-matched (16160=16160 params).
+
+**Smoke PASSED.** 36 clips (actor-disjoint), loss 1.85→1.78, checkpoint reload OK,
+GPU peak 245 MB, 4.1 s, 0 leakage. Scale-injection verified: alpha_audio=5 → rho
+2.28→11.38 (exactly x5). [descriptive only] natural audio/video scale disparity at
+init rho~2.28 (audio 2.07 / video 0.91), grad-ratio ~5.5 — NOT an R1 result.
+
+**Status → READY (media validated; smoke passed). No scientific claim yet.**
+R1-R3 technically ready under frozen PREREGISTRATION_CREMAD.md; NOT run (stop after
+smoke). Report: reports/CREMAD_MEDIA_VALIDATION.md. Raw media not committed.
+
+---
+
 ## 2026-09-20 — CREMA-D real-world validation — BLOCKED (media absent). Pre-registered (PREREGISTRATION_CREMAD.md)
 
 **Goal.** Test whether the synthetic feature-scale mechanism transfers to real

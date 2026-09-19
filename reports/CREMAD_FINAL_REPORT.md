@@ -3,7 +3,19 @@
 _Preregistration: `PREREGISTRATION_CREMAD.md` (frozen before results). E1–E5 unmodified._
 _Labels: **[OBS]** observed · **[STAT]** statistical · **[MECH]** mechanistic · **[SPEC]** speculation._
 
-> **Status: the causal experiments (R1–R3) were NOT run** because the CREMA-D audio
+> **UPDATE 2026-09-20: the media blocker is RESOLVED.** Real CREMA-D media were
+> obtained from the official GitHub repo via Git LFS (not over quota), integrity-
+> validated (7442/7442 audio+video present, 0 decode failures), and the pipeline
+> smoke test **PASSED** — see `reports/CREMAD_MEDIA_VALIDATION.md`. The
+> actor-disjoint split is preserved byte-identically. **R1–R3 are now technically
+> ready but have NOT been run** (stopped after the smoke test per instruction).
+> Sections 7–15 below (the causal experiments) therefore remain pending; no
+> scientific transfer claim is made yet. The original blocker text is kept below for
+> the record.
+>
+> ---
+>
+> _(original, superseded)_ **Status: the causal experiments (R1–R3) were NOT run** because the CREMA-D audio
 > and video media are **not present** on disk (git-LFS pointer stubs). Everything that
 > is media-independent — audit, actor-disjoint split, manifest, and the frozen
 > protocol — is complete. Classification: **CREMA-E (INVALID — data availability)**.
