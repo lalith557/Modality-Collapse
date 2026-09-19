@@ -1,0 +1,2 @@
+total_runs,expected,cells,seeds_per_cell_ok,n_scales,n_lrs,n_seeds,norms,nonfinite_are_only_scale1_comp,lr_param_max_err,scale_param_max_err,baseline_weak,baseline_std,balanced_acc
+810,810,162,True,9,9,5,"['none', 'zscore']",True,9.519295074422729e-17,5.551115123125783e-17,0.19168000936508175,0.013404917133940712,0.6985000371932983

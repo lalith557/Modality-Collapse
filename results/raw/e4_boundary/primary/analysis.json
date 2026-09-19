@@ -1,0 +1,153 @@
+{
+  "created_utc": "2026-09-19T15:38:55.164624+00:00",
+  "git_hash": "27f2779bbc04e8cc3cbb6bfa6560b51a015f4f07",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.12",
+  "config": {
+    "experiment": "e4_boundary",
+    "seed_policy": {
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "deterministic": true
+    },
+    "device": {
+      "type": "cuda",
+      "allow_cpu": false
+    },
+    "data": {
+      "n_classes": 8,
+      "n_dim_a": 32,
+      "n_dim_v": 32,
+      "prototype_margin": 1.5,
+      "sigma_a": 1.0,
+      "sigma_v": 1.0,
+      "alpha_a": 1.0,
+      "alpha_v": 1.0,
+      "n_train": 4000,
+      "n_val": 1000,
+      "n_test": 2000,
+      "prototype_seed": 12345
+    },
+    "model": {
+      "hidden_dim": 64,
+      "rep_dim": 32,
+      "fusion": "sum",
+      "normalization": "zscore",
+      "activation": "relu",
+      "head": "linear"
+    },
+    "train": {
+      "epochs": 40,
+      "batch_size": 256,
+      "lr": 0.001,
+      "lr_a": 0.00447213595499958,
+      "lr_v": 0.00022360679774997898,
+      "optimizer": "adam",
+      "weight_decay": 0.0
+    },
+    "scale_injection": {
+      "enabled": false
+    },
+    "diagnostic": {
+      "early_epoch": 5
+    },
+    "e4": {
+      "interventions": [
+        "none",
+        "zscore"
+      ],
+      "scale_ratios": [
+        0.05,
+        0.1,
+        0.2,
+        0.5,
+        1.0,
+        2.0,
+        5.0,
+        10.0,
+        20.0
+      ],
+      "lr_ratios": [
+        0.05,
+        0.1,
+        0.2,
+        0.5,
+        1.0,
+        2.0,
+        5.0,
+        10.0,
+        20.0
+      ],
+      "final_window": 5,
+      "collapse_halved_frac": 0.5,
+      "collapse_stable_frac": 0.6
+    },
+    "output": {
+      "root": "results"
+    }
+  },
+  "role": "e4_experiment",
+  "tag": "primary",
+  "device": {
+    "device": "cuda",
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "capability": [
+      8,
+      9
+    ],
+    "total_mem_mb": 8585.2,
+    "torch_version": "2.11.0+cu128",
+    "cuda_version": "12.8"
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "scales": [
+    0.05,
+    0.1,
+    0.2,
+    0.5,
+    1.0,
+    2.0,
+    5.0,
+    10.0,
+    20.0
+  ],
+  "lrs": [
+    0.05,
+    0.1,
+    0.2,
+    0.5,
+    1.0,
+    2.0,
+    5.0,
+    10.0,
+    20.0
+  ],
+  "baseline_weak": 0.1916800093650818,
+  "boundary": {
+    "r2_scale_only": 0.015471862460359254,
+    "r2_lr_only": 0.2574058097922979,
+    "r2_scale_plus_lr": 0.272877672252657,
+    "r2_plus_aligned_interaction": 0.9095127203596989,
+    "mean_severity_by_alignment": {
+      "aligned(+1)": 0.2412223417187977,
+      "orthogonal(0)": 0.07658597608766468,
+      "opposed(-1)": 0.02959358865847806
+    },
+    "n_persistent_cells_none": 2,
+    "n_persistent_cells_zscore": 0
+  },
+  "outcome": "B \u2014 persistent collapse appears but z-score does not reliably recover it",
+  "boundary_type": "C (clear alignment-driven boundary: collapse when scale & LR disfavour the same modality)",
+  "qc_warnings": []
+}

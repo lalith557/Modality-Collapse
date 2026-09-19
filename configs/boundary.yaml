@@ -1,0 +1,62 @@
+# =============================================================================
+# E4 - Scale x Learning-rate boundary. See PREREGISTRATION_E4.md.
+# Isolation: information EQUAL; only alpha (scale) and per-encoder lr vary.
+# =============================================================================
+experiment: e4_boundary
+
+seed_policy:
+  seeds: [0, 1, 2, 3, 4]
+  deterministic: true
+
+device:
+  type: cuda
+  allow_cpu: false
+
+data:                          # equal-information config (same as E2/E3)
+  n_classes: 8
+  n_dim_a: 32
+  n_dim_v: 32
+  prototype_margin: 1.5
+  sigma_a: 1.0
+  sigma_v: 1.0
+  alpha_a: 1.0                 # overridden per cell
+  alpha_v: 1.0
+  n_train: 4000
+  n_val: 1000
+  n_test: 2000
+  prototype_seed: 12345
+
+model:
+  hidden_dim: 64
+  rep_dim: 32
+  fusion: sum                  # 'concat' for the robustness grid
+  normalization: none          # overridden per intervention
+  activation: relu
+  head: linear
+
+train:
+  epochs: 40
+  batch_size: 256
+  lr: 0.001                    # base_lr; per-encoder lr_a/lr_v set per cell
+  lr_a: null
+  lr_v: null
+  optimizer: adam
+  weight_decay: 0.0
+
+scale_injection:
+  enabled: false
+
+diagnostic:
+  early_epoch: 5
+
+e4:
+  interventions: [none, zscore]
+  # signed geometric ratios (gaps {1,2,5,10,20} + reciprocals)
+  scale_ratios: [0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
+  lr_ratios:    [0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
+  final_window: 5              # last N epochs for the persistent-collapse window
+  collapse_halved_frac: 0.5    # weak <= 0.5*baseline
+  collapse_stable_frac: 0.6    # window stays <= 0.6*baseline
+
+output:
+  root: results

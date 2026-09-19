@@ -4,6 +4,52 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-19 — E4 (scale × learning-rate boundary). Pre-registered (PREREGISTRATION_E4.md)
+
+**Question.** Does asymmetric optimization (per-encoder LR ratio) block the learned
+compensation and turn transient scale-driven imbalance into persistent collapse?
+
+**Config.** Signed 9×9 grid: scale ratio × LR ratio ∈ {0.05..20} (geometric,
+reciprocals) × {none, z-score} × 5 seeds × 40 epochs = **810 runs**, equal
+information, sum fusion. Robustness: concat × 3 seeds. GPU. QC clean (810/810,
+5 seeds/cell, LR/scale exact to 1e-16, balanced weak 0.192 matches E2/E3).
+
+**Result.**
+- **Aligned interaction robust:** severity aligned **0.244 [0.220,0.270]** vs
+  opposed **0.045 [0.036,0.054]**; response-surface OLS (R²=0.70) aligned term
+  p=7e-117; LR main effect (0.048) > scale main effect (0.013).
+- **Persistent collapse RARE:** frozen rule → **2/81 cells (none), 0/81 (z-score),
+  0/81 (concat)** — only the extreme aligned corners (20×/20×, 0.05×/0.05×).
+  Run-collapse 8.7% of aligned runs, 3.5% overall.
+- **Mechanism = compensation failure:** residual |logρ| aligned 0.74 vs opposed
+  0.20; Spearman(residual, severity)=**0.75**. Trajectories: pure-scale recovers
+  fully by ep10 (transient); aligned (20,20) ρ stays ~1.6, weak crawls to 0.095
+  (persistent); opposed ρ crashes to 0 by ep5 (fast recovery).
+- **z-score regime-dependent:** OLS norm:scale=−0.018 and norm:align=−0.014 cancel
+  the base terms (removes scale/alignment collapse); norm:LR=+0.025 (can't fix LR).
+  Recovers weak +0.045 in collapse cells (0.079→0.131), but −0.024 acc overall.
+- **Mild A/V asymmetry:** aligned-corner severity A-up 0.217 vs V-up 0.272 (MWU p=0.039).
+
+**Interpretation (honest).** The scale×LR interaction is real, significant and
+mechanistically explained (compensation blocked by aligned unfavourable LR), but at
+ratios ≤20× / 40 epochs it mostly yields a **graded severity surface**, not
+widespread persistent collapse (2/81). z-score neutralises the scale/alignment
+channel (not the LR channel) and partially rescues the collapse corners — a
+regime-dependent benefit absent in scale-only E3.
+
+**Verdict → OUTCOME B (PARTIAL SUPPORT).** Not A (persistent collapse rare), not
+C/D (interaction is real and normalization alters the regime).
+
+**Failure modes.** 40-epoch operational "persistence"; ratios capped 20×; single
+generator; mild A/V asymmetry; z-score init-time stats.
+
+**Next action (GO/NO-GO).** Conditional GO: refine before real data — a NEW
+pre-registered extreme-ratio/long-horizon grid (aligned gaps >20×, ~100–200 ep) to
+see if the collapse region genuinely expands; then E5 (OGM-GE) only in the
+aligned-collapse region. Hold CREMA-D/INCLUDE. Full report: reports/E4_FINAL_REPORT.md.
+
+---
+
 ## 2026-09-19 — E3 (per-modality normalization, H3) + compensation analysis
 
 **Hypothesis (H3).** Per-modality normalization prevents the **early** optimization
