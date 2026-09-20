@@ -206,6 +206,8 @@ def _analyze(fin, tj, out):
     a["compensation_inertial10"] = {"rho_enc": float(i10.rho_enc.mean()), "rho_fusion": float(i10.rho_fusion.mean()),
                                     "comp_frac": float(i10.compensation.mean())}
     zs = ok[ok.norm == "zscore"]; a["normalization"] = {}
+    zsb = zs[(zs.alpha_depth == 1) & (zs.alpha_inertial == 1)]
+    a["zscore_baseline_dominance"] = float(zsb.dominance_depth_minus_inertial.mean()) if len(zsb) else float("nan")
     for (aa, av) in [(10.0, 1.0), (1.0, 10.0)]:
         n_ = none[(none.alpha_depth == aa) & (none.alpha_inertial == av)]
         z_ = zs[(zs.alpha_depth == aa) & (zs.alpha_inertial == av)]
@@ -302,13 +304,17 @@ def _figures(tj, ag, none, a, out):
     ax.legend(fontsize=8); ax.grid(alpha=0.25)
     fig.tight_layout(); fig.savefig(fig_dir / "utd_TS_compensation.png", dpi=150); plt.close(fig)
 
-    # normalization
+    # normalization (z-score baseline uses the ACTUAL z-score (1,1) dominance, not the none baseline)
     fig, ax = plt.subplots(figsize=(7, 4.4))
     conds = ["d1_i1", "d10_i1", "d1_i10"]; labels = ["baseline", "depth x10", "inertial x10"]
     xn = np.arange(len(conds))
-    none_dom = [a["normalization"].get(c, {}).get("none_dominance", a["baseline_dominance"] if c == "d1_i1" else np.nan) for c in conds]
-    zs_dom = [a["baseline_dominance"] if c == "d1_i1" else a["normalization"].get(c, {}).get("zscore_dominance", np.nan) for c in conds]
-    none_dom[0] = a["baseline_dominance"]
+    zs_base = a.get("zscore_baseline_dominance", a["baseline_dominance"])
+    none_dom = [a["baseline_dominance"],
+                a["normalization"]["d10_i1"]["none_dominance"],
+                a["normalization"]["d1_i10"]["none_dominance"]]
+    zs_dom = [zs_base,
+              a["normalization"]["d10_i1"]["zscore_dominance"],
+              a["normalization"]["d1_i10"]["zscore_dominance"]]
     ax.bar(xn - 0.2, none_dom, 0.4, label="none", color="#d62728")
     ax.bar(xn + 0.2, zs_dom, 0.4, label="z-score", color="#1f77b4")
     ax.axhline(0, color="k", lw=0.6); ax.set_xticks(xn); ax.set_xticklabels(labels)

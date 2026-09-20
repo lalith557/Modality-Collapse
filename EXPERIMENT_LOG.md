@@ -4,6 +4,48 @@ Running log. Newest first. Each entry: hypothesis / config / result / interpreta
 
 ---
 
+## 2026-09-20 — UTD-MHAD training-time scale (cross-dataset validation of H6). Verdict: PARTIAL REPLICATION. Pre-registered (PREREGISTRATION_UTD_MHAD_SCALE.md)
+
+**Question.** Does the H6 training-time feature-scale mechanism transfer to a substantially
+different real dataset — UTD-MHAD action recognition, depth camera + wearable inertial?
+
+**Config.** Modality A=depth (16-frame 32×32 clips), B=inertial (6ch×128 @50Hz). Official
+cross-subject split train {1,3,5}/val {7}/**test {2,4,6,8}** (subject-disjoint, verified; 861
+usable = depth∩inertial, 0 missing). Matched encoders (depth 16160 / inertial 17552 params),
+sum fusion, in-graph scale (scale_first=True), trainable encoders, Adam 1e-3, batch 32, 60 ep,
+5 seeds. Conditions none {baseline, depth×5/×10, inertial×5/×10} + zscore {baseline, depth×10,
+inertial×10}. 40 runs, **0 diverged**. Encoder-input caching (valid).
+
+**Baseline utility (established, not assumed).** depth-only 0.036 (≈chance 1/27), inertial-only
+0.227, multimodal 0.632, gain +0.405 → **more-informative modality = INERTIAL (roles flipped vs
+CREMA-D)**. Depth-only masking degenerate (≈chance) → depth read via gain/dominance only.
+
+**Result (none, test).** dominance (acc_depth−acc_inertial) & gain by imposed scale:
+- baseline: dom −0.191, gain +0.405, ρ_fus 0.56
+- depth×5/×10: dom −0.193/−0.198 (flat), gain +0.398/+0.400 (preserved), ρ_enc 0.12/0.06, comp 1.34/1.24 (FULL)
+- inertial×5: dom −0.501, gain +0.136, ρ_enc 1.57, comp 0.19
+- inertial×10: dom **−0.615**, gain **+0.053**, ρ_fus 0.19, ρ_enc 1.94, comp 0.13 (PARTIAL)
+Spearman(imposed,dom)=0.757 (asymmetric); inertial×10−baseline: Δdom −0.424 (p<1e-4, d=−9.47),
+Δgain −0.353 (p=7e-4, d=−4.26); consistent across all 4 test subjects & 5 seeds.
+
+**Key findings.** (1) Core H6 mechanism REPLICATES with roles set by data: amplifying the
+INFORMATIVE modality (inertial) entrenches its dominance + collapses gain (partial ~13-19%
+compensation); amplifying the WEAK modality (depth) is fully/over-compensated (comp ~1.24-1.34),
+gain preserved. (2) Compensation asymmetric, Spearman(imposed,ρ_enc)=−0.886 — same logic as H6.
+(3) z-score BLOCKS pathway: inertial×10 dom −0.615→−0.299, ρ_fus 0.19→0.84; all conditions
+converge to z-score baseline ≈−0.30. (4) Natural ρ_depth/inertial≈0.56.
+
+**Verdict = PARTIAL REPLICATION** (conservative). Core mechanism replicates, but effect is
+ONE-SIDED (only informative-modality amplification moves contribution; weak fully compensated) +
+depth-only readout degenerate. The frozen auto-classifier's z-score-suppression gate is anchored
+to depth×10 (already compensated → ill-posed), so it did not auto-label SUPPORT even though
+z-score clearly suppresses the effect on the inertial×10 side. Classifier NOT retuned to force
+SUPPORT. Implication: training-time scale altered learned contributions in BOTH real settings
+(audio-video AND depth-inertial), utility-dependent, normalization-suppressible — strengthens
+generality, not a universal law. E1-E5 / CREMA-D R1-R3/H6 unchanged. **Next: STOP; await review.**
+
+---
+
 ## 2026-09-20 — CREMA-D training-time scale (H6). Verdict: SUPPORT. Pre-registered (PREREGISTRATION_CREMAD_TRAINING_SCALE.md)
 
 **Question (H6).** Does imposing modality scale DURING training (in-graph, encoders

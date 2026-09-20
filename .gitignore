@@ -43,3 +43,6 @@ data/cremad/cache/
 # UTD-MHAD encoder-input cache + any raw media (regenerate via experiments/utd_extract.py)
 data/utd_mhad/cache/
 data/utd_mhad/raw/
+
+# UTD-MHAD manifest holds absolute local media paths (regenerate via experiments/utd_audit.py)
+results/utd_mhad/utd_manifest.csv
