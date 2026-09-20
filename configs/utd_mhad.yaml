@@ -1,0 +1,51 @@
+# =============================================================================
+# UTD-MHAD training-time scale intervention (cross-dataset validation of H6).
+# Frozen per PREREGISTRATION_UTD_MHAD_SCALE.md. Set BEFORE any full run / test look.
+# Modality A = DEPTH (Kinect optical), Modality B = INERTIAL (wearable IMU 6ch).
+# =============================================================================
+experiment: utd_mhad_scale
+
+seed_policy:
+  seeds: [0, 1, 2, 3, 4]         # same seed set as CREMA-D H6
+  deterministic: true
+
+device:
+  type: cuda
+  allow_cpu: false
+
+data:
+  n_classes: 27                  # 27 UTD-MHAD actions
+  raw_dir: ../UTD-MHAD           # sibling of the repo; holds Depth/ and Inertial/ (NOT committed)
+  cache_dir: data/utd_mhad/cache # cached ENCODER INPUTS (float16); gitignored
+  split:                         # official cross-subject; test unchanged
+    train: [1, 3, 5]
+    val:   [7]
+    test:  [2, 4, 6, 8]
+  depth:
+    n_frames: 16
+    hw: 32                       # resize frames to 32x32
+  inertial:
+    length: 128                  # linear-resample time to 128 samples
+    channels: 6                  # 3 accel + 3 gyro
+    # per-channel standardization stats are fit on TRAIN only during extract and written here:
+    train_mean: null
+    train_std: null
+
+model:
+  rep_dim: 64
+  fusion: sum
+  head: linear
+
+train:
+  epochs: 60
+  batch_size: 32
+  lr: 0.001
+  optimizer: adam
+  weight_decay: 0.0
+
+# scale conditions handled in the runner (mirror H6):
+#   none:   [(1,1),(5,1),(10,1),(1,5),(1,10)]   (alpha_depth, alpha_inertial)
+#   zscore: [(1,1),(10,1),(1,10)]
+
+output:
+  root: results/utd_mhad

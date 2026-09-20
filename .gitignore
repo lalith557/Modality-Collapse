@@ -39,3 +39,7 @@ Thumbs.db
 # CREMA-D derived feature cache (large; regenerate via experiments/cremad_extract.py)
 data/cremad/cache/
 *.npy
+
+# UTD-MHAD encoder-input cache + any raw media (regenerate via experiments/utd_extract.py)
+data/utd_mhad/cache/
+data/utd_mhad/raw/
