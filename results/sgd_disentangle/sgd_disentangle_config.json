@@ -1,0 +1,73 @@
+{
+  "optimizer": "sgd",
+  "sgd": {
+    "lr": 0.001,
+    "momentum": 0.9,
+    "weight_decay": 0.0,
+    "scheduler": null,
+    "grad_clip": null
+  },
+  "adam_reference": {
+    "lr": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0.0
+  },
+  "git_commit": "4465ebcfb99d0a3d572f34e1182e8ec218c25efc",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "alphas": [
+    1.0,
+    10.0,
+    100.0
+  ],
+  "arms": [
+    "baseline",
+    "forward",
+    "gradient",
+    "ordinary"
+  ],
+  "batch_size": 256,
+  "epochs": 40,
+  "model": {
+    "hidden_dim": 64,
+    "rep_dim": 32,
+    "fusion": "sum",
+    "normalization": "none",
+    "activation": "relu",
+    "head": "linear"
+  },
+  "data": {
+    "n_classes": 8,
+    "n_dim_a": 32,
+    "n_dim_v": 32,
+    "prototype_margin": 1.5,
+    "sigma_a": 1.0,
+    "sigma_v": 1.0,
+    "alpha_a": 1.0,
+    "alpha_v": 1.0,
+    "n_train": 4000,
+    "n_val": 1000,
+    "n_test": 2000,
+    "prototype_seed": 12345
+  },
+  "device": {
+    "device": "cuda",
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "capability": [
+      8,
+      9
+    ],
+    "total_mem_mb": 8585.2,
+    "torch_version": "2.11.0+cu128",
+    "cuda_version": "12.8"
+  }
+}

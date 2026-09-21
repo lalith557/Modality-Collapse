@@ -1,0 +1,45 @@
+{
+  "scalar": {
+    "baseline": {
+      "forward_mult": 1.0,
+      "backward_mult": 1.0,
+      "expected_forward": 1,
+      "expected_backward": 1,
+      "pass": true
+    },
+    "forward": {
+      "forward_mult": 10.0,
+      "backward_mult": 1.0,
+      "expected_forward": 10.0,
+      "expected_backward": 1,
+      "pass": true
+    },
+    "gradient": {
+      "forward_mult": 1.0,
+      "backward_mult": 10.0,
+      "expected_forward": 1,
+      "expected_backward": 10.0,
+      "pass": true
+    },
+    "ordinary": {
+      "forward_mult": 10.0,
+      "backward_mult": 10.0,
+      "expected_forward": 10.0,
+      "expected_backward": 10.0,
+      "pass": true
+    }
+  },
+  "checks": {
+    "gradient_only_forward_identical_to_baseline": true,
+    "enc_a_grad_norm": {
+      "baseline": 0.30943675913374835,
+      "forward": 0.47645510671196784,
+      "gradient": 3.0943675412253993,
+      "ordinary": 4.764550979158576
+    },
+    "forward_ratio_vs_baseline": 1.5397495373393206,
+    "gradient_ratio_vs_baseline": 9.999999838053874,
+    "ordinary_ratio_vs_baseline": 15.397495089131239
+  },
+  "pass": true
+}
