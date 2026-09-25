@@ -7,7 +7,8 @@ normalization cures it in the scale-driven regime, and where optimization
 (learning-rate) imbalance takes over.
 
 This is a **research** repository, not a leaderboard project. It is built so the
-hypotheses **can fail**, and failures are reported (see `EXPERIMENT_LOG.md`).
+hypotheses **can fail**, and failures are reported (see
+`docs/experiments/EXPERIMENT_LOG.md`).
 
 ## Scientific questions
 - **H1 (diagnostic):** does early-training ρ = E‖h_A‖ / E‖h_V‖ (at the fusion
@@ -20,7 +21,7 @@ hypotheses **can fail**, and failures are reported (see `EXPERIMENT_LOG.md`).
 ## Current status (Milestone 1 — synthetic E2 prototype: DONE)
 Generator → tiny encoders → fusion → classifier → scale injection → ρ →
 masking → multi-seed scale sweep → plots. Everything runs on **CUDA**. 12/12
-tests pass. See `PROJECT_STATUS.md`.
+tests pass. See `docs/PROJECT_STATUS.md`.
 
 ### Headline finding (honest, nuanced)
 With information verified constant (alpha-invariant linear probe), scale disparity
@@ -61,3 +62,22 @@ Outputs land in `results/` (see `REPRODUCE.md`).
   mismatches, NaN/Inf, missing seeds/config.
 - Verdicts are computed from evidence and reported as
   SUPPORTED / PARTIAL / INCONCLUSIVE — the report interprets, the code does not decide.
+
+## Paper
+The IEEE-style manuscript, its LaTeX source, figures, and the compiled PDF live in
+`research_paper/` (`research_paper/main.pdf`). Manuscript review/audit notes are in
+`research_paper/audits/`.
+
+## Documentation map
+```
+docs/
+  PROJECT_STATUS.md  RESULTS_INDEX.md  SUBMISSION_SUMMARY.md
+  preregistration/   pre-registered hypotheses and analysis plans (one per experiment)
+  experiments/       EXPERIMENT_LOG.md + per-experiment result reports
+  audits/            claim/evidence matrices, freeze/lock, release checklist
+  drafts/            earlier prose drafts of the paper
+```
+
+## Interactive website
+An interactive presentation of the findings (React + TypeScript + Vite) lives in
+`website/`. See `website/README.md` to run it locally.
