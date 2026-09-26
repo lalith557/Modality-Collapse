@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #f5f3ee;
+  --surface: #fcfbf8;
+  --ink: #17232b;
+  --muted: #687278;
+  --line: #dcd9d1;
+  --forward: #557a95;
+  --gradient: #9a7358;
+  --neutral: #7a8589;
+  --positive: #547a67;
+  --warning: #b08354;
+  --critical: #a65c52;
+}
+
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: "Inter", system-ui, sans-serif;
+    font-feature-settings: "cv05" 1, "ss01" 1, "tnum" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "DM Sans", "Inter", sans-serif;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+
+  /* Numeric values read as measurements */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: rgba(85, 122, 149, 0.22);
+  }
+
+  /* Scientific scrollbar */
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cfccc2;
+    border: 3px solid var(--canvas);
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #b9b6ac;
+  }
+}
+
+@layer components {
+  /* Eyebrow / section label */
+  .label {
+    @apply font-mono text-2xs uppercase tracking-label text-muted;
+  }
+
+  /* Hairline used for scientific annotation lines */
+  .hairline {
+    @apply border-line;
+  }
+
+  /* Monospace measurement value */
+  .measure {
+    @apply font-mono tabular text-ink;
+  }
+
+  .card {
+    @apply rounded-md border border-line bg-surface;
+  }
+
+  /* Underline-tab control */
+  .tab {
+    @apply relative -mb-px border-b-2 border-transparent px-1 pb-2.5 pt-1 font-mono text-2xs uppercase tracking-label text-muted transition-colors;
+  }
+  .tab[data-active="true"] {
+    @apply border-ink text-ink;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded bg-ink px-4 py-2.5 text-sm font-medium text-canvas transition-colors hover:bg-navy-700;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded border border-line bg-transparent px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-black/[0.03];
+  }
+}
+
+/* Subtle scientific field-contour backdrop (measurement lines, not decoration) */
+.contour-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.contour-bg svg {
+  position: absolute;
+  right: -6%;
+  top: -12%;
+  width: 62%;
+  height: 130%;
+  opacity: 0.5;
+}
+
+/* Recharts: strip default focus outlines, keep thin axes */
+.recharts-wrapper:focus,
+.recharts-surface:focus {
+  outline: none;
+}
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line {
+  stroke: var(--line);
+}
+.recharts-text {
+  fill: var(--muted);
+}
+
+/* Signal-flow along pathway connectors (subtle, like current flow) */
+.pw-flow {
+  stroke-dasharray: 3 7;
+  animation: pw-dash 1.8s linear infinite;
+}
+@keyframes pw-dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* Bars draw in from the left */
+.bar-grow {
+  transform-origin: left center;
+  animation: bar-grow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-flow {
+    animation: none;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
