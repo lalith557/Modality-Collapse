@@ -32,6 +32,14 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Node / web build (website has its own .gitignore too)
+node_modules/
+dist/
+
+# Local paper exports (keep research_paper/main.pdf as the canonical compiled paper)
+dl_Ankita*.pdf
+research_paper/dl_Ankita*.pdf
+
 # Keep results small: ignore the heavy raw per-run dumps but KEEP figures/tables/processed CSVs.
 # (comment the next line out if you want full raw provenance in git)
 # results/raw/

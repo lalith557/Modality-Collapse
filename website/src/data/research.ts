@@ -15,8 +15,8 @@ export const paper = {
     "Disentangling Training-Time Feature-Scale Effects on Modality Contribution",
   authors: [
     "Ankita Maji",
-    "Koman Lamba",
-    "Prabhutee",
+    "Komal Lamba",
+    "Prabhutee Neb",
   ],
   affiliation: "Dept. of CSE, LPU, Phagwara, India",
   venue: "IEEE-style manuscript (MLSP format)",
@@ -248,3 +248,87 @@ export const findings = [
 ] as const;
 
 export type Arm = { dDom: number; d: number; p: number };
+
+/* ================================================================== *
+ *  Interaction model — option lists + scenario lookups.
+ *  Everything below only INDEXES the verified values above; it never
+ *  introduces a new number. Combinations that were not run in the study
+ *  return `null` so the UI can say so honestly instead of inventing data.
+ * ================================================================== */
+
+export type DatasetId = "synthetic" | "cremad" | "utd";
+export type OptimizerId = "adam" | "sgd";
+export type InterventionId = "forward" | "gradient" | "ordinary";
+export type FusionId = "sum" | "concat" | "gated";
+export type ScaleId = 1 | 5 | 10 | 100;
+
+export const OPTIONS = {
+  dataset: [
+    { id: "synthetic", label: "Synthetic" },
+    { id: "cremad", label: "CREMA-D" },
+    { id: "utd", label: "UTD-MHAD" },
+  ] as { id: DatasetId; label: string }[],
+  optimizer: [
+    { id: "adam", label: "Adam" },
+    { id: "sgd", label: "SGD" },
+  ] as { id: OptimizerId; label: string }[],
+  intervention: [
+    { id: "forward", label: "Forward-only" },
+    { id: "gradient", label: "Gradient-only" },
+    { id: "ordinary", label: "Ordinary (both)" },
+  ] as { id: InterventionId; label: string }[],
+  fusion: [
+    { id: "sum", label: "Sum" },
+    { id: "concat", label: "Concatenation" },
+    { id: "gated", label: "Gated" },
+  ] as { id: FusionId; label: string }[],
+  scale: [1, 5, 10, 100] as ScaleId[],
+  seed: [1, 2, 3, 4, 5],
+} as const;
+
+export const LABELS = {
+  dataset: { synthetic: "Synthetic", cremad: "CREMA-D", utd: "UTD-MHAD" },
+  optimizer: { adam: "Adam", sgd: "SGD" },
+  intervention: { forward: "Forward-only", gradient: "Gradient-only", ordinary: "Ordinary" },
+  fusion: { sum: "Sum", concat: "Concatenation", gated: "Gated" },
+} as const;
+
+/** The verified four-arm decomposition, keyed by dataset+optimizer (α = 100). */
+export function getDecomposition(dataset: DatasetId, optimizer: OptimizerId) {
+  if (dataset === "synthetic" && optimizer === "adam")
+    return { data: decomposition.adamSynthetic, ratios: decomposition.ratios.adam, measured: true as const };
+  if (dataset === "cremad" && optimizer === "adam")
+    return { data: decomposition.adamCremad, ratios: decomposition.ratios.adam, measured: true as const };
+  if (dataset === "synthetic" && optimizer === "sgd")
+    return { data: decomposition.sgdSynthetic, ratios: decomposition.ratios.sgd, measured: true as const };
+  return null; // cremad+sgd, and any utd decomposition were not run
+}
+
+/** The endpoint (ΔD, d, p) for one arm of a scenario, or null if not measured. */
+export function armEndpoint(
+  dataset: DatasetId,
+  optimizer: OptimizerId,
+  intervention: InterventionId,
+): { endpoint: Arm | null; measured: boolean; label: string } {
+  const dec = getDecomposition(dataset, optimizer);
+  if (!dec) return { endpoint: null, measured: false, label: `${LABELS.dataset[dataset]} · ${LABELS.optimizer[optimizer]}` };
+  return { endpoint: dec.data[intervention], measured: true, label: dec.data.label };
+}
+
+/** CREMA-D scale-sweep row for a modality (audio/video) at a given scale. */
+export function cremadByScale(modality: "audio" | "video", scale: 1 | 5 | 10) {
+  if (scale === 1) return cremad.scale[0];
+  return cremad.scale.find((r) => r.condition === `${modality} ×${scale}`) ?? null;
+}
+
+/** UTD-MHAD conditions that were actually measured (base + ×10 amplification). */
+export const utdConditions = [
+  { id: "base", label: "Baseline", dominance: utd.base.dominance, gain: utd.base.gain, emphasis: "neutral" as const },
+  { id: "inertialX10", label: "Inertial ×10", dominance: utd.inertialX10.dominance, gain: utd.inertialX10.gain, emphasis: "forward" as const },
+  { id: "depthX10", label: "Depth ×10", dominance: utd.depthX10.dominance, gain: utd.depthX10.gain, emphasis: "gradient" as const },
+];
+
+/** Fusion mechanism record by id. */
+export function fusionByKey(key: FusionId) {
+  return fusion.mechanisms.find((m) => m.key === key)!;
+}

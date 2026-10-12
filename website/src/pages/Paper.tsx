@@ -117,10 +117,10 @@ export function Paper() {
               </section>
             ))}
           </div>
-          <div className="mt-10 flex items-center gap-2 rounded-md border border-line bg-black/[0.015] p-4 text-2xs text-muted">
+          <a href={pdfHref} target="_blank" rel="noreferrer" className="mt-10 flex items-center gap-2 rounded-md border border-line bg-black/[0.015] p-4 text-2xs text-muted transition-colors hover:border-forward/40 hover:text-forward">
             <ExternalLink size={14} />
             The full manuscript, figures, and 45 references are in the compiled PDF.
-          </div>
+          </a>
         </div>
       </div>
     </div>

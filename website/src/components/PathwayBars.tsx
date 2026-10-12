@@ -37,7 +37,7 @@ export function PathwayBars({ rows, max, unit }: { rows: BarRow[]; max?: number;
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-[3px] bg-black/[0.04]">
               <div
-                className="bar-grow h-full rounded-[3px]"
+                className="h-full rounded-[3px] transition-[width] duration-500 ease-out"
                 style={{ width: `${pct}%`, background: COLOR[r.color] }}
               />
             </div>

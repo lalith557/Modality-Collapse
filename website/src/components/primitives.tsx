@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BlurFade } from "./ui/blur-fade";
 
 /* ----------------------------------------------------------------- */
 /*  Small, reusable scientific UI primitives                          */
@@ -20,12 +21,22 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <header className={`animate-fade-up ${className}`}>
-      {eyebrow && <div className="label mb-3">{eyebrow}</div>}
-      <h1 className="font-display text-[1.85rem] font-semibold leading-tight text-ink sm:text-[2.15rem]">
-        {title}
-      </h1>
-      {subtitle && <p className="mt-3 max-w-2xl text-[0.975rem] leading-relaxed text-muted">{subtitle}</p>}
+    <header className={className}>
+      {eyebrow && (
+        <BlurFade delay={0} inView>
+          <div className="label mb-3">{eyebrow}</div>
+        </BlurFade>
+      )}
+      <BlurFade delay={0.08} inView>
+        <h1 className="font-display text-[1.85rem] font-semibold leading-tight text-ink sm:text-[2.15rem]">
+          {title}
+        </h1>
+      </BlurFade>
+      {subtitle && (
+        <BlurFade delay={0.15} inView>
+          <p className="mt-3 max-w-2xl text-[0.975rem] leading-relaxed text-muted">{subtitle}</p>
+        </BlurFade>
+      )}
     </header>
   );
 }

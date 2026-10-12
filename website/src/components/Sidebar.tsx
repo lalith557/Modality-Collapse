@@ -15,7 +15,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <span className="text-gradient">G</span>
           </span>
           <div className="leading-tight">
-            <div className="font-display text-[0.95rem] font-semibold text-canvas">Forward or Gradient?</div>
+            <div className="text-[0.9rem] font-semibold text-canvas">Forward or Gradient?</div>
             <div className="font-mono text-[0.6rem] uppercase tracking-label text-white/40">
               Modality contribution
             </div>

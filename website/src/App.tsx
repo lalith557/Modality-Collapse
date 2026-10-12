@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { ResearchProvider } from "./state/research-context";
 import { Layout } from "./components/Layout";
 import { Home } from "./pages/Home";
 import { Overview } from "./pages/Overview";
@@ -13,8 +14,9 @@ import { Paper } from "./pages/Paper";
 
 export function App() {
   return (
-    <HashRouter>
-      <Routes>
+    <ResearchProvider>
+      <HashRouter>
+        <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/overview" element={<Overview />} />
@@ -27,7 +29,8 @@ export function App() {
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/paper" element={<Paper />} />
         </Route>
-      </Routes>
-    </HashRouter>
+        </Routes>
+      </HashRouter>
+    </ResearchProvider>
   );
 }

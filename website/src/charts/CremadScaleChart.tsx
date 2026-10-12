@@ -17,8 +17,8 @@ const data = cremad.scale.map((r) => ({
   gain: r.gain,
 }));
 
-/** metric = "dom" | "gain" — one restrained bar chart per metric. */
-export function CremadScaleChart({ metric }: { metric: "dom" | "gain" }) {
+/** metric = "dom" | "gain"; `active` dims the non-selected bars. */
+export function CremadScaleChart({ metric, active }: { metric: "dom" | "gain"; active?: string }) {
   const color = metric === "dom" ? C.forward : C.positive;
   return (
     <ResponsiveContainer width="100%" height={252}>
@@ -40,9 +40,10 @@ export function CremadScaleChart({ metric }: { metric: "dom" | "gain" }) {
         />
         <Tooltip {...tooltipProps} formatter={(v: number) => [v.toFixed(3), metric === "dom" ? "𝒟" : "𝒢"]} />
         <Bar dataKey={metric} radius={[2, 2, 0, 0]} maxBarSize={46} isAnimationActive>
-          {data.map((_, i) => (
-            <Cell key={i} fill={color} fillOpacity={i === 0 ? 0.55 : 1} />
-          ))}
+          {data.map((d, i) => {
+            const dim = active && d.name !== active;
+            return <Cell key={i} fill={color} fillOpacity={dim ? 0.28 : i === 0 && !active ? 0.55 : 1} />;
+          })}
         </Bar>
       </BarChart>
     </ResponsiveContainer>

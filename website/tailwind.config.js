@@ -1,23 +1,24 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Surfaces & ink
-        canvas: "#F5F3EE",
-        surface: "#FCFBF8",
-        ink: "#17232B",
-        muted: "#687278",
-        line: "#DCD9D1",
+        // Surfaces & ink — RGB triplet format lets Tailwind opacity modifiers work at runtime
+        canvas:   "rgb(var(--canvas-rgb) / <alpha-value>)",
+        surface:  "rgb(var(--surface-rgb) / <alpha-value>)",
+        ink:      "rgb(var(--ink-rgb) / <alpha-value>)",
+        muted:    "rgb(var(--muted-rgb) / <alpha-value>)",
+        line:     "rgb(var(--line-rgb) / <alpha-value>)",
         // Pathways
-        forward: "#557A95",
-        gradient: "#9A7358",
-        neutral: "#7A8589",
+        forward:  "rgb(var(--forward-rgb) / <alpha-value>)",
+        gradient: "rgb(var(--gradient-rgb) / <alpha-value>)",
+        neutral:  "rgb(var(--neutral-rgb) / <alpha-value>)",
         // Semantic
-        positive: "#547A67",
-        warning: "#B08354",
-        critical: "#A65C52",
+        positive: "rgb(var(--positive-rgb) / <alpha-value>)",
+        warning:  "rgb(var(--warning-rgb) / <alpha-value>)",
+        critical: "rgb(var(--critical-rgb) / <alpha-value>)",
         // Dark sidebar shades
         navy: {
           DEFAULT: "#17232B",
@@ -63,10 +64,25 @@ export default {
           "0%": { strokeDashoffset: "1" },
           "100%": { strokeDashoffset: "0" },
         },
+        "blur-fade-in": {
+          "0%": { opacity: "0", filter: "blur(12px)", transform: "translateY(12px)" },
+          "100%": { opacity: "1", filter: "blur(0)", transform: "translateY(0)" },
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out both",
         "fade-in": "fade-in 0.6s ease-out both",
+        "blur-fade-in": "blur-fade-in 0.5s ease-out both",
+        "spin-slow": "spin-slow 6s linear infinite",
+        "shimmer": "shimmer 2.5s linear infinite",
       },
     },
   },

@@ -47,7 +47,7 @@ export function ModalityPipeline({
   return (
     <div className="w-full">
       <div className="mb-3 flex items-baseline justify-between">
-        <span className="font-display text-sm font-semibold text-ink">{modality}</span>
+        <span className="text-sm font-semibold text-ink">{modality}</span>
         <span className="font-mono text-2xs uppercase tracking-wider text-muted">{signal}</span>
       </div>
       <div className="flex flex-col items-center">
