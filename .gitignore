@@ -16,15 +16,26 @@ env/
 *.ckpt
 *.onnx
 
-# Datasets (never commit raw media / large data)
+# Datasets — never commit raw media, full datasets, or dataset manifests.
+# (The raw CREMA-D / UTD-MHAD media and the manifests hold local absolute
+#  paths and are large; regenerate manifests via data/*_manifest.py.)
 data/raw/
 data/cache/
+CREMA-D-full/
+UTD-MHAD/
+**/raw/
 *.wav
 *.mp3
 *.flv
 *.mp4
 *.avi
 *.npz
+
+# Dataset manifests (contain local absolute media paths)
+cremad_manifest.csv
+utd_manifest.csv
+**/cremad_manifest.csv
+**/utd_manifest.csv
 
 # OS / editor
 .DS_Store
