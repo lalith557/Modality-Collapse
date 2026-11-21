@@ -1,0 +1,18 @@
+# Prediction Studio (inference engine + FastAPI backend + tests).
+# Versions are the ones the Studio was built and tested with.
+torch==2.11.0          # CUDA build used: 2.11.0+cu128 (CPU also works for inference)
+torchaudio==2.10.0     # MelSpectrogram / resample (training preprocessing)
+opencv-python==4.13.*  # video decoding (FFmpeg backend) + Haar face check
+scipy==1.17.*
+numpy==2.4.*
+pyyaml==6.0.*
+pandas
+pydantic==2.12.*
+fastapi==0.136.*
+uvicorn==0.46.*
+python-multipart==0.0.27
+av==19.0.2             # PyAV: container decoding to PCM only (bundles FFmpeg)
+# tests / external samples
+pytest==9.0.*
+httpx==0.28.*
+scikit-image==0.26.*   # bundled public-domain photos used to build external test videos

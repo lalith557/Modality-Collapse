@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { nav, groupLabels, type NavItem } from "../data/nav";
 
-const ORDER: NavItem["group"][] = ["overview", "experiments", "evidence", "reference"];
+const ORDER: NavItem["group"][] = ["overview", "experiments", "models", "evidence", "reference"];
 
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -9,13 +9,11 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Wordmark */}
       <div className="px-5 pb-6 pt-6">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded border border-white/15 font-display text-sm font-semibold tracking-tight text-canvas">
-            <span className="text-forward">F</span>
-            <span className="px-[1px] text-white/30">/</span>
-            <span className="text-gradient">G</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded border border-white/15 font-display text-base font-semibold tracking-tight text-forward">
+            α
           </span>
           <div className="leading-tight">
-            <div className="text-[0.9rem] font-semibold text-canvas">Forward or Gradient?</div>
+            <div className="text-[0.9rem] font-semibold text-canvas">Hidden Learning Rate</div>
             <div className="font-mono text-[0.6rem] uppercase tracking-label text-white/40">
               Modality contribution
             </div>

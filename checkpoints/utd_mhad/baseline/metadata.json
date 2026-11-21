@@ -1,0 +1,64 @@
+{
+  "architecture": "UTDMultimodalModel(n_classes=27, rep_dim=64, fusion='sum', normalization='none', head='linear')",
+  "architecture_source": [
+    "models/utd_model.py",
+    "models/utd_encoders.py",
+    "models/fusion.py",
+    "models/heads.py"
+  ],
+  "parameters": 35467,
+  "dataset": "UTD-MHAD (subject split train {1,3,5} / val {7} / test {2,4,6,8}; 323/108/430)",
+  "experiment_id": "phase4_utd_decoupled.train / arm=baseline (no scaling)",
+  "condition": "baseline only -- NOT the forward-only or gradient-only arms",
+  "seed": 0,
+  "epochs": 60,
+  "batch_size": 32,
+  "optimizer": "Adam",
+  "learning_rate": 0.001,
+  "weight_decay": 0.0,
+  "loss": "CrossEntropyLoss",
+  "fusion": "sum",
+  "checkpoint_selection": "fixed final epoch (documented policy; no early stopping, no validation selection)",
+  "trained_on": "train split only",
+  "training_date": "2026-11-15T23:16:45",
+  "validation_metrics": {
+    "accuracy": 0.5092592592592593,
+    "macro_f1": 0.4674477785588897,
+    "ece_15bin": 0.3398045210374726,
+    "n": 108,
+    "mean_max_softmax": 0.8260279893875122
+  },
+  "test_metrics_evaluation_only": {
+    "accuracy": 0.5697674418604651,
+    "macro_f1": 0.5553391256897894,
+    "ece_15bin": 0.2652199795772863,
+    "n": 430,
+    "mean_max_softmax": 0.834987461566925
+  },
+  "preprocessing_version": "utd-mhad-train-identical-v1",
+  "git_commit": "c76c5e6b499c3ed057a71b2d413d22363eecc178",
+  "torch_version": "2.11.0+cu128",
+  "device": "cuda",
+  "probe_protocol": {
+    "source": "analysis/probes.py",
+    "steps": 400,
+    "lr": 0.05,
+    "weight_decay": 0.0001,
+    "fit_on": "train representations"
+  },
+  "research_prototype": true,
+  "checkpoint_hash": {
+    "algorithm": "sha256",
+    "model.pth": "331e1cc513f31d74301a6f6bdb69ea8e03916cf912ac66e2859a9f749701b827"
+  },
+  "package_files_sha256": {
+    "config.yaml": "94ab6dfb6c3b2ab103f1bca2f5dbfe78ebf6509240a71e6bfb013ea508014e34",
+    "evaluation.json": "b0d0f2987e93db92d10954ef3d6e7cbe3973aa6a0148dcc704776fd664cfdc8b",
+    "label_mapping.json": "b33b2c54ddbbfd822d715efad86e1d566a8d2f03ad7f9e48ec7dab8d45784801",
+    "model.pth": "331e1cc513f31d74301a6f6bdb69ea8e03916cf912ac66e2859a9f749701b827",
+    "normalization_stats.npz": "f3769792b52bf080a319f19d1276735c7047d5e4bcac7022b5c0a320927e8bc2",
+    "ood_detector.npz": "1365d53b2b49e6a65cd51f7e855d09bff071bca8d4a3f1c1aad43f6785c18080",
+    "preprocessing.json": "bbecdc9ef8622fd41e5e2bf2a7fd23482a2783c64d0f13c7b5b0cf42a2ce55fa",
+    "probes.npz": "177bcb5e6030e79f37a6154937bd95d865ea0e575c6e698f58630811741feda8"
+  }
+}

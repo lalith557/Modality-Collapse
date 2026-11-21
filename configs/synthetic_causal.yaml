@@ -11,7 +11,7 @@ seed_policy:
   deterministic: true
 
 device:
-  type: cuda                 # user requirement: run on GPU
+  type: cuda                 # experiments run on the GPU (set allow_cpu: true to override)
   allow_cpu: false           # fail loudly if CUDA is unavailable
   amp: false                 # tiny models -> no mixed precision needed
 

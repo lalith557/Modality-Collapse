@@ -94,7 +94,7 @@ def main():
     A("## Sample decode (shape check)")
     for k, v in shapes.items():
         A(f"- {k}: {v}")
-    (ROOT / "DATA_AUDIT_UTD_MHAD.md").write_text("\n".join(lines), encoding="utf-8")
+    (ROOT / "docs" / "audits" / "DATA_AUDIT_UTD_MHAD.md").write_text("\n".join(lines), encoding="utf-8")
 
     print("\n".join(lines))
     print("\nSTOP_FLAGS:", stop_flags if stop_flags else "NONE")

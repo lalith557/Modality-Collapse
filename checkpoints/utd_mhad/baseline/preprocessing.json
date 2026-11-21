@@ -1,0 +1,37 @@
+{
+  "version": "utd-mhad-train-identical-v1",
+  "source_files_sha256": {
+    "data/utd_mhad.py": "5a184f1378372faec6a368cb9f3e9ee63b7996faa02537519060a6ac510ad3fb",
+    "experiments/utd_extract.py": "a7a84ce63b035821f4955e1cf54a435a2c252bcbcc5f9fc6ffba48343d7ea4fb"
+  },
+  "depth": {
+    "function": "data.utd_mhad.load_depth_clip",
+    "input": "Kinect depth map stack, UTD .mat (variable d_depth, (H,W,T) uint16 mm) or .npy (T,H,W)",
+    "frames": 16,
+    "frame_index": "np.linspace(0, T-1, 16).round()",
+    "resize": [
+      32,
+      32
+    ],
+    "interpolation": "INTER_AREA on raw depth",
+    "normalization": "per-clip min-max over the 16 frames -> [0,1]",
+    "dtype": "float16",
+    "tensor_shape": [
+      16,
+      1,
+      32,
+      32
+    ]
+  },
+  "inertial": {
+    "function": "data.utd_mhad.load_inertial + train z-score (experiments/utd_extract.py)",
+    "input": "T x 6 signal: columns 0-2 accelerometer (g), 3-5 gyroscope (deg/s), UTD .mat (variable d_iner) or .csv",
+    "resample": "np.interp per channel to 128 points over [0, T-1]",
+    "standardization": "per-channel z-score with TRAIN mean/std (normalization_stats.npz)",
+    "dtype": "float16",
+    "tensor_shape": [
+      6,
+      128
+    ]
+  }
+}

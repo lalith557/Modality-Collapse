@@ -76,7 +76,7 @@ dependent); E3/E4 (normalization=scale channel) TRANSFERS; E4 (amplify dominant 
 
 **Verdict → SUPPORT** (narrow claim per interpretation rule; directional-asymmetry + partial-comp
 qualifications). GO/NO-GO INCLUDE-50 = conditional GO (await authorization; do not auto-start).
-Report: reports/CREMAD_TRAINING_SCALE_REPORT.md. R1-R3 & E1-E5 immutable.
+Report: docs/experiments/CREMAD_TRAINING_SCALE_REPORT.md. R1-R3 & E1-E5 immutable.
 
 ---
 
@@ -138,7 +138,7 @@ init rho~2.28 (audio 2.07 / video 0.91), grad-ratio ~5.5 — NOT an R1 result.
 
 **Status → READY (media validated; smoke passed). No scientific claim yet.**
 R1-R3 technically ready under frozen PREREGISTRATION_CREMAD.md; NOT run (stop after
-smoke). Report: reports/CREMAD_MEDIA_VALIDATION.md. Raw media not committed.
+smoke). Report: docs/experiments/CREMAD_MEDIA_VALIDATION.md. Raw media not committed.
 
 ---
 
@@ -162,7 +162,7 @@ data/cremad/ + results/cremad/). Full protocol pre-registered.
 INCLUDE-50 (same media risk, larger). Resolve media first (clone CREMA-D repo + LFS
 pull [may hit LFS quota], or provide a local media copy). Once manifest reports
 media_present>0, R1–R3 run under the frozen protocol with no further design choices.
-Report: reports/CREMAD_FINAL_REPORT.md.
+Report: docs/experiments/CREMAD_FINAL_REPORT.md.
 
 ---
 
@@ -206,7 +206,7 @@ optimization channel unresolved. Min claim: scale-magnitude disparity → collap
 rep-magnitude suppression + gradient imbalance; normalization fixes it in the scale
 regime (neutral/harmful otherwise). Next: EITHER validate the narrowed scale-channel
 claim on CREMA-D, OR induce a natural greedy-dynamics (shared-LR) collapse where OGM
-applies and re-run E5. Full report: reports/E5_FINAL_REPORT.md.
+applies and re-run E5. Full report: docs/experiments/E5_FINAL_REPORT.md.
 
 ---
 
@@ -245,7 +245,7 @@ deterministic/unaffected; dose recomputed from CSV).
 **Next action (decision tree → EXTREME-A ⇒ E5).** GO to E5 (OGM-GE) targeted at the
 aligned-collapse region: z-score fixes scale channel, OGM-GE (gradient modulation) should
 address the LR channel z-score cannot — sharp mechanistic test. Hold CREMA-D/INCLUDE.
-Full report: reports/E4_EXTREME_FINAL_REPORT.md.
+Full report: docs/experiments/E4_EXTREME_FINAL_REPORT.md.
 
 ---
 
@@ -291,7 +291,7 @@ generator; mild A/V asymmetry; z-score init-time stats.
 **Next action (GO/NO-GO).** Conditional GO: refine before real data — a NEW
 pre-registered extreme-ratio/long-horizon grid (aligned gaps >20×, ~100–200 ep) to
 see if the collapse region genuinely expands; then E5 (OGM-GE) only in the
-aligned-collapse region. Hold CREMA-D/INCLUDE. Full report: reports/E4_FINAL_REPORT.md.
+aligned-collapse region. Hold CREMA-D/INCLUDE. Full report: docs/experiments/E4_FINAL_REPORT.md.
 
 ---
 

@@ -1,26 +1,28 @@
 /**
  * research.ts — single source of truth for every experimental value shown on
  * the site. All numbers are transcribed from the manuscript
- * ("Forward or Gradient? Disentangling Training-Time Feature-Scale Effects on
- * Modality Contribution", Tables I–III and the corresponding text) and its
- * result artifacts under `results/**`. Nothing here is invented or simulated.
+ * ("Feature Scale as a Hidden Per-Modality Learning Rate: When
+ * Masked-Accuracy Dominance Misleads") and its result artifacts under
+ * `results/**` / docs/CLAIMS_LEDGER.md. Nothing here is invented or simulated.
  *
  * If a value changes in the paper, change it here once and it updates
  * everywhere in the UI.
  */
 
 export const paper = {
-  title: "Forward or Gradient?",
-  subtitle:
-    "Disentangling Training-Time Feature-Scale Effects on Modality Contribution",
-  authors: [
-    "Ankita Maji",
-    "Komal Lamba",
-    "Prabhutee Neb",
-  ],
-  affiliation: "Dept. of CSE, LPU, Phagwara, India",
-  venue: "IEEE-style manuscript (MLSP format)",
-  pdfPath: "main.pdf",
+  // The manuscript served at website/public/ca_research_paper.pdf (copied from
+  // "CA Resesrach Paper.pdf", 7 pages, 15 references). The site's measured values below
+  // come from the frozen result artifacts, not from the PDF.
+  title: "When Scale Silences a Modality",
+  fullTitle:
+    "When Scale Silences a Modality: Disentangling Representation Magnitude, Optimization Dynamics, and Evaluation Artifacts in Multimodal Collapse",
+  subtitle: "Disentangling representation magnitude, optimization dynamics, and evaluation artifacts in multimodal collapse.",
+  authors: ["Komal Lamba", "Ankita Maji", "Prabhutee Neb", "Premananda Sahu"],
+  affiliation: "Lovely Professional University, Phagwara, Punjab, India",
+  venue: "CA research paper",
+  pdfPath: "ca_research_paper.pdf",
+  pages: 7,
+  references: 15,
 } as const;
 
 export const headline = {
@@ -55,14 +57,110 @@ export const decomposition = {
     gradient: { dDom: 0.2, d: 3.9, p: 1e-3 },
     ordinary: { dDom: 0.322, d: 7.75, p: 7e-5 },
   },
-  // Gradient-only arm ratios (Table I footer).
+  // Gradient-only arm ratios, SYNTHETIC, α = 100, 5 seeds (matched to the arm effects above).
+  // Adam: results/fusion_robustness (sum fusion) — an exact repeat of the Adam decomposition
+  // run (same seeds/config, identical dominance shifts), which itself did not log r_Δθ.
+  // SGD: results/sgd_disentangle. Correction (2026-11-17): the site previously showed the
+  // CREMA-D values (282.7 / 1.61) under a "synthetic" label; those are now `ratiosCremad`.
   ratios: {
-    adam: { rG: 282.7, rTheta: 1.61 },
+    adam: { rG: 100.9, rTheta: 1.0 },
     sgd: { rG: 318.5, rTheta: 95.9 },
   },
+  // CREMA-D, Adam, gradient-only arm, α = 100, 5 seeds (results/cremad_disentangle).
+  // The CREMA-D BASELINE update ratio is itself 1.65, so 1.61 means "unchanged".
+  ratiosCremad: { rG: 282.7, rTheta: 1.61, baselineRTheta: 1.65 },
   ordVsFwd: {
     synthSgd: { d: 2.86, p: 3e-3 },
     cremad: { d: 0.59, p: 0.26 },
+  },
+} as const;
+
+/**
+ * Decoupled-metric check (paper Table I). Forward scaling, α = 100, baseline →
+ * forward shift, oriented so a POSITIVE value means the SCALED modality gains;
+ * paired 95% CIs. Does a masked-accuracy dominance shift reflect a GENUINE
+ * change in modality contribution, or does masking overstate it? All values from
+ * logged runs (CLAIMS_LEDGER M3 / W2 / M-P4b / M-P4c and the Phase-3/4 controls);
+ * nothing invented.
+ *  - Synthetic (Adam, 10 seeds): every decoupled metric moves with masked → real.
+ *  - CREMA-D (Adam, weight decay 0, 5 seeds): only masked moves; probe/Shapley/mean-ablation
+ *    stay within noise → the masked shift is a masking artifact (probe saturated).
+ *  - CREMA-D (stable SGD, clip = 1, 5 seeds): masked moves +0.13 while the probe
+ *    moves −0.02 — masked and probe even disagree in SIGN.
+ *  - UTD-MHAD (Adam, weight decay 0, 5 seeds, scaled = informative inertial): masked moves +0.53
+ *    but the probe only +0.10 → masked OVERSTATES the real change ~5× (headroom).
+ *    The gradient-only arm equals baseline on every metric (Adam cancellation).
+ *  - Positive control (audio input noise, 0.5σ / 1.0σ): probe and Shapley DO
+ *    fall (n = 3), evidence the diagnostics can detect this tested form of degradation.
+ */
+export const decoupled = {
+  // Confidence intervals are paired Student-t 95% intervals over seeds
+  // (t = 2.262 for n=10 synthetic, 2.776 for n=5 real), recomputed from the
+  // seed-level CSVs per the reviewer report (Issue 1).
+  syntheticAdam: { masked: -0.063, meanAbl: -0.056, shapley: -0.043, probe: -0.034 },
+  syntheticCIs:  { masked: 0.011,  meanAbl: 0.005,  shapley: 0.003,  probe: 0.006 },
+  cremadAdamW:   { masked: 0.259,  meanAbl: 0.012,  shapley: 0.014,  probe: 0.023 },
+  cremadCIs:     { masked: 0.044,  meanAbl: 0.027,  shapley: 0.026,  probe: 0.017 },
+  cremadNS:      { meanAbl: true,  shapley: true },
+  // Phase 4 — CREMA-D under STABLE SGD (gradient-norm clip = 1, α = 100): forward arm.
+  cremadSgdClip:    { masked: 0.132, meanAbl: -0.062, shapley: -0.059, probe: -0.021 },
+  cremadSgdClipCIs: { masked: 0.079, meanAbl: 0.037,  shapley: 0.034,  probe: 0.020 },
+  // Phase 4 — UTD-MHAD second dataset (Adam, weight decay 0, α = 100): forward arm, scaled = inertial.
+  utdAdamW:      { masked: 0.525,  meanAbl: 0.107,  shapley: 0.113,  probe: 0.102 },
+  utdCIs:        { masked: 0.048,  meanAbl: 0.039,  shapley: 0.044,  probe: 0.048 },
+  utdProbeNS:    true,          // depth (unscaled) probe shift −0.011 is n.s.
+  utdGradientNull: true,        // gradient-only arm ≡ baseline on EVERY metric
+  positiveControl: {
+    levels: ["0.5σ", "1.0σ"] as const,
+    probe:   [-0.021, -0.064],
+    shapley: [-0.029, -0.051],
+  },
+} as const;
+
+/**
+ * Phase-4 SGD stabilization (CREMA-D, α = 100, lr = 1e-2, momentum 0.9). The
+ * earlier "SGD + scaling is unstable on real data" caveat was an optimization
+ * artifact: standard gradient-norm clipping removes it. From
+ * results/phase4_baselines/phase4_sgd_stable.csv (CLAIMS_LEDGER M-P4b / W3).
+ */
+export const sgdStable = {
+  alpha: 100,
+  lr: 0.01,
+  clip: 1.0,
+  divergedGradientArm: { noClip: "5 / 5", clip: "0 / 5" },
+  // Under stable SGD (clip=1): gradient arm moves masked dominance but leaves the
+  // decoupled metrics null; forward arm moves masked while the probe drops (sign flip).
+  gradientArmMasked: 0.2, // decoupled metrics all null (≤0.002)
+  gradientArmMaskedCI: 0.05, // paired Student-t, results/phase4_baselines/phase4_sgd_stable.csv (clip = 1)
+  forwardArmMasked: 0.132,
+  forwardArmProbe: -0.021,
+} as const;
+
+/**
+ * Phase-4 payoff baselines on CREMA-D (Adam, weight decay 0, 5 seeds): method − vanilla shift,
+ * no scaling. A published rebalancing method (OGM-GE, Peng et al. CVPR 2022) and
+ * a modality-specific learning rate both move masked dominance while the decoupled
+ * metrics barely move — so masked-accuracy dominance can mislead even for a method
+ * in the literature. From results/phase4_baselines/phase4_cremad.csv
+ * (CLAIMS_LEDGER M-P4a); nothing invented.
+ */
+export const baselines = {
+  ogmGE: {
+    label: "OGM-GE",
+    cite: "Peng et al., CVPR 2022",
+    kAudio: 0.273,
+    kVideo: 0.999,
+    masked: 0.24,  meanAbl: -0.023, shapley: -0.026, probe: -0.014,
+    cis: { masked: 0.042, meanAbl: 0.024, shapley: 0.030, probe: 0.012 },
+    // Under Student-t, mean-ablation and Shapley CIs now INCLUDE 0 (n.s.);
+    // only the tiny probe (−0.014) is statistically resolved.
+    decoupledNS: { meanAbl: true, shapley: true, probe: false },
+  },
+  modLR: {
+    label: "Mod-LR (audio ×5)",
+    masked: 0.117, meanAbl: 0.007, shapley: 0.012, probe: 0.005,
+    cis: { masked: 0.110, meanAbl: 0.023, shapley: 0.027, probe: 0.022 },
+    decoupledNS: { meanAbl: true, shapley: true, probe: true },
   },
 } as const;
 
@@ -134,13 +232,26 @@ export const utd = {
  */
 export const fusion = {
   gradientNull: "|Δ𝒟| ≤ 0.001",
+  // results/fusion_robustness/fusion_robustness_analysis.json — synthetic, Adam, α = 100, 5 seeds.
+  // forward/gradient = arm − baseline (paired t-test, Cohen's d_z); ordinaryVsForward = ordinary − forward.
+  // gradientArm.rG / rTheta = gradient-only arm gradient-norm and parameter-update ratios.
+  // Gate activations were NOT logged, so no gate values exist to show.
+  // s(·) is the arm's operator on h_A (experiments/fusion_robustness.py FusionModel.fuse_arm);
+  // the gate is computed from the UNSCALED h_A and multiplies the scaled one.
+  scope: "Synthetic · Adam · α = 100 · 5 seeds",
   mechanisms: [
     {
       name: "Sum",
       key: "sum",
       forwardD: -3.76,
-      p: 1e-3,
+      p: 1.1e-3,
       significant: true,
+      forwardDDom: -0.07,
+      gradient: { dDom: -0.0005, d: -0.53, p: 0.3 },
+      ordinaryDDom: -0.069,
+      ordinaryVsForward: { d: 0.73, p: 0.18 },
+      gradientArm: { rG: 100.9, rTheta: 1.0 },
+      formula: "z = s(h_A) + h_B",
       diagram: "hA + hB → prediction",
       note: "Strong forward effect.",
     },
@@ -150,6 +261,12 @@ export const fusion = {
       forwardD: -5.16,
       p: 3e-4,
       significant: true,
+      forwardDDom: -0.057,
+      gradient: { dDom: 0.0, d: 0.0, p: 1.0 },
+      ordinaryDDom: -0.057,
+      ordinaryVsForward: { d: 0.0, p: 1.0 },
+      gradientArm: { rG: 101.6, rTheta: 1.02 },
+      formula: "z = [s(h_A) ; h_B]",
       diagram: "[hA ; hB] → prediction",
       note: "Strongest forward effect.",
     },
@@ -159,6 +276,12 @@ export const fusion = {
       forwardD: -0.7,
       p: 0.19,
       significant: false,
+      forwardDDom: -0.026,
+      gradient: { dDom: -0.0003, d: -0.02, p: 0.96 },
+      ordinaryDDom: -0.051,
+      ordinaryVsForward: { d: -0.62, p: 0.24 },
+      gradientArm: { rG: 92.8, rTheta: 1.02 },
+      formula: "z = σ(W_A h_A + b_A) ⊙ s(h_A) + σ(W_B h_B + b_B) ⊙ h_B",
       diagram: "gate(hA, hB) → prediction",
       note: "Attenuated; not individually significant.",
     },
@@ -195,55 +318,57 @@ export const metrics = [
   { symbol: "ρ_e", name: "Pre-scale (encoder) ratio", def: "Feature-norm ratio before the operator; shifts oppositely under compensation." },
 ] as const;
 
-/** The four scoped findings (Findings page). Observation/Evidence/Interpretation/Limitation. */
+/** The four scoped findings (Research Overview § Findings). Observation/Evidence/Interpretation/Limitation.
+ * ± values are paired Student-t 95% intervals (t = 2.262 for 10 seeds, 2.776 for 5), the same
+ * intervals as `decoupled` above; corrected 2026-11-17 from normal-approximation (1.96) intervals. */
 export const findings = [
   {
     n: "01",
-    title: "Forward pathway is dominant under the tested Adam settings",
+    title: "The forward pathway carries the effect — real on synthetic data, but masked accuracy overstates it on real data",
     observation:
-      "Under Adam, forward-only scaling reproduces almost the entire ordinary effect, while gradient-only scaling produces little measurable shift.",
+      "Under Adam, forward-only scaling reproduces almost the entire ordinary effect while gradient-only scaling barely moves masked dominance. On synthetic data the decoupled metrics confirm a genuine contribution change; on both real datasets masked dominance moves several times more than any decoupled metric.",
     evidence:
-      "Synthetic: forward Δ𝒟 = −0.070 (d = −3.76) vs gradient Δ𝒟 = −0.0005 (d = −0.53, p = 0.30). CREMA-D: forward Δ𝒟 = +0.259 (d = 7.39) vs gradient Δ𝒟 = −0.001.",
+      "Synthetic (Adam, α=100, 10 seeds): forward moves every decoupled metric together — masked Δ𝒟 −0.063±0.011, frozen-encoder probe −0.034±0.006, mean-ablation −0.056±0.005, Shapley −0.043±0.003 (all CIs exclude 0). CREMA-D (Adam, weight decay 0, 5 seeds): masked Δ𝒟 +0.259±0.044 but mean-ablation +0.012±0.027 (n.s.), Shapley +0.014±0.026 (n.s.), probe only +0.023±0.017. UTD-MHAD (Adam, weight decay 0, 5 seeds): masked +0.525±0.048 but the scaled-modality probe only +0.102±0.048 — masked overstates ~5×.",
     interpretation:
-      "The training-time intervention travels primarily through the forward representation-magnitude channel in these configurations.",
+      "On synthetic data the forward (feature-magnitude) channel produces a real, decoupled-metric-confirmed change. On real data the masked shift is far larger than the representational change — a masking artifact when the probe is saturated (CREMA-D) and a ~5× overstatement when it has headroom (UTD-MHAD). So ‘audio/inertial now dominates’ read from masked accuracy can mislead.",
     limitation:
-      "Shown for Adam with the specified CNN/MLP encoders; not a claim about all optimizers or architectures.",
+      "Shown for Adam (weight decay 0) with the specified MLP/CNN encoders; the real-data result is scoped to our CREMA-D and UTD-MHAD splits and weak from-scratch encoders.",
   },
   {
     n: "02",
-    title: "Gradient amplification is strongly attenuated under Adam",
+    title: "Gradient amplification is strongly attenuated under Adam — on synthetic and both real datasets",
     observation:
-      "A large gradient-norm ratio does not translate into a proportional parameter-update ratio under Adam.",
+      "A large gradient-norm ratio does not translate into a proportional parameter-update ratio under Adam, and the gradient-only arm moves no metric.",
     evidence:
-      "Gradient-only arm: r_g ≈ 282.7 yet r_Δθ ≈ 1.61 (CREMA-D); a 100–282× gradient ratio leaves the update ratio ≈ 1.",
+      "Gradient-only arm: a ≈100–282× gradient-norm ratio leaves the parameter-update ratio ≈ 1 (synthetic Adam r_Δθ = 1.00±0.01; CREMA-D 1.61), and no decoupled metric moves (synthetic probe shift +0.0001). On UTD-MHAD the gradient-only arm equals the baseline on EVERY metric (masked +0.003, mean-ablation +0.004, Shapley −0.002, probes within 0.01; all n.s.).",
     interpretation:
-      "Consistent with Adam's normalized update attenuating an approximately constant per-parameter gradient rescale.",
+      "Consistent with Adam's normalized update cancelling an approximately constant per-parameter gradient rescale (m_Adam = s_f). The clean null replicates on a second real dataset.",
     limitation:
       "A readout at the update level, not an identified mechanism; does not establish invariance across Adam variants or schedules.",
   },
   {
     n: "03",
-    title: "Under SGD, both pathways contribute",
+    title: "Under SGD the gradient scale reaches the weights — and clipping makes it stable without removing the mismatch",
     observation:
-      "With SGD the gradient-only arm does shift dominance, and forward and gradient effects both act.",
+      "With SGD the gradient-only arm transmits the scale into the parameter update, unlike Adam. The scaled arms diverge on real data, but standard gradient-norm clipping stabilizes them — and the masked-vs-decoupled mismatch still holds.",
     evidence:
-      "SGD synthetic: gradient Δ𝒟 = +0.200 (d = 3.90) with r_Δθ ≈ 95.9; forward Δ𝒟 = +0.244; ordinary +0.322 < 0.244 + 0.200 (sub-additive).",
+      "SGD synthetic gradient-only: parameter-update ratio r_Δθ ≈ 95.9 (vs ≈ 1.0 under Adam). CREMA-D, α=100: the gradient arm diverges 5/5 without clipping but 0/5 with gradient-norm clip = 1. Under this stable SGD the gradient arm moves masked Δ𝒟 +0.200±0.050 with mean-ablation, Shapley, and probe all null (≤0.002); the forward arm moves masked +0.132±0.079 while the probe moves −0.021±0.020 — opposite in sign.",
     interpretation:
-      "Which pathway carries the intervention depends on optimizer dynamics; SGD passes the gradient rescale into the update.",
+      "The update-level mechanism — SGD passes the gradient rescale into the weights while Adam cancels it — is robust, and the instability was an optimization artifact fixed by clipping. Under stable SGD the masked shift is again not corroborated by the decoupled metrics, so the dissociation is not Adam-specific.",
     limitation:
-      "Evaluated on the synthetic generator; SGD-on-real-data was not tested.",
+      "Clipping disclosed; five seeds; the direction of the synthetic SGD contribution change remains regime-dependent (an undertrained-baseline artifact at lr 1e-3).",
   },
   {
     n: "04",
-    title: "Modality utility changes the observed behavior",
+    title: "Masked-accuracy dominance can mislead even for a published rebalancing method",
     observation:
-      "In a strongly utility-asymmetric setting, the response to scaling differs sharply between modalities.",
+      "Applied to a method in the literature rather than our own operator, masked-accuracy dominance again moves while the representation barely changes.",
     evidence:
-      "UTD-MHAD: amplifying informative inertial pushes dominance −0.191 → −0.615 (gain → 0.053); amplifying near-chance depth barely moves contribution (gain ≈ 0.40).",
+      "CREMA-D (zero-decay AdamW, 5 seeds), method − vanilla: OGM-GE (adapted to our shared sum-fusion setting, with two implementation modifications; attenuates audio, k_audio = 0.27) shifts masked Δ𝒟 +0.240±0.042 while its decoupled metrics are mostly unresolved under Student-t — mean-ablation −0.023±0.024 and Shapley −0.026±0.030 include zero; only the tiny probe −0.014±0.012 is resolved. A modality-specific learning rate (audio ×5) behaves the same (masked +0.117, decoupled n.s.).",
     interpretation:
-      "The dominance metric is influenced by the large difference in unimodal predictive utility; scaling a near-chance modality cannot manufacture contribution.",
+      "An evaluator judging these rebalancing interventions by masked-accuracy dominance would read a large effect the representation-level metrics do not support — the caution our operator motivates, now for a published method. We claim nothing about OGM-GE's accuracy benefit, only about how its effect is measured.",
     limitation:
-      "A boundary case (four fixed test subjects); reported as per-subject consistency, not population inference.",
+      "Our CREMA-D split and weak from-scratch encoders; measures the metric readout, not the method's downstream accuracy.",
   },
 ] as const;
 
@@ -298,7 +423,7 @@ export function getDecomposition(dataset: DatasetId, optimizer: OptimizerId) {
   if (dataset === "synthetic" && optimizer === "adam")
     return { data: decomposition.adamSynthetic, ratios: decomposition.ratios.adam, measured: true as const };
   if (dataset === "cremad" && optimizer === "adam")
-    return { data: decomposition.adamCremad, ratios: decomposition.ratios.adam, measured: true as const };
+    return { data: decomposition.adamCremad, ratios: decomposition.ratiosCremad, measured: true as const };
   if (dataset === "synthetic" && optimizer === "sgd")
     return { data: decomposition.sgdSynthetic, ratios: decomposition.ratios.sgd, measured: true as const };
   return null; // cremad+sgd, and any utd decomposition were not run

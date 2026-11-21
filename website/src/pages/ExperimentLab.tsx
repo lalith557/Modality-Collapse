@@ -5,10 +5,11 @@ import { SectionHeader, Card, Tag, Callout } from "../components/primitives";
 import { Field, Select, SeedPicker } from "../components/controls";
 import { AnimatedNumber } from "../components/AnimatedNumber";
 import {
-  OPTIONS, LABELS, armEndpoint, getDecomposition,
+  OPTIONS, LABELS, armEndpoint, getDecomposition, decoupled,
   type InterventionId, type ScaleId, type FusionId, type OptimizerId, type DatasetId,
 } from "../data/research";
 import { pValue, fixed } from "../lib/format";
+import { TrajectoryChart, useTrajectories } from "../charts/TrajectoryChart";
 
 const opt = (a: readonly { id: string; label: string }[]) => a.map((o) => ({ value: o.id, label: o.label }));
 
@@ -171,6 +172,7 @@ export function ExperimentLab() {
       : [{ value: "adam", label: "Adam (only run)" }];
 
   const epochs = EPOCHS[s.dataset];
+  const traj = useTrajectories();
 
   return (
     <div className="space-y-6">
@@ -395,14 +397,16 @@ export function ExperimentLab() {
                   <div>
                     <div className="text-2xs uppercase tracking-wider text-muted">Update ratio r_Δθ</div>
                     <div className="measure text-2xl font-semibold text-forward">
-                      {s.optimizer === "adam" ? "≈ 1.6×" : "≈ 95.9×"}
+                      ≈ {dec!.ratios.rTheta < 10 ? dec!.ratios.rTheta.toFixed(2) : dec!.ratios.rTheta.toFixed(1)}×
                     </div>
                   </div>
                 </div>
                 <p className="mt-3 text-2xs leading-relaxed text-muted">
                   {s.optimizer === "adam"
-                    ? "Under Adam, a ~283× gradient ratio leaves the update ratio ≈ 1.6, consistent with Adam normalizing per-parameter gradient magnitudes."
-                    : "Under SGD, the ~319× gradient ratio passes through to a ~96× update ratio — the gradient channel contributes."}
+                    ? `Under Adam (${LABELS.dataset[s.dataset]}), a ~${Math.round(dec!.ratios.rG)}× gradient ratio leaves the update ratio ≈ ${dec!.ratios.rTheta.toFixed(2)}${
+                        s.dataset === "cremad" ? " (the CREMA-D baseline is itself 1.65)" : ""
+                      }, consistent with Adam normalizing per-parameter gradient magnitudes.`
+                    : `Under SGD, the ~${Math.round(dec!.ratios.rG)}× gradient ratio passes through to a ~${Math.round(dec!.ratios.rTheta)}× update ratio — the gradient channel contributes.`}
                 </p>
               </Card>
             </>
@@ -443,7 +447,7 @@ export function ExperimentLab() {
                   <div>
                     <div className="text-2xs uppercase tracking-wider text-muted">Update ratio r_Δθ</div>
                     <div className="measure text-xl font-semibold text-ink">
-                      {s.optimizer === "adam" ? "≈ 1.6×" : "≈ 95.9×"}
+                      ≈ {dec!.ratios.rTheta < 10 ? dec!.ratios.rTheta.toFixed(2) : dec!.ratios.rTheta.toFixed(1)}×
                     </div>
                   </div>
                 </div>
@@ -479,8 +483,8 @@ export function ExperimentLab() {
               <Card className="p-4">
                 <div className="label mb-2">Training outcome</div>
                 <p className="text-2xs leading-relaxed text-muted">
-                  End-of-training endpoints only. Epoch-level logs are not included in this explorer.
-                  Reported values are from {epochs}-epoch runs across 5 seeds (α = 100 decomposition).
+                  The numbers above are end-of-training test-set endpoints from {epochs}-epoch runs across 5 seeds
+                  (α = 100 decomposition). The logged per-epoch curves of the same runs are shown below the panels.
                   No model trains in the browser.
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 font-mono text-[0.6rem] text-muted/70">
@@ -513,8 +517,35 @@ export function ExperimentLab() {
               normalization keeps r_Δθ ≈ 1.6. Which pathway carries the effect is optimizer-dependent.
             </Callout>
           )}
+
+          {/* Context note: on CREMA-D the masked shift is a masking artifact (W2) */}
+          {hasResult && s.dataset === "cremad" && (
+            <Callout title="Masked vs decoupled" tone="warning">
+              Δ𝒟 here is <span className="font-medium">masked-accuracy</span> dominance. On CREMA-D the
+              forward arm's masked shift (+{decoupled.cremadAdamW.masked.toFixed(3)}) is not matched by the
+              decoupled metrics — mean-ablation +{decoupled.cremadAdamW.meanAbl.toFixed(3)} (n.s.), Shapley
+              +{decoupled.cremadAdamW.shapley.toFixed(3)} (n.s.), probe +{decoupled.cremadAdamW.probe.toFixed(3)} —
+              so it is a masking artifact, not a genuine contribution change. See Real-World Evidence.
+            </Callout>
+          )}
         </div>
       </div>
+
+      {/* ---- Logged per-epoch training curves (validation) ---- */}
+      {hasResult && (
+        <Card className="p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="label" data-testid="training-curves">Training curves · logged every epoch</div>
+            <Tag tone="neutral">
+              {LABELS.dataset[s.dataset]} · {LABELS.optimizer[s.optimizer]} · α = {s.scale} · sum fusion
+            </Tag>
+          </div>
+          {s.fusion !== "sum" && (
+            <p className="mb-2 text-2xs text-warning">The decomposition runs used sum fusion, so these curves are the sum-fusion runs.</p>
+          )}
+          <TrajectoryChart traj={traj} seriesKey={`${s.dataset}_${s.optimizer}`} alpha={s.scale} arm={s.intervention} seed={s.seed} />
+        </Card>
+      )}
     </div>
   );
 }

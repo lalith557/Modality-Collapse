@@ -1,4 +1,4 @@
-"""Device selection. The project is GPU-first (user requirement)."""
+"""Device selection. Experiments run on CUDA; CPU must be enabled explicitly."""
 from __future__ import annotations
 
 import torch

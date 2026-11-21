@@ -1,0 +1,51 @@
+Device: {'device': 'cuda', 'name': 'NVIDIA GeForce RTX 4070 Laptop GPU', 'capability': [8, 9], 'total_mem_mb': 8585.2, 'torch_version': '2.11.0+cu128', 'cuda_version': '12.8'}
+=== SGD alpha=100 lr=0.01 clip=none ===
+  baseline  seed=0: diverged=False dom=+0.126 probe_a=0.499 (94s)
+  baseline  seed=1: diverged=False dom=+0.169 probe_a=0.484 (188s)
+  baseline  seed=2: diverged=False dom=+0.171 probe_a=0.496 (284s)
+  baseline  seed=3: diverged=False dom=+0.144 probe_a=0.485 (376s)
+  baseline  seed=4: diverged=False dom=+0.128 probe_a=0.506 (472s)
+  forward   seed=0: diverged=False dom=+0.000 probe_a=0.222 (568s)
+  forward   seed=1: diverged=False dom=+0.278 probe_a=0.469 (662s)
+  forward   seed=2: diverged=False dom=+0.281 probe_a=0.475 (759s)
+  forward   seed=3: diverged=False dom=+0.000 probe_a=0.188 (850s)
+  forward   seed=4: diverged=False dom=+0.280 probe_a=0.499 (948s)
+  gradient  seed=0: diverged=True dom=+nan probe_a=nan (948s)
+  gradient  seed=1: diverged=True dom=+nan probe_a=nan (949s)
+  gradient  seed=2: diverged=True dom=+nan probe_a=nan (950s)
+  gradient  seed=3: diverged=True dom=+nan probe_a=nan (950s)
+  gradient  seed=4: diverged=True dom=+nan probe_a=nan (950s)
+=== SGD alpha=100 lr=0.01 clip=1.0 ===
+  baseline  seed=0: diverged=False dom=+0.107 probe_a=0.488 (1056s)
+  baseline  seed=1: diverged=False dom=+0.127 probe_a=0.494 (1153s)
+  baseline  seed=2: diverged=False dom=+0.054 probe_a=0.485 (1255s)
+  baseline  seed=3: diverged=False dom=+0.139 probe_a=0.473 (1351s)
+  baseline  seed=4: diverged=False dom=+0.043 probe_a=0.486 (1448s)
+  forward   seed=0: diverged=False dom=+0.228 probe_a=0.456 (1547s)
+  forward   seed=1: diverged=False dom=+0.183 probe_a=0.452 (1646s)
+  forward   seed=2: diverged=False dom=+0.256 probe_a=0.483 (1750s)
+  forward   seed=3: diverged=False dom=+0.229 probe_a=0.464 (1856s)
+  forward   seed=4: diverged=False dom=+0.233 probe_a=0.466 (1957s)
+  gradient  seed=0: diverged=False dom=+0.300 probe_a=0.473 (2064s)
+  gradient  seed=1: diverged=False dom=+0.287 probe_a=0.489 (2171s)
+  gradient  seed=2: diverged=False dom=+0.282 probe_a=0.488 (2271s)
+  gradient  seed=3: diverged=False dom=+0.303 probe_a=0.497 (2372s)
+  gradient  seed=4: diverged=False dom=+0.295 probe_a=0.473 (2476s)
+
+=== divergence counts (by clip, arm) ===
+clip  arm     
+0.0   gradient    5
+
+=== STABLE SGD (clip=1.0) baseline->arm shift (paired 95% CI): mismatch hold? ===
+-- forward --
+   dominance         : n<2 (diverged)
+   meanabl_dominance : n<2 (diverged)
+   shapley_audio     : n<2 (diverged)
+   probe_audio       : n<2 (diverged)
+-- gradient --
+   dominance         : n<2 (diverged)
+   meanabl_dominance : n<2 (diverged)
+   shapley_audio     : n<2 (diverged)
+   probe_audio       : n<2 (diverged)
+
+WALL 2476.2s -> C:\Users\Lalith Gona\HTML\Deep Learning Project 2\modality-scale-collapse\results\phase4_baselines/phase4_sgd_stable.csv

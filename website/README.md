@@ -1,54 +1,69 @@
-# Forward or Gradient? — interactive research website
+# Website
 
-An interactive presentation of the study *"Forward or Gradient? Disentangling
-Training-Time Feature-Scale Effects on Modality Contribution."* It walks a
-visitor through the scientific story:
+A single-page React application that presents the study and hosts the Prediction Studio.
 
-> feature scaling → forward representation magnitude → gradient / optimizer
-> pathway → parameter updates → modality contribution → multimodal performance
-
-Built as a scientific-instrument-style reading experience, not a dashboard.
+| Route | Page |
+|---|---|
+| `/` | Home |
+| `/overview` | Research overview and key findings |
+| `/lab` | Experiment Lab: every measured configuration, with the logged per-epoch validation curves |
+| `/studio` | Prediction Studio: runs the saved checkpoints on uploaded files (needs the backend, see [`../docs/PREDICTION_STUDIO.md`](../docs/PREDICTION_STUDIO.md)) |
+| `/architecture` | The two real-data models layer by layer, in a 2D view and an interactive 360° three.js scene |
+| `/disentanglement` | Forward-versus-gradient decomposition, optimizer and fusion analyses |
+| `/real-world` | CREMA-D and UTD-MHAD evidence with decoupled metrics |
+| `/methodology` | Protocol, metrics and statistics |
+| `/paper` | Section summaries and the PDF of the CA manuscript |
 
 ## Stack
-- React 18 + TypeScript + Vite
-- Tailwind CSS (custom scientific design tokens)
-- Recharts for restrained, paper-style charts
-- Lucide icons
 
-## Run locally
+React 18, TypeScript, Vite 5, Tailwind CSS, Recharts, three.js (loaded as a separate chunk on
+the architecture page), Vitest and Testing Library. Routing uses `HashRouter`, and
+`vite.config.ts` sets a relative `base`, so the build runs from any static host or a GitHub
+Pages project path without rewrites.
+
+## Development
+
+Node.js 18 or newer.
+
 ```bash
-cd website
 npm install
-npm run dev
+npm run dev        # http://localhost:5173
+npm test           # Vitest
+npm run build      # type-check + production build into dist/
+npm run preview    # serve dist/ on http://localhost:4173
 ```
-Then open the printed local URL.
 
-## Build
-```bash
-npm run build      # type-checks and outputs static files to dist/
-npm run preview    # serve the production build locally
-```
-The build is fully static and can be hosted on GitHub Pages, Netlify, Vercel, or
-any static host. `vite.config.ts` uses a relative `base` so it also works from a
-project subpath. Routing uses `HashRouter`, so deep links work without server
-rewrites.
+The Prediction Studio calls `http://127.0.0.1:8000` by default; set `VITE_STUDIO_API` to use
+another backend address. Every other page is static and works without the backend.
 
-## Scientific integrity
-Every experimental value shown comes from the manuscript (Tables I–III and text)
-and its `results/**` artifacts, and lives in a single source of truth:
-[`src/data/research.ts`](src/data/research.ts). Nothing is invented, and no live
-training is run. The Experiment Lab is an interactive visualization: its result
-endpoints are the reported values for the selected configuration, and the α
-slider / training curve are labelled schematic.
+## Where the numbers come from
 
-## Structure
+No research value on the site is typed into a component. They live in a few data files, each
+checked against the frozen results:
+
+| File | Produced by | Checked by |
+|---|---|---|
+| `src/data/research.ts` | transcribed from `results/` and `docs/CLAIMS_LEDGER.md` | `src/data/evidence.test.ts` against `evidence.verified.json` |
+| `src/data/evidence.verified.json` | `python scripts/export_site_evidence.py` | `tests/test_site_artifacts.py` (`--check`) |
+| `src/data/architecture.generated.json` | `python scripts/export_architecture.py` (read from the PyTorch modules and checkpoints) | `tests/test_site_artifacts.py` (`--check`) |
+| `src/data/trajectories.generated.json` | `python scripts/export_lab_trajectories.py` (per-epoch logs) | `tests/test_site_artifacts.py` (`--check`) |
+| `public/arch/*.png`, `src/data/architecture.media.json` | `python scripts/export_architecture_media.py` (real preprocessed inputs) | |
+
+The Python scripts run from the repository root.
+
+## Layout
+
 ```
 src/
-  components/   Sidebar, Layout, primitives, diagrams, controls, figures
-  charts/       Recharts figures + shared theme
-  pages/        the ten routes (Home, Overview, Experiment Lab, …)
-  data/         research.ts (verified values) + nav.ts
-  lib/          number formatting
+├── pages/          one component per route
+├── architecture/   2D diagram, three.js scene, model and stage metadata
+├── studio/         Prediction Studio client: API calls, upload validation, result views
+├── charts/         Recharts figures and shared theme
+├── components/     layout, navigation, shared UI, disentanglement sections
+├── data/           research.ts, nav.ts and the generated JSON files above
+├── context/, state/, lib/
+└── main.tsx, App.tsx
 public/
-  main.pdf      the compiled manuscript
+├── ca_research_paper.pdf
+└── arch/           input thumbnails for the architecture page
 ```

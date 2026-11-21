@@ -3,11 +3,12 @@
 Parses the real filenames (ActorID_Sentence_Emotion_Level) and VideoDemographics.csv;
 assigns a frozen, reproducible, ACTOR-DISJOINT train/val/test split (stratified by
 sex). Records media paths and a preprocessing_status. Does NOT require the media
-files themselves (which are currently git-LFS pointer stubs). Run once; commit the
-manifest.
+files themselves (Git LFS pointer stubs are recorded as such). The manifest holds
+absolute local paths, so it is generated per machine and kept out of git.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -15,16 +16,24 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-_BASE = Path(r"C:/Users/Lalith Gona/HTML/Deep Learning Project 2")
 
 
 def _pick_media_root() -> Path:
-    """Prefer the LFS-pulled full clone if its media are real; else the stub copy."""
-    full = _BASE / "CREMA-D-full"
-    probe = full / "AudioWAV" / "1001_DFA_ANG_XX.wav"
-    if probe.exists() and probe.stat().st_size > 1024:
-        return full
-    return _BASE / "CREMA-D-master"
+    """Locate the CREMA-D checkout.
+
+    ``CREMAD_ROOT`` (environment variable) wins. Otherwise look next to the repository for
+    ``CREMA-D-full`` and then ``CREMA-D``/``CREMA-D-master``, taking the first whose media are
+    real files rather than 130-byte Git LFS pointers.
+    """
+    env = os.environ.get("CREMAD_ROOT")
+    if env:
+        return Path(env).expanduser().resolve()
+    candidates = [ROOT.parent / name for name in ("CREMA-D-full", "CREMA-D", "CREMA-D-master")]
+    for cand in candidates:
+        probe = cand / "AudioWAV" / "1001_DFA_ANG_XX.wav"
+        if probe.exists() and probe.stat().st_size > 1024:
+            return cand
+    return candidates[0]
 
 
 CREMAD = _pick_media_root()

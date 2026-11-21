@@ -1,0 +1,171 @@
+{
+  "dataset": "UTD-MHAD",
+  "n_classes": 27,
+  "source": "data/utd_manifest.py (label = action_id - 1)",
+  "names_available": false,
+  "names_note": "Action names are not stored in the repository or the raw dataset folder and could not be verified from the official page; classes are reported by action ID.",
+  "classes": [
+    {
+      "index": 0,
+      "code": "a1",
+      "action_id": 1,
+      "name": null
+    },
+    {
+      "index": 1,
+      "code": "a2",
+      "action_id": 2,
+      "name": null
+    },
+    {
+      "index": 2,
+      "code": "a3",
+      "action_id": 3,
+      "name": null
+    },
+    {
+      "index": 3,
+      "code": "a4",
+      "action_id": 4,
+      "name": null
+    },
+    {
+      "index": 4,
+      "code": "a5",
+      "action_id": 5,
+      "name": null
+    },
+    {
+      "index": 5,
+      "code": "a6",
+      "action_id": 6,
+      "name": null
+    },
+    {
+      "index": 6,
+      "code": "a7",
+      "action_id": 7,
+      "name": null
+    },
+    {
+      "index": 7,
+      "code": "a8",
+      "action_id": 8,
+      "name": null
+    },
+    {
+      "index": 8,
+      "code": "a9",
+      "action_id": 9,
+      "name": null
+    },
+    {
+      "index": 9,
+      "code": "a10",
+      "action_id": 10,
+      "name": null
+    },
+    {
+      "index": 10,
+      "code": "a11",
+      "action_id": 11,
+      "name": null
+    },
+    {
+      "index": 11,
+      "code": "a12",
+      "action_id": 12,
+      "name": null
+    },
+    {
+      "index": 12,
+      "code": "a13",
+      "action_id": 13,
+      "name": null
+    },
+    {
+      "index": 13,
+      "code": "a14",
+      "action_id": 14,
+      "name": null
+    },
+    {
+      "index": 14,
+      "code": "a15",
+      "action_id": 15,
+      "name": null
+    },
+    {
+      "index": 15,
+      "code": "a16",
+      "action_id": 16,
+      "name": null
+    },
+    {
+      "index": 16,
+      "code": "a17",
+      "action_id": 17,
+      "name": null
+    },
+    {
+      "index": 17,
+      "code": "a18",
+      "action_id": 18,
+      "name": null
+    },
+    {
+      "index": 18,
+      "code": "a19",
+      "action_id": 19,
+      "name": null
+    },
+    {
+      "index": 19,
+      "code": "a20",
+      "action_id": 20,
+      "name": null
+    },
+    {
+      "index": 20,
+      "code": "a21",
+      "action_id": 21,
+      "name": null
+    },
+    {
+      "index": 21,
+      "code": "a22",
+      "action_id": 22,
+      "name": null
+    },
+    {
+      "index": 22,
+      "code": "a23",
+      "action_id": 23,
+      "name": null
+    },
+    {
+      "index": 23,
+      "code": "a24",
+      "action_id": 24,
+      "name": null
+    },
+    {
+      "index": 24,
+      "code": "a25",
+      "action_id": 25,
+      "name": null
+    },
+    {
+      "index": 25,
+      "code": "a26",
+      "action_id": 26,
+      "name": null
+    },
+    {
+      "index": 26,
+      "code": "a27",
+      "action_id": 27,
+      "name": null
+    }
+  ]
+}

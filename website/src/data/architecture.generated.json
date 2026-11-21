@@ -1,0 +1,1625 @@
+{
+ "generated_by": "scripts/export_architecture.py",
+ "note": "Generated from the model code and the baseline checkpoints; do not edit by hand.",
+ "source_sha256": {
+  "models/cremad_model.py": "5fc71e61db79204ca94953e7258723cb9fea76e034284010cb62c46b6ab6b335",
+  "models/cremad_encoders.py": "c6c1f60e376ab4def071b3a5ae4580499aad44fee5eab7bdebe4d49d4a7142c3",
+  "models/utd_model.py": "f8fd56104bbbf24dae18b50acb9ba1ff57d86d7e937419c6298b4580a0963492",
+  "models/utd_encoders.py": "e2ba582db8243b3c18173029436996152d1522f0e2359a115de1c2af388c0119",
+  "models/fusion.py": "9cd96bfd739a136af714c1797606ec9b1b1936809867ed1cb861bd7e260a9e45",
+  "models/heads.py": "3f8e9fa198560e67b46ba2f58e9c2d5d5946bf7a126aea20071f96ea070b89fe",
+  "data/crema_d.py": "9ad6dee16f213b8937fe4d9d31284c3b0959f9f2f897f576957df44c006671ea",
+  "data/utd_mhad.py": "5a184f1378372faec6a368cb9f3e9ee63b7996faa02537519060a6ac510ad3fb"
+ },
+ "datasets": {
+  "cremad": {
+   "dataset": "cremad",
+   "display_name": "CREMA-D",
+   "task": "emotion (6 classes)",
+   "model_class": "CremadMultimodalModel",
+   "constructor_call": "CremadMultimodalModel(n_classes=6, rep_dim=64, fusion='sum', normalization='none', head='linear')",
+   "source_files": [
+    "models/cremad_model.py",
+    "models/cremad_encoders.py",
+    "models/fusion.py",
+    "models/heads.py"
+   ],
+   "modalities": {
+    "a": "audio",
+    "b": "video"
+   },
+   "encoders": {
+    "a": "AudioCNN",
+    "b": "VideoCNN"
+   },
+   "rep_dim": 64,
+   "fusion": "sum",
+   "head": "linear",
+   "normalization": "none (nn.Identity)",
+   "scale_injection": "disabled (α = 1)",
+   "n_classes": 6,
+   "class_codes": [
+    "ANG",
+    "DIS",
+    "FEA",
+    "HAP",
+    "NEU",
+    "SAD"
+   ],
+   "class_names": [
+    "anger",
+    "disgust",
+    "fear",
+    "happy",
+    "neutral",
+    "sad"
+   ],
+   "params": {
+    "encoder_a": 16160,
+    "encoder_b": 16160,
+    "fusion": 0,
+    "head": 390,
+    "total": 32710
+   },
+   "training": {
+    "epochs": 30,
+    "batch_size": 64,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "loss": "CrossEntropyLoss",
+    "seed": 0,
+    "checkpoint_selection": "fixed final epoch (documented policy; no early stopping, no validation selection)"
+   },
+   "checkpoint": {
+    "path": "checkpoints/cremad/baseline/model.pth",
+    "sha256": "f9fe61f841ac2f5f96be15b0a92e7af09f36cc7aa844edec920512ea6bdc8e85",
+    "strict_state_dict_load": true
+   },
+   "preprocessing_version": "cremad-train-identical-v1",
+   "nodes": [
+    {
+     "id": "a_raw",
+     "branch": "a",
+     "segment": "pipeline",
+     "label": "Audio recording",
+     "module": null,
+     "op": "decode",
+     "summary": "speech recording (CREMA-D: WAV)",
+     "in_shape": null,
+     "out_shape": null,
+     "shape_note": "variable length, sample rate and channels",
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "decoder": "scipy.io.wavfile (WAV); other containers are first decoded by PyAV to 16-bit PCM WAV"
+     },
+     "source": "data/crema_d.py:40"
+    },
+    {
+     "id": "a_wave",
+     "branch": "a",
+     "segment": "pipeline",
+     "label": "Mono 16 kHz, 3.0 s",
+     "module": null,
+     "op": "mono · resample · pad/crop",
+     "summary": "mono, 16000 Hz, first 3.0 s",
+     "in_shape": null,
+     "out_shape": [
+      1,
+      48000
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "mono": "mean over channels",
+      "sample_rate": 16000,
+      "resampler": "torchaudio.functional.resample (defaults)",
+      "crop": "first 3.0 s; zero-pad at end if shorter",
+      "int16_scaling": "divide by 32768 if max|x|>1"
+     },
+     "source": "data/crema_d.py:40"
+    },
+    {
+     "id": "a_logmel",
+     "branch": "a",
+     "segment": "pipeline",
+     "label": "64-bin log-mel",
+     "module": null,
+     "op": "MelSpectrogram → log",
+     "summary": "64 mels, n_fft 1024, hop 256",
+     "in_shape": [
+      1,
+      48000
+     ],
+     "out_shape": [
+      1,
+      64,
+      188
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "mel": {
+       "n_fft": 1024,
+       "hop_length": 256,
+       "n_mels": 64,
+       "win_length": 1024,
+       "power": 2.0,
+       "center": true
+      },
+      "log": "log(mel + 1e-6)",
+      "time_frames": 188,
+      "cache_dtype": "float16",
+      "normalization": "none"
+     },
+     "source": "data/crema_d.py:40"
+    },
+    {
+     "id": "b_raw",
+     "branch": "b",
+     "segment": "pipeline",
+     "label": "Video recording",
+     "module": null,
+     "op": "decode",
+     "summary": "face video (CREMA-D: FLV)",
+     "in_shape": null,
+     "out_shape": null,
+     "shape_note": "variable frame count, resolution and frame rate",
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "decoder": "cv2.VideoCapture (FFmpeg)"
+     },
+     "source": "data/crema_d.py:68"
+    },
+    {
+     "id": "b_sample",
+     "branch": "b",
+     "segment": "pipeline",
+     "label": "Sample 8 frames",
+     "module": null,
+     "op": "uniform frame sampling",
+     "summary": "np.linspace(0, n-1, 8).astype(int) over all frames",
+     "in_shape": null,
+     "out_shape": null,
+     "shape_note": "8 colour frames at the original resolution",
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "frame_index": "np.linspace(0, n-1, 8).astype(int) over all frames"
+     },
+     "source": "data/crema_d.py:68"
+    },
+    {
+     "id": "b_frames",
+     "branch": "b",
+     "segment": "pipeline",
+     "label": "Grayscale 64×64 frames",
+     "module": null,
+     "op": "gray · centre crop · resize · /255",
+     "summary": "BGR→gray, centre square, 64×64 INTER_AREA, /255",
+     "in_shape": null,
+     "out_shape": [
+      8,
+      1,
+      64,
+      64
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "color": "BGR->GRAY",
+      "crop": "centre square min(h,w)",
+      "resize": [
+       64,
+       64
+      ],
+      "interpolation": "INTER_AREA",
+      "scale": "/255",
+      "cache_dtype": "float16",
+      "normalization": "none"
+     },
+     "source": "data/crema_d.py:68"
+    },
+    {
+     "id": "a_block1",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Conv block 1",
+     "module": "enc_a.net.0",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(1→16, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      1,
+      64,
+      188
+     ],
+     "out_shape": [
+      16,
+      32,
+      94
+     ],
+     "per_frame": null,
+     "params": 160,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 1,
+      "channels_out": 16,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:12"
+    },
+    {
+     "id": "a_block2",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Conv block 2",
+     "module": "enc_a.net.1",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(16→32, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      16,
+      32,
+      94
+     ],
+     "out_shape": [
+      32,
+      16,
+      47
+     ],
+     "per_frame": null,
+     "params": 4640,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 16,
+      "channels_out": 32,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:12"
+    },
+    {
+     "id": "a_block3",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Conv block 3",
+     "module": "enc_a.net.2",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(32→32, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      32,
+      16,
+      47
+     ],
+     "out_shape": [
+      32,
+      8,
+      23
+     ],
+     "per_frame": null,
+     "params": 9248,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 32,
+      "channels_out": 32,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:12"
+    },
+    {
+     "id": "a_gap",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Global average pool",
+     "module": "enc_a.net.3 + enc_a.net.4",
+     "op": "AdaptiveAvgPool2d(1) → Flatten",
+     "summary": "AdaptiveAvgPool2d(1) + Flatten",
+     "in_shape": [
+      32,
+      8,
+      23
+     ],
+     "out_shape": [
+      32
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "pooling": "AdaptiveAvgPool2d(output_size=1)",
+      "activation": null,
+      "normalization": null
+     },
+     "source": "models/cremad_encoders.py:12"
+    },
+    {
+     "id": "a_fc",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Linear projection → h_A",
+     "module": "enc_a.fc",
+     "op": "Linear",
+     "summary": "Linear(32→64)",
+     "in_shape": [
+      32
+     ],
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 2112,
+     "details": {
+      "features_in": 32,
+      "features_out": 64,
+      "activation": null,
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:12"
+    },
+    {
+     "id": "b_block1",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Conv block 1",
+     "module": "enc_v.net.0",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(1→16, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      1,
+      64,
+      64
+     ],
+     "out_shape": [
+      16,
+      32,
+      32
+     ],
+     "per_frame": 8,
+     "params": 160,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 1,
+      "channels_out": 16,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:24"
+    },
+    {
+     "id": "b_block2",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Conv block 2",
+     "module": "enc_v.net.1",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(16→32, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      16,
+      32,
+      32
+     ],
+     "out_shape": [
+      32,
+      16,
+      16
+     ],
+     "per_frame": 8,
+     "params": 4640,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 16,
+      "channels_out": 32,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:24"
+    },
+    {
+     "id": "b_block3",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Conv block 3",
+     "module": "enc_v.net.2",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(32→32, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      32,
+      16,
+      16
+     ],
+     "out_shape": [
+      32,
+      8,
+      8
+     ],
+     "per_frame": 8,
+     "params": 9248,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 32,
+      "channels_out": 32,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:24"
+    },
+    {
+     "id": "b_gap",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Global average pool",
+     "module": "enc_v.net.3 + enc_v.net.4",
+     "op": "AdaptiveAvgPool2d(1) → Flatten",
+     "summary": "AdaptiveAvgPool2d(1) + Flatten",
+     "in_shape": [
+      32,
+      8,
+      8
+     ],
+     "out_shape": [
+      32
+     ],
+     "per_frame": 8,
+     "params": 0,
+     "details": {
+      "pooling": "AdaptiveAvgPool2d(output_size=1)",
+      "activation": null,
+      "normalization": null
+     },
+     "source": "models/cremad_encoders.py:24"
+    },
+    {
+     "id": "b_tmean",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Temporal mean-pool",
+     "module": null,
+     "op": "reshape(B, N, −1).mean(dim=1)",
+     "summary": "mean over the 8 frames",
+     "in_shape": [
+      8,
+      32
+     ],
+     "out_shape": [
+      32
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "pooling": "mean over 8 frames (functional, in forward())",
+      "activation": null,
+      "normalization": null
+     },
+     "source": "models/cremad_encoders.py:33"
+    },
+    {
+     "id": "b_fc",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Linear projection → h_B",
+     "module": "enc_v.fc",
+     "op": "Linear",
+     "summary": "Linear(32→64)",
+     "in_shape": [
+      32
+     ],
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 2112,
+     "details": {
+      "features_in": 32,
+      "features_out": 64,
+      "activation": null,
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/cremad_encoders.py:24"
+    },
+    {
+     "id": "fusion",
+     "branch": "joint",
+     "segment": "fusion",
+     "label": "Sum fusion",
+     "module": null,
+     "op": "h_A + h_B (models.fusion.fuse('sum'))",
+     "summary": "element-wise sum h_A + h_B",
+     "in_shape": [
+      64
+     ],
+     "in_shapes": {
+      "a": [
+       64
+      ],
+      "b": [
+       64
+      ]
+     },
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "fusion": "sum",
+      "activation": null,
+      "normalization": null,
+      "pre_fusion": "norm_a / norm_v = nn.Identity (normalization='none'); ScaleInjector disabled (α = 1)"
+     },
+     "source": "models/fusion.py:17"
+    },
+    {
+     "id": "head",
+     "branch": "joint",
+     "segment": "head",
+     "label": "Linear classifier",
+     "module": "head",
+     "op": "Linear",
+     "summary": "Linear(64→6) → logits",
+     "in_shape": [
+      64
+     ],
+     "out_shape": [
+      6
+     ],
+     "per_frame": null,
+     "params": 390,
+     "details": {
+      "features_in": 64,
+      "features_out": 6,
+      "activation": null,
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/heads.py:8"
+    },
+    {
+     "id": "output",
+     "branch": "joint",
+     "segment": "output",
+     "label": "6-class prediction",
+     "module": null,
+     "op": "softmax (inference only)",
+     "summary": "softmax over logits → class probabilities",
+     "in_shape": [
+      6
+     ],
+     "out_shape": [
+      6
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "activation": "softmax (applied by the inference code; not part of the nn.Module — training uses CrossEntropyLoss on the logits)",
+      "normalization": null
+     },
+     "source": "inference/common.py:58"
+    }
+   ],
+   "edges": [
+    {
+     "from": "a_raw",
+     "to": "a_wave"
+    },
+    {
+     "from": "a_wave",
+     "to": "a_logmel"
+    },
+    {
+     "from": "a_logmel",
+     "to": "a_block1"
+    },
+    {
+     "from": "a_block1",
+     "to": "a_block2"
+    },
+    {
+     "from": "a_block2",
+     "to": "a_block3"
+    },
+    {
+     "from": "a_block3",
+     "to": "a_gap"
+    },
+    {
+     "from": "a_gap",
+     "to": "a_fc"
+    },
+    {
+     "from": "a_fc",
+     "to": "fusion"
+    },
+    {
+     "from": "b_raw",
+     "to": "b_sample"
+    },
+    {
+     "from": "b_sample",
+     "to": "b_frames"
+    },
+    {
+     "from": "b_frames",
+     "to": "b_block1"
+    },
+    {
+     "from": "b_block1",
+     "to": "b_block2"
+    },
+    {
+     "from": "b_block2",
+     "to": "b_block3"
+    },
+    {
+     "from": "b_block3",
+     "to": "b_gap"
+    },
+    {
+     "from": "b_gap",
+     "to": "b_tmean"
+    },
+    {
+     "from": "b_tmean",
+     "to": "b_fc"
+    },
+    {
+     "from": "b_fc",
+     "to": "fusion"
+    },
+    {
+     "from": "fusion",
+     "to": "head"
+    },
+    {
+     "from": "head",
+     "to": "output"
+    }
+   ],
+   "forward_order": [
+    "a_raw",
+    "a_wave",
+    "a_logmel",
+    "b_raw",
+    "b_sample",
+    "b_frames",
+    "a_block1",
+    "a_block2",
+    "a_block3",
+    "a_gap",
+    "a_fc",
+    "b_block1",
+    "b_block2",
+    "b_block3",
+    "b_gap",
+    "b_tmean",
+    "b_fc",
+    "fusion",
+    "head",
+    "output"
+   ]
+  },
+  "utd_mhad": {
+   "dataset": "utd_mhad",
+   "display_name": "UTD-MHAD",
+   "task": "action (27 classes)",
+   "model_class": "UTDMultimodalModel",
+   "constructor_call": "UTDMultimodalModel(n_classes=27, rep_dim=64, fusion='sum', normalization='none', head='linear')",
+   "source_files": [
+    "models/utd_model.py",
+    "models/utd_encoders.py",
+    "models/fusion.py",
+    "models/heads.py"
+   ],
+   "modalities": {
+    "a": "depth",
+    "b": "inertial"
+   },
+   "encoders": {
+    "a": "DepthCNN",
+    "b": "InertialCNN"
+   },
+   "rep_dim": 64,
+   "fusion": "sum",
+   "head": "linear",
+   "normalization": "none (nn.Identity)",
+   "scale_injection": "disabled (α = 1)",
+   "n_classes": 27,
+   "class_codes": [
+    "a1",
+    "a2",
+    "a3",
+    "a4",
+    "a5",
+    "a6",
+    "a7",
+    "a8",
+    "a9",
+    "a10",
+    "a11",
+    "a12",
+    "a13",
+    "a14",
+    "a15",
+    "a16",
+    "a17",
+    "a18",
+    "a19",
+    "a20",
+    "a21",
+    "a22",
+    "a23",
+    "a24",
+    "a25",
+    "a26",
+    "a27"
+   ],
+   "class_names": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "params": {
+    "encoder_a": 16160,
+    "encoder_b": 17552,
+    "fusion": 0,
+    "head": 1755,
+    "total": 35467
+   },
+   "training": {
+    "epochs": 60,
+    "batch_size": 32,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "loss": "CrossEntropyLoss",
+    "seed": 0,
+    "checkpoint_selection": "fixed final epoch (documented policy; no early stopping, no validation selection)"
+   },
+   "checkpoint": {
+    "path": "checkpoints/utd_mhad/baseline/model.pth",
+    "sha256": "331e1cc513f31d74301a6f6bdb69ea8e03916cf912ac66e2859a9f749701b827",
+    "strict_state_dict_load": true
+   },
+   "preprocessing_version": "utd-mhad-train-identical-v1",
+   "nodes": [
+    {
+     "id": "a_raw",
+     "branch": "a",
+     "segment": "pipeline",
+     "label": "Depth sequence",
+     "module": null,
+     "op": "load .mat",
+     "summary": "Kinect depth stack d_depth (H, W, T)",
+     "in_shape": null,
+     "out_shape": null,
+     "shape_note": "(H, W, T) uint16 millimetres; T varies per trial",
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "input": "Kinect depth map stack, UTD .mat (variable d_depth, (H,W,T) uint16 mm) or .npy (T,H,W)"
+     },
+     "source": "data/utd_mhad.py:44"
+    },
+    {
+     "id": "a_sample",
+     "branch": "a",
+     "segment": "pipeline",
+     "label": "Sample 16 frames, 32×32",
+     "module": null,
+     "op": "frame sampling · resize",
+     "summary": "np.linspace(0, T-1, 16).round(); INTER_AREA to 32×32",
+     "in_shape": null,
+     "out_shape": [
+      16,
+      32,
+      32
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "frame_index": "np.linspace(0, T-1, 16).round()",
+      "resize": [
+       32,
+       32
+      ],
+      "interpolation": "INTER_AREA on raw depth"
+     },
+     "source": "data/utd_mhad.py:44"
+    },
+    {
+     "id": "a_frames",
+     "branch": "a",
+     "segment": "pipeline",
+     "label": "Per-clip min–max",
+     "module": null,
+     "op": "min–max to [0, 1]",
+     "summary": "per-clip min-max over the 16 frames -> [0,1]",
+     "in_shape": [
+      16,
+      32,
+      32
+     ],
+     "out_shape": [
+      16,
+      1,
+      32,
+      32
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "normalization": "per-clip min-max over the 16 frames -> [0,1]",
+      "dtype": "float16"
+     },
+     "source": "data/utd_mhad.py:44"
+    },
+    {
+     "id": "b_raw",
+     "branch": "b",
+     "segment": "pipeline",
+     "label": "Inertial signal",
+     "module": null,
+     "op": "load .mat",
+     "summary": "T × 6 (accelerometer g, gyroscope deg/s)",
+     "in_shape": null,
+     "out_shape": null,
+     "shape_note": "T × 6; T varies per trial",
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "input": "T x 6 signal: columns 0-2 accelerometer (g), 3-5 gyroscope (deg/s), UTD .mat (variable d_iner) or .csv"
+     },
+     "source": "data/utd_mhad.py:67"
+    },
+    {
+     "id": "b_resample",
+     "branch": "b",
+     "segment": "pipeline",
+     "label": "Resample to 128",
+     "module": null,
+     "op": "np.interp per channel",
+     "summary": "np.interp per channel to 128 points over [0, T-1]",
+     "in_shape": null,
+     "out_shape": [
+      6,
+      128
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "resample": "np.interp per channel to 128 points over [0, T-1]"
+     },
+     "source": "data/utd_mhad.py:67"
+    },
+    {
+     "id": "b_zscore",
+     "branch": "b",
+     "segment": "pipeline",
+     "label": "Train-set z-score",
+     "module": null,
+     "op": "(x − μ_train) / σ_train",
+     "summary": "per-channel z-score with TRAIN mean/std (normalization_stats.npz)",
+     "in_shape": [
+      6,
+      128
+     ],
+     "out_shape": [
+      6,
+      128
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "standardization": "per-channel z-score with TRAIN mean/std (normalization_stats.npz)",
+      "dtype": "float16"
+     },
+     "source": "experiments/utd_extract.py"
+    },
+    {
+     "id": "a_block1",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Conv block 1",
+     "module": "enc_a.net.0",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(1→16, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      1,
+      32,
+      32
+     ],
+     "out_shape": [
+      16,
+      16,
+      16
+     ],
+     "per_frame": 16,
+     "params": 160,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 1,
+      "channels_out": 16,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:21"
+    },
+    {
+     "id": "a_block2",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Conv block 2",
+     "module": "enc_a.net.1",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(16→32, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      16,
+      16,
+      16
+     ],
+     "out_shape": [
+      32,
+      8,
+      8
+     ],
+     "per_frame": 16,
+     "params": 4640,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 16,
+      "channels_out": 32,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:21"
+    },
+    {
+     "id": "a_block3",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Conv block 3",
+     "module": "enc_a.net.2",
+     "op": "Conv2d → ReLU → MaxPool2d",
+     "summary": "Conv2d(32→32, 3×3) · ReLU · max-pool 2",
+     "in_shape": [
+      32,
+      8,
+      8
+     ],
+     "out_shape": [
+      32,
+      4,
+      4
+     ],
+     "per_frame": 16,
+     "params": 9248,
+     "details": {
+      "layer_types": [
+       "Conv2d",
+       "ReLU",
+       "MaxPool2d"
+      ],
+      "channels_in": 32,
+      "channels_out": 32,
+      "kernel_size": [
+       3,
+       3
+      ],
+      "stride": [
+       1,
+       1
+      ],
+      "padding": [
+       1,
+       1
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool2d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:21"
+    },
+    {
+     "id": "a_gap",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Global average pool",
+     "module": "enc_a.net.3 + enc_a.net.4",
+     "op": "AdaptiveAvgPool2d(1) → Flatten",
+     "summary": "AdaptiveAvgPool2d(1) + Flatten",
+     "in_shape": [
+      32,
+      4,
+      4
+     ],
+     "out_shape": [
+      32
+     ],
+     "per_frame": 16,
+     "params": 0,
+     "details": {
+      "pooling": "AdaptiveAvgPool2d(output_size=1)",
+      "activation": null,
+      "normalization": null
+     },
+     "source": "models/utd_encoders.py:21"
+    },
+    {
+     "id": "a_tmean",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Temporal mean-pool",
+     "module": null,
+     "op": "reshape(B, N, −1).mean(dim=1)",
+     "summary": "mean over the 16 frames",
+     "in_shape": [
+      16,
+      32
+     ],
+     "out_shape": [
+      32
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "pooling": "mean over 16 frames (functional, in forward())",
+      "activation": null,
+      "normalization": null
+     },
+     "source": "models/utd_encoders.py:30"
+    },
+    {
+     "id": "a_fc",
+     "branch": "a",
+     "segment": "encoder",
+     "label": "Linear projection → h_A",
+     "module": "enc_a.fc",
+     "op": "Linear",
+     "summary": "Linear(32→64)",
+     "in_shape": [
+      32
+     ],
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 2112,
+     "details": {
+      "features_in": 32,
+      "features_out": 64,
+      "activation": null,
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:21"
+    },
+    {
+     "id": "b_block1",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Conv block 1",
+     "module": "enc_v.net.0",
+     "op": "Conv1d → ReLU → MaxPool1d",
+     "summary": "Conv1d(6→16, 5) · ReLU · max-pool 2",
+     "in_shape": [
+      6,
+      128
+     ],
+     "out_shape": [
+      16,
+      64
+     ],
+     "per_frame": null,
+     "params": 496,
+     "details": {
+      "layer_types": [
+       "Conv1d",
+       "ReLU",
+       "MaxPool1d"
+      ],
+      "channels_in": 6,
+      "channels_out": 16,
+      "kernel_size": [
+       5
+      ],
+      "stride": [
+       1
+      ],
+      "padding": [
+       2
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool1d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:37"
+    },
+    {
+     "id": "b_block2",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Conv block 2",
+     "module": "enc_v.net.1",
+     "op": "Conv1d → ReLU → MaxPool1d",
+     "summary": "Conv1d(16→32, 5) · ReLU · max-pool 2",
+     "in_shape": [
+      16,
+      64
+     ],
+     "out_shape": [
+      32,
+      32
+     ],
+     "per_frame": null,
+     "params": 2592,
+     "details": {
+      "layer_types": [
+       "Conv1d",
+       "ReLU",
+       "MaxPool1d"
+      ],
+      "channels_in": 16,
+      "channels_out": 32,
+      "kernel_size": [
+       5
+      ],
+      "stride": [
+       1
+      ],
+      "padding": [
+       2
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool1d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:37"
+    },
+    {
+     "id": "b_block3",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Conv block 3",
+     "module": "enc_v.net.2",
+     "op": "Conv1d → ReLU → MaxPool1d",
+     "summary": "Conv1d(32→64, 5) · ReLU · max-pool 2",
+     "in_shape": [
+      32,
+      32
+     ],
+     "out_shape": [
+      64,
+      16
+     ],
+     "per_frame": null,
+     "params": 10304,
+     "details": {
+      "layer_types": [
+       "Conv1d",
+       "ReLU",
+       "MaxPool1d"
+      ],
+      "channels_in": 32,
+      "channels_out": 64,
+      "kernel_size": [
+       5
+      ],
+      "stride": [
+       1
+      ],
+      "padding": [
+       2
+      ],
+      "activation": "ReLU",
+      "pooling": "MaxPool1d(kernel=2, stride=2)",
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:37"
+    },
+    {
+     "id": "b_gap",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Global average pool",
+     "module": "enc_v.net.3 + enc_v.net.4",
+     "op": "AdaptiveAvgPool1d(1) → Flatten",
+     "summary": "AdaptiveAvgPool1d(1) + Flatten",
+     "in_shape": [
+      64,
+      16
+     ],
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "pooling": "AdaptiveAvgPool1d(output_size=1)",
+      "activation": null,
+      "normalization": null
+     },
+     "source": "models/utd_encoders.py:37"
+    },
+    {
+     "id": "b_fc",
+     "branch": "b",
+     "segment": "encoder",
+     "label": "Linear projection → h_B",
+     "module": "enc_v.fc",
+     "op": "Linear",
+     "summary": "Linear(64→64)",
+     "in_shape": [
+      64
+     ],
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 4160,
+     "details": {
+      "features_in": 64,
+      "features_out": 64,
+      "activation": null,
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/utd_encoders.py:37"
+    },
+    {
+     "id": "fusion",
+     "branch": "joint",
+     "segment": "fusion",
+     "label": "Sum fusion",
+     "module": null,
+     "op": "h_A + h_B (models.fusion.fuse('sum'))",
+     "summary": "element-wise sum h_A + h_B",
+     "in_shape": [
+      64
+     ],
+     "in_shapes": {
+      "a": [
+       64
+      ],
+      "b": [
+       64
+      ]
+     },
+     "out_shape": [
+      64
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "fusion": "sum",
+      "activation": null,
+      "normalization": null,
+      "pre_fusion": "norm_a / norm_v = nn.Identity (normalization='none'); ScaleInjector disabled (α = 1)"
+     },
+     "source": "models/fusion.py:17"
+    },
+    {
+     "id": "head",
+     "branch": "joint",
+     "segment": "head",
+     "label": "Linear classifier",
+     "module": "head",
+     "op": "Linear",
+     "summary": "Linear(64→27) → logits",
+     "in_shape": [
+      64
+     ],
+     "out_shape": [
+      27
+     ],
+     "per_frame": null,
+     "params": 1755,
+     "details": {
+      "features_in": 64,
+      "features_out": 27,
+      "activation": null,
+      "normalization": null,
+      "bias": true
+     },
+     "source": "models/heads.py:8"
+    },
+    {
+     "id": "output",
+     "branch": "joint",
+     "segment": "output",
+     "label": "27-class prediction",
+     "module": null,
+     "op": "softmax (inference only)",
+     "summary": "softmax over logits → class probabilities",
+     "in_shape": [
+      27
+     ],
+     "out_shape": [
+      27
+     ],
+     "per_frame": null,
+     "params": 0,
+     "details": {
+      "activation": "softmax (applied by the inference code; not part of the nn.Module — training uses CrossEntropyLoss on the logits)",
+      "normalization": null
+     },
+     "source": "inference/common.py:58"
+    }
+   ],
+   "edges": [
+    {
+     "from": "a_raw",
+     "to": "a_sample"
+    },
+    {
+     "from": "a_sample",
+     "to": "a_frames"
+    },
+    {
+     "from": "a_frames",
+     "to": "a_block1"
+    },
+    {
+     "from": "a_block1",
+     "to": "a_block2"
+    },
+    {
+     "from": "a_block2",
+     "to": "a_block3"
+    },
+    {
+     "from": "a_block3",
+     "to": "a_gap"
+    },
+    {
+     "from": "a_gap",
+     "to": "a_tmean"
+    },
+    {
+     "from": "a_tmean",
+     "to": "a_fc"
+    },
+    {
+     "from": "a_fc",
+     "to": "fusion"
+    },
+    {
+     "from": "b_raw",
+     "to": "b_resample"
+    },
+    {
+     "from": "b_resample",
+     "to": "b_zscore"
+    },
+    {
+     "from": "b_zscore",
+     "to": "b_block1"
+    },
+    {
+     "from": "b_block1",
+     "to": "b_block2"
+    },
+    {
+     "from": "b_block2",
+     "to": "b_block3"
+    },
+    {
+     "from": "b_block3",
+     "to": "b_gap"
+    },
+    {
+     "from": "b_gap",
+     "to": "b_fc"
+    },
+    {
+     "from": "b_fc",
+     "to": "fusion"
+    },
+    {
+     "from": "fusion",
+     "to": "head"
+    },
+    {
+     "from": "head",
+     "to": "output"
+    }
+   ],
+   "forward_order": [
+    "a_raw",
+    "a_sample",
+    "a_frames",
+    "b_raw",
+    "b_resample",
+    "b_zscore",
+    "a_block1",
+    "a_block2",
+    "a_block3",
+    "a_gap",
+    "a_tmean",
+    "a_fc",
+    "b_block1",
+    "b_block2",
+    "b_block3",
+    "b_gap",
+    "b_fc",
+    "fusion",
+    "head",
+    "output"
+   ]
+  }
+ }
+}

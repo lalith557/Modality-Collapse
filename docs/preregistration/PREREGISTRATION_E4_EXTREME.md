@@ -74,4 +74,4 @@ primary metric introduced after seeing results.
 `results/processed/e4_extreme_runs.csv`, `e4_extreme_trajectories.csv`,
 `results/e4/e4_extreme_analysis.json`, figures
 `results/figures/e4_extreme_{dose_response,long_horizon_trajectories,normalization_decomposition}.png`,
-report `reports/E4_EXTREME_FINAL_REPORT.md`. Commit separately. Then STOP (no E5/OGM-GE/CREMA-D/INCLUDE).
+report `docs/experiments/E4_EXTREME_FINAL_REPORT.md`. Commit separately. Then STOP (no E5/OGM-GE/CREMA-D/INCLUDE).

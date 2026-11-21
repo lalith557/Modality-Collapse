@@ -14,7 +14,7 @@ export function TopNavbar() {
       {/* Desktop pill navbar */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-start justify-center px-6 pt-3">
         <nav
-          className="pointer-events-auto hidden items-center gap-0.5 rounded-full border border-line bg-surface/90 px-2 py-1.5 shadow-panel backdrop-blur-md lg:flex dark:bg-surface/80 dark:border-line"
+          className="pointer-events-auto hidden items-center gap-0.5 rounded-full border border-line bg-surface/90 px-2 py-1.5 shadow-panel backdrop-blur-md xl:flex dark:bg-surface/80 dark:border-line"
           style={{ transition: "background 0.3s ease, border-color 0.3s ease" }}
         >
           {nav.map((item) => {
@@ -48,14 +48,12 @@ export function TopNavbar() {
         </nav>
 
         {/* Mobile top bar */}
-        <div className="pointer-events-auto flex w-full items-center justify-between rounded-full border border-line bg-surface/90 px-3 py-2 shadow-panel backdrop-blur-md lg:hidden dark:bg-surface/80">
+        <div className="pointer-events-auto flex w-full items-center justify-between rounded-full border border-line bg-surface/90 px-3 py-2 shadow-panel backdrop-blur-md xl:hidden dark:bg-surface/80">
           <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-navy font-display text-[0.6rem] font-semibold">
-              <span className="text-forward">F</span>
-              <span className="text-white/30">/</span>
-              <span className="text-[#b08a6a]">G</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-navy font-display text-sm font-semibold text-forward">
+              α
             </span>
-            <span className="text-sm font-semibold text-ink">Forward or Gradient?</span>
+            <span className="text-sm font-semibold text-ink">Hidden Learning Rate</span>
           </Link>
           <div className="flex items-center gap-2">
             <button
@@ -78,7 +76,7 @@ export function TopNavbar() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           <div
             className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}

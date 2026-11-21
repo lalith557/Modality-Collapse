@@ -1,0 +1,160 @@
+{
+  "calibrated_on": "CREMA-D validation split (738 clips)",
+  "audio_thresholds": {
+    "silence_rms_dbfs": -60.0,
+    "min_duration_s": 0.5,
+    "min_active_fraction": 0.17545253196415986,
+    "min_modulation_ratio": 0.23672546118497848,
+    "max_clip_fraction": 0.003438045584009032,
+    "min_dynamic_range_db": 17.260080852508544
+  },
+  "video_thresholds": {
+    "min_face_fraction": 0.25,
+    "min_side_px": 64,
+    "min_brightness": 0.08,
+    "max_brightness": 0.92,
+    "min_blur_laplacian_var": 76.59315215848969,
+    "min_duration_s": 0.5,
+    "min_frame_motion": 0.003785549497697502,
+    "long_clip_s": 6.0
+  },
+  "false_flag_rates": {
+    "validation": {
+      "audio": {
+        "n": 738,
+        "unsupported_rate": 0.02168021680216802,
+        "low_quality_rate": 0.02168021680216802,
+        "per_check_rate": {
+          "audio_clipping": 0.01084010840108401,
+          "audio_noisy": 0.01084010840108401,
+          "audio_truncated": 0.06910569105691057,
+          "no_speech_detected": 0.02168021680216802
+        }
+      },
+      "video": {
+        "n": 738,
+        "unsupported_rate": 0.0,
+        "low_quality_rate": 0.02168021680216802,
+        "per_check_rate": {
+          "video_blurry": 0.01084010840108401,
+          "video_static": 0.01084010840108401
+        }
+      }
+    },
+    "test_evaluation_only": {
+      "audio": {
+        "n": 1470,
+        "unsupported_rate": 0.021768707482993196,
+        "low_quality_rate": 0.018367346938775512,
+        "per_check_rate": {
+          "audio_clipping": 0.009523809523809525,
+          "audio_noisy": 0.008843537414965987,
+          "audio_truncated": 0.18639455782312925,
+          "no_speech_detected": 0.021768707482993196
+        }
+      },
+      "video": {
+        "n": 1470,
+        "unsupported_rate": 0.0006802721088435374,
+        "low_quality_rate": 0.1414965986394558,
+        "per_check_rate": {
+          "no_face_detected": 0.0006802721088435374,
+          "video_blurry": 0.1346938775510204,
+          "video_static": 0.008843537414965987
+        }
+      }
+    }
+  },
+  "validation_metric_summary": {
+    "a_duration_s": {
+      "p1": 1.601625,
+      "p50": 2.402375,
+      "p99": 3.5875656249999994
+    },
+    "a_window_s": {
+      "p1": 1.601625,
+      "p50": 2.402375,
+      "p99": 3.0
+    },
+    "a_rms_dbfs": {
+      "p1": -42.72991403742244,
+      "p50": -31.054213386879084,
+      "p99": -14.172391140772922
+    },
+    "a_peak": {
+      "p1": 0.04796783447265625,
+      "p50": 0.238128662109375,
+      "p99": 1.0
+    },
+    "a_clip_fraction": {
+      "p1": 0.0,
+      "p50": 0.0,
+      "p99": 0.003438045584009032
+    },
+    "a_dynamic_range_db": {
+      "p1": 17.260080852508544,
+      "p50": 32.36226844787598,
+      "p99": 50.914922637939455
+    },
+    "a_active_fraction": {
+      "p1": 0.17545253196415986,
+      "p50": 0.48338847532395923,
+      "p99": 0.7268952997743107
+    },
+    "a_modulation_ratio": {
+      "p1": 0.23672546118497848,
+      "p50": 0.5261726379394531,
+      "p99": 0.7473586744070053
+    },
+    "v_width": {
+      "p1": 480.0,
+      "p50": 480.0,
+      "p99": 480.0
+    },
+    "v_height": {
+      "p1": 360.0,
+      "p50": 360.0,
+      "p99": 360.0
+    },
+    "v_min_side_px": {
+      "p1": 360.0,
+      "p50": 360.0,
+      "p99": 360.0
+    },
+    "v_n_frames": {
+      "p1": 48.0,
+      "p50": 72.0,
+      "p99": 109.0
+    },
+    "v_fps": {
+      "p1": 29.96969696969697,
+      "p50": 29.96969696969697,
+      "p99": 29.96969696969697
+    },
+    "v_duration_s": {
+      "p1": 1.6016177957532862,
+      "p50": 2.402426693629929,
+      "p99": 3.6370070778564205
+    },
+    "v_mean_brightness": {
+      "p1": 0.377477687378964,
+      "p50": 0.4569242749183007,
+      "p99": 0.5400487899797264
+    },
+    "v_blur_laplacian_var": {
+      "p1": 76.59315215848969,
+      "p50": 141.10008802515222,
+      "p99": 263.6091468422988
+    },
+    "v_face_fraction": {
+      "p1": 1.0,
+      "p50": 1.0,
+      "p99": 1.0
+    },
+    "v_frame_motion": {
+      "p1": 0.003785549497697502,
+      "p50": 0.01084371330216527,
+      "p99": 0.03553239114582538
+    }
+  }
+}

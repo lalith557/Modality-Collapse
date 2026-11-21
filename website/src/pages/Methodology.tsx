@@ -1,4 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useSectionScroll } from "../lib/useSectionScroll";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useStudio } from "../studio/StudioContext";
+import { ArchitectureTrace } from "../studio/components/ArchitectureTrace";
 import { Github, Download, FileText, Settings2 } from "lucide-react";
 import { SectionHeader, Card } from "../components/primitives";
 import { Tabs } from "../components/Tabs";
@@ -22,7 +26,7 @@ function triggerDownload(content: string, filename: string, mime: string) {
 
 function downloadConfigs() {
   const yaml = `# Experiment Configurations
-# ${paper.title}
+# ${paper.fullTitle}
 # ${paper.subtitle}
 # Authors: ${paper.authors.join(", ")}
 # ${paper.affiliation}
@@ -143,9 +147,10 @@ function downloadResults() {
       adam_cremad: decomposition.adamCremad,
       sgd_synthetic: decomposition.sgdSynthetic,
       gradient_only_arm_ratios: {
-        _note: "rG = gradient-norm ratio; rTheta = parameter-update ratio.",
-        adam: decomposition.ratios.adam,
-        sgd: decomposition.ratios.sgd,
+        _note: "Gradient-only arm, alpha = 100, 5 seeds. rG = gradient-norm ratio; rTheta = parameter-update ratio.",
+        adam_synthetic: decomposition.ratios.adam,
+        sgd_synthetic: decomposition.ratios.sgd,
+        adam_cremad: decomposition.ratiosCremad,
       },
       ordinary_vs_forward: {
         _note: "Cohen's d_z for ordinary minus forward-only effect.",
@@ -194,12 +199,18 @@ function downloadResults() {
       mechanisms: fusion.mechanisms.map((m) => ({
         name: m.name,
         key: m.key,
+        formula: m.formula,
+        forward_dDom: m.forwardDDom,
         forward_cohens_dz: m.forwardD,
         p_value: m.p,
         significant: m.significant,
-        diagram: m.diagram,
+        gradient_only: m.gradient,
+        ordinary_dDom: m.ordinaryDDom,
+        ordinary_vs_forward: m.ordinaryVsForward,
+        gradient_arm_ratios: m.gradientArm,
         note: m.note,
       })),
+      gate_values_logged: false,
     },
   };
   triggerDownload(JSON.stringify(results, null, 2), "results.json", "application/json");
@@ -229,7 +240,7 @@ type ReproItem =
   | { icon: React.ElementType; label: string; note: string; kind: "disabled" };
 
 const REPRO: ReproItem[] = [
-  { icon: FileText,  label: "Read Full Paper (PDF)",     href: pdfHref,          kind: "link",     note: "main.pdf · 6 pages" },
+  { icon: FileText,  label: "Read Full Paper (PDF)",     href: pdfHref,          kind: "link",     note: `${paper.pdfPath} · ${paper.pages} pages` },
   { icon: Github,    label: "View Code (GitHub)",        kind: "disabled",                         note: "repository URL to be added" },
   { icon: Settings2, label: "Download Configurations",  onClick: downloadConfigs, kind: "action",  note: "configs.yaml · all hyperparameters" },
   { icon: Download,  label: "Download Results",         onClick: downloadResults, kind: "action",  note: "results.json · Tables I–III" },
@@ -237,6 +248,12 @@ const REPRO: ReproItem[] = [
 
 export function Methodology() {
   const nav = useNavigate();
+  const { last } = useStudio();
+  const loc = useLocation();
+  useSectionScroll();
+  useEffect(() => {
+    if (loc.hash === "#trace") document.getElementById("trace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [loc.hash]);
   return (
     <div className="space-y-6">
       <SectionHeader eyebrow="Methodology" title="Methodology" subtitle="Experimental setup, configuration, and reproducibility." />
@@ -335,6 +352,20 @@ export function Methodology() {
           <p className="mt-3 text-2xs leading-relaxed text-muted">Every run records seed, full config, git hash, and metrics. Only the compiled paper is bundled with this explorer; code and raw results live in the research repository.</p>
         </div>
       </div>
+
+      <section id="trace" className="scroll-mt-24 space-y-3">
+        <div className="label">Model architecture · trace a Studio prediction</div>
+        {last ? (
+          <ArchitectureTrace response={last.response} inputs={last.inputs} />
+        ) : (
+          <p className="card p-5 text-sm text-muted">
+            No Studio prediction in this session yet. Run one in the{" "}
+            <Link to="/studio" className="text-forward underline-offset-2 hover:underline">Prediction Studio</Link>{" "}
+            and its real forward pass (layer names, output shapes and activation statistics recorded on the server)
+            will appear here.
+          </p>
+        )}
+      </section>
     </div>
   );
 }

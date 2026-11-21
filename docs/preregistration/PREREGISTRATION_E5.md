@@ -84,7 +84,7 @@ Report effect sizes; do not rely on p-values; correct for multiplicity if formal
 ## Outputs
 `results/e5/e5_primary.csv`, `e5_aggregated.csv`, `e5_config.json`;
 figures `results/figures/e5_{mechanism_decomposition,intervention_comparison,aligned100_trajectories,gradient_mechanism,intervention_matrix}.png`;
-report `reports/E5_FINAL_REPORT.md`. Commit separately. Then STOP (no CREMA-D/INCLUDE/paper).
+report `docs/experiments/E5_FINAL_REPORT.md`. Commit separately. Then STOP (no CREMA-D/INCLUDE/paper).
 
 ## Overclaim guardrails
 OGM-GE improving LR-driven collapse = "OGM-GE reduces optimization-driven imbalance

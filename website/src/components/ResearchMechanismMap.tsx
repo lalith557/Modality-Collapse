@@ -69,7 +69,7 @@ const PATHWAY_DATA = {
     bgActiveClass: "bg-forward/[0.06]" as const,
   },
   gradient: {
-    route: "/optimizer",
+    route: "/disentanglement?section=adam-vs-sgd",
     routeName: "Optimizer Analysis",
     eq: { main: "∂L/∂θ", sub: "A" },
     concept: "Parameter update",
@@ -217,7 +217,7 @@ export function ResearchMechanismMap() {
           "hover:border-ink hover:shadow-[0_2px_6px_rgba(23,35,43,0.16)]",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
         ].join(" ")}
-        onClick={() => nav("/findings")}
+        onClick={() => nav("/overview?section=findings")}
         aria-label="Modality Contribution — navigate to Findings page."
       >
         <div className="font-mono text-[0.52rem] uppercase tracking-[0.16em] text-white/35">

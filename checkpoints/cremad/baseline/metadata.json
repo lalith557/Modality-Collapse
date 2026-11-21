@@ -1,0 +1,64 @@
+{
+  "architecture": "CremadMultimodalModel(n_classes=6, rep_dim=64, fusion='sum', normalization='none', head='linear')",
+  "architecture_source": [
+    "models/cremad_model.py",
+    "models/cremad_encoders.py",
+    "models/fusion.py",
+    "models/heads.py"
+  ],
+  "parameters": 32710,
+  "dataset": "CREMA-D (actor-disjoint split 64/9/18 actors, 5234/738/1470 clips)",
+  "experiment_id": "phase2_cremad_probe.train_one / arm=baseline (no scaling)",
+  "condition": "baseline only -- NOT the forward-only, gradient-only or ordinary arms",
+  "seed": 0,
+  "epochs": 30,
+  "batch_size": 64,
+  "optimizer": "Adam",
+  "learning_rate": 0.001,
+  "weight_decay": 0.0,
+  "loss": "CrossEntropyLoss",
+  "fusion": "sum",
+  "checkpoint_selection": "fixed final epoch (documented policy; no early stopping, no validation selection)",
+  "trained_on": "train split only",
+  "training_date": "2026-11-15T23:18:50",
+  "validation_metrics": {
+    "accuracy": 0.5338753387533876,
+    "macro_f1": 0.5232204208671973,
+    "ece_15bin": 0.050258009172067415,
+    "n": 738,
+    "mean_max_softmax": 0.519003689289093
+  },
+  "test_metrics_evaluation_only": {
+    "accuracy": 0.5081632653061224,
+    "macro_f1": 0.4938020738316357,
+    "ece_15bin": 0.030902981190454402,
+    "n": 1470,
+    "mean_max_softmax": 0.5171327590942383
+  },
+  "preprocessing_version": "cremad-train-identical-v1",
+  "git_commit": "c76c5e6b499c3ed057a71b2d413d22363eecc178",
+  "torch_version": "2.11.0+cu128",
+  "device": "cuda",
+  "probe_protocol": {
+    "source": "analysis/probes.py",
+    "steps": 400,
+    "lr": 0.05,
+    "weight_decay": 0.0001,
+    "fit_on": "train representations"
+  },
+  "research_prototype": true,
+  "checkpoint_hash": {
+    "algorithm": "sha256",
+    "model.pth": "f9fe61f841ac2f5f96be15b0a92e7af09f36cc7aa844edec920512ea6bdc8e85"
+  },
+  "package_files_sha256": {
+    "config.yaml": "2579cea980e0677fc49303a33bc9702dda5037511b501ff9d220e5e8d1537f8e",
+    "evaluation.json": "bec0da2cbcc56508b1d8419af853ae422a355a23b1ede715c5facfeb51da7e1a",
+    "label_mapping.json": "6b968ad6d48244263a77f68b937401170fb8f5713dfe6c96219d91db9ff0d35a",
+    "model.pth": "f9fe61f841ac2f5f96be15b0a92e7af09f36cc7aa844edec920512ea6bdc8e85",
+    "ood_detector.npz": "2919ad809b3cdb0e06ef32b78ce335d26ba00654d84f5396d9ef21da2a279f27",
+    "preprocessing.json": "860b3fc158651912b1649d4c284ab34d91e5fb129629b086883919e70a28f989",
+    "probes.npz": "fee9e48bc34b03c90e58540673ead11aa6230f2801e687eaeda704d5267a98e7",
+    "quality_reference.json": "d9713594cc6467ccbb2aa72a645896dade85609add5a932ad06a227fe6e7884e"
+  }
+}

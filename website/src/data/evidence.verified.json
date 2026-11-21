@@ -1,0 +1,173 @@
+{
+ "generated_by": "scripts/export_site_evidence.py",
+ "note": "Read from frozen result artifacts; do not edit by hand.",
+ "decomposition": {
+  "adamSynthetic": {
+   "label": "Adam · synthetic",
+   "source": "results/disentangle/disentangle_analysis.json",
+   "seeds": 5,
+   "alpha": 100,
+   "forward": {
+    "dDom": -0.06950000524520875,
+    "d": -3.75744459357116,
+    "p": 0.0010982478048129362
+   },
+   "gradient": {
+    "dDom": -0.0004999995231628418,
+    "d": -0.534515201475057,
+    "p": 0.29802050363801336
+   },
+   "ordinary": {
+    "dDom": -0.06930001378059387,
+    "d": -3.734643988392242,
+    "p": 0.0011240807595785287
+   }
+  },
+  "sgdSynthetic": {
+   "label": "SGD · synthetic",
+   "source": "results/sgd_disentangle/sgd_disentangle_analysis.json",
+   "seeds": 5,
+   "alpha": 100,
+   "forward": {
+    "dDom": 0.2443000018596649,
+    "d": 3.92994647463509,
+    "p": 0.0009248513803860892
+   },
+   "gradient": {
+    "dDom": 0.19999999701976776,
+    "d": 3.8972956380792305,
+    "p": 0.0009549140314560217
+   },
+   "ordinary": {
+    "dDom": 0.32200001180171967,
+    "d": 7.749202482633198,
+    "p": 6.510304481698159e-05
+   }
+  },
+  "adamCremad": {
+   "label": "Adam · CREMA-D",
+   "source": "results/cremad_disentangle/cremad_disentangle_analysis.json",
+   "seeds": 5,
+   "alpha": 100,
+   "forward": {
+    "dDom": 0.25891158878803255,
+    "d": 7.387436372678134,
+    "p": 7.865015045161676e-05
+   },
+   "gradient": {
+    "dDom": -0.0010884314775466918,
+    "d": -0.07565178768043354,
+    "p": 0.8738788237970245
+   },
+   "ordinary": {
+    "dDom": 0.265714293718338,
+    "d": 8.511842624728443,
+    "p": 4.489174721157481e-05
+   }
+  }
+ },
+ "ratios": {
+  "adamSynthetic": {
+   "label": "Adam · synthetic (sum fusion)",
+   "source": "results/fusion_robustness/fusion_robustness_analysis.json :: by_fusion/sum",
+   "arm": "gradient-only",
+   "alpha": 100,
+   "rG": 100.87834727018566,
+   "rTheta": 1.0045449196010694,
+   "baselineRG": 1.0086653281398825,
+   "baselineRTheta": 1.0047043823499409
+  },
+  "sgdSynthetic": {
+   "label": "SGD · synthetic",
+   "source": "results/sgd_disentangle/sgd_disentangle_analysis.json :: by_alpha/100.0",
+   "arm": "gradient-only",
+   "alpha": 100,
+   "rG": 318.47172474237095,
+   "rTheta": 95.906313208985,
+   "baselineRG": 0.9946443221041065,
+   "baselineRTheta": 0.9915056357982548
+  },
+  "adamCremad": {
+   "label": "Adam · CREMA-D",
+   "source": "results/cremad_disentangle/cremad_disentangle_analysis.json :: by_alpha/100.0",
+   "arm": "gradient-only",
+   "alpha": 100,
+   "rG": 282.6913577422457,
+   "rTheta": 1.6065888024555448,
+   "baselineRG": 2.7367293435514153,
+   "baselineRTheta": 1.6455770030079115
+  }
+ },
+ "fusion": {
+  "source": "results/fusion_robustness/fusion_robustness_analysis.json",
+  "optimizer": "adam",
+  "alpha": 100.0,
+  "seeds": 5,
+  "dataset": "synthetic",
+  "mechanisms": {
+   "sum": {
+    "forward": {
+     "dDom": -0.06950000524520875,
+     "d": -3.75744459357116,
+     "p": 0.0010982478048129362
+    },
+    "gradient": {
+     "dDom": -0.0004999995231628418,
+     "d": -0.534515201475057,
+     "p": 0.29802050363801336
+    },
+    "ordinaryShift": -0.06930001378059387,
+    "ordinaryVsForward": {
+     "dDom": 0.00019999146461486817,
+     "d": 0.7302604686416098,
+     "p": 0.17782477319654488
+    },
+    "gradientArmRG": 100.87834727018566,
+    "gradientArmRTheta": 1.0045449196010694,
+    "gateValuesLogged": false
+   },
+   "concat": {
+    "forward": {
+     "dDom": -0.056699997186660765,
+     "d": -5.158265633432961,
+     "p": 0.0003226569974128261
+    },
+    "gradient": {
+     "dDom": -1.1920928955078126e-08,
+     "d": -1.0166333254626803e-05,
+     "p": 0.9999829505408224
+    },
+    "ordinaryShift": -0.056700009107589724,
+    "ordinaryVsForward": {
+     "dDom": -1.1920928955078126e-08,
+     "d": -2.3841454326596578e-05,
+     "p": 0.9999600166656061
+    },
+    "gradientArmRG": 101.60779297416266,
+    "gradientArmRTheta": 1.0186377269053803,
+    "gateValuesLogged": false
+   },
+   "gated": {
+    "forward": {
+     "dDom": -0.025800007581710815,
+     "d": -0.7037006392285825,
+     "p": 0.19070851537990577
+    },
+    "gradient": {
+     "dDom": -0.00030000805854797364,
+     "d": -0.02290368747722378,
+     "p": 0.9616103229345914
+    },
+    "ordinaryShift": -0.05050000548362732,
+    "ordinaryVsForward": {
+     "dDom": -0.024699997901916505,
+     "d": -0.6170036644997359,
+     "p": 0.2397968826045092
+    },
+    "gradientArmRG": 92.84390319909815,
+    "gradientArmRTheta": 1.0156840935091143,
+    "gateValuesLogged": false
+   }
+  }
+ }
+}

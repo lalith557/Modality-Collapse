@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useSectionScroll } from "../lib/useSectionScroll";
 import { SectionHeader, Callout, Tag, Card } from "../components/primitives";
 import { ScientificFigure } from "../components/ScientificFigure";
 import { Tabs, TabPanel } from "../components/Tabs";
 import { CremadScaleChart } from "../charts/CremadScaleChart";
 import { UtdAccuracyChart } from "../charts/UtdChart";
 import { AnimatedNumber } from "../components/AnimatedNumber";
-import { cremad, utd, decomposition, utdConditions } from "../data/research";
+import { cremad, utd, decomposition, utdConditions, decoupled, sgdStable, baselines } from "../data/research";
 import { fixed, pValue, signed } from "../lib/format";
 
 const TABS = [
@@ -37,8 +39,9 @@ function CremadPanel() {
         <div>
           <div className="label mb-1.5">CREMA-D · Audio-Video</div>
           <p className="max-w-xl text-sm leading-relaxed text-muted">
-            Scale sweep under Adam across 5 seeds. Modality contribution tracks feature
-            magnitude at the fusion boundary (ρ_f), and the forward pathway carries the effect.
+            Scale sweep under Adam (weight decay 0) across 5 seeds. Masked-accuracy dominance tracks feature
+            magnitude at the fusion boundary (ρ_f) — but the decoupled metrics below show that
+            masked shift overstates the real change in audio's contribution.
           </p>
         </div>
         <Tag tone="forward">5 seeds · Adam</Tag>
@@ -156,7 +159,7 @@ function CremadPanel() {
                 d = {fwd.d.toFixed(2)} · p = {pValue(fwd.p)}
               </div>
               <div className="mt-2 text-2xs text-ink/70">
-                Replicates most of the ordinary effect
+                Replicates ordinary on masked dominance only
               </div>
             </div>
 
@@ -198,6 +201,25 @@ function CremadPanel() {
         </Card>
       </div>
 
+      <div id="masked-mislead" className="scroll-mt-24">
+      {/* Decoupled-metric check — the post-UI experiment (W2) */}
+      <Callout title="Masked accuracy can mislead here" tone="warning">
+        Forward scaling (α=100, Adam, weight decay 0) moves <span className="measure text-ink">masked</span>{" "}
+        dominance by <span className="measure text-ink">{signed(decoupled.cremadAdamW.masked)}</span>,
+        but the decoupled metrics barely move: mean-ablation{" "}
+        <span className="measure text-ink">{signed(decoupled.cremadAdamW.meanAbl)}</span> (n.s.),
+        Shapley <span className="measure text-ink">{signed(decoupled.cremadAdamW.shapley)}</span>{" "}
+        (n.s.), and the frozen-encoder probe only{" "}
+        <span className="measure text-ink">{signed(decoupled.cremadAdamW.probe)}</span>. A positive
+        control — adding audio input noise — does lower the probe{" "}
+        ({signed(decoupled.positiveControl.probe[0])} then{" "}
+        {signed(decoupled.positiveControl.probe[1])}, n = 3 seeds) and Shapley — evidence that
+        the diagnostics can detect this tested form of input-induced degradation, though not
+        proof of sensitivity to every representational change. On CREMA-D the masked shift is
+        not accompanied by a comparable change in these diagnostics.
+      </Callout>
+      </div>
+
       {/* Normalization callout */}
       <Callout title="Normalization control" tone="forward">
         Imposed scale and learned dominance are rank-correlated (Spearman{" "}
@@ -212,6 +234,42 @@ function CremadPanel() {
         <span className="measure text-ink">{fixed(cremad.normalization.rhoFusAfter, 2)}</span>
         . Normalization acts as a control on the scale channel, not a general cure.
       </Callout>
+
+      <div id="sgd-stable" className="scroll-mt-24">
+      {/* Stable SGD (Phase 4) */}
+      <Callout title="Stable SGD, by clipping" tone="gradient">
+        Under SGD the scaled arms diverge on real data (gradient arm{" "}
+        <span className="measure text-ink">{sgdStable.divergedGradientArm.noClip}</span> seeds at
+        α=100), but standard gradient-norm clipping removes it entirely —{" "}
+        <span className="measure text-ink">{sgdStable.divergedGradientArm.clip}</span> with clip = 1.
+        The mismatch survives: the gradient arm moves masked dominance{" "}
+        <span className="measure text-ink">{signed(sgdStable.gradientArmMasked)}</span> with
+        mean-ablation, Shapley, and probe all null; the forward arm moves masked{" "}
+        <span className="measure text-ink">{signed(sgdStable.forwardArmMasked)}</span> while the
+        probe moves <span className="measure text-ink">{signed(sgdStable.forwardArmProbe)}</span>{" "}
+        — opposite in sign. So the dissociation is not Adam-specific.
+      </Callout>
+      </div>
+
+      <div id="baselines" className="scroll-mt-24">
+      {/* Payoff baseline (Phase 4) */}
+      <Callout title="Adapted payoff baseline: a published rebalancing method" tone="neutral">
+        Applied to {baselines.ogmGE.label} ({baselines.ogmGE.cite}) rather than our own operator —
+        adapted to our shared sum-fusion setting (per-modality score from the shared head;
+        generalization term approximated with Gaussian noise), it attenuates audio (k_audio ={" "}
+        <span className="measure text-ink">{fixed(baselines.ogmGE.kAudio, 2)}</span>). Relative to
+        vanilla training it shifts masked dominance{" "}
+        <span className="measure text-ink">{signed(baselines.ogmGE.masked)}</span>, yet its
+        decoupled metrics are mostly not statistically resolved: mean-ablation{" "}
+        <span className="measure text-ink">{signed(baselines.ogmGE.meanAbl)}</span> and Shapley{" "}
+        <span className="measure text-ink">{signed(baselines.ogmGE.shapley)}</span> include zero
+        under Student-t, and only the tiny probe{" "}
+        <span className="measure text-ink">{signed(baselines.ogmGE.probe)}</span> is resolved. Judging the
+        method by masked-accuracy dominance would read a large rebalancing effect the
+        representation-level metrics do not support — a caution for methods in the literature, not a
+        claim about OGM-GE's accuracy benefit.
+      </Callout>
+      </div>
 
       {/* Dataset specimen */}
       <Card className="p-5">
@@ -386,13 +444,28 @@ function UtdPanel() {
         boundary case — four fixed test subjects — showing that a near-chance modality cannot
         manufacture contribution under scaling. Not a population inference.
       </Callout>
+
+      {/* Decoupled check on the second dataset (Phase 4, α=100) */}
+      <Callout title="Masked overstates the probe here too" tone="forward">
+        Forward scaling the informative inertial branch (α=100, Adam, weight decay 0, 5 seeds) moves masked
+        dominance <span className="measure text-ink">{signed(decoupled.utdAdamW.masked)}</span>{" "}
+        toward inertial, but the inertial probe rises only{" "}
+        <span className="measure text-ink">{signed(decoupled.utdAdamW.probe)}</span> — masked
+        overstates the representational change ~5×. Unlike CREMA-D the decoupled metrics do move
+        here (mean-ablation <span className="measure text-ink">{signed(decoupled.utdAdamW.meanAbl)}</span>,
+        Shapley <span className="measure text-ink">{signed(decoupled.utdAdamW.shapley)}</span>),
+        because the scaled modality's probe has headroom. The gradient-only arm equals the baseline
+        on every metric — the Adam cancellation, replicated on a second real dataset.
+      </Callout>
     </TabPanel>
   );
 }
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export function RealWorld() {
-  const [tab, setTab] = useState("cremad");
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState(params.get("tab") === "utd" ? "utd" : "cremad");
+  useSectionScroll();
   const fwd = decomposition.adamCremad.forward;
   const grad = decomposition.adamCremad.gradient;
 
@@ -401,22 +474,22 @@ export function RealWorld() {
       <SectionHeader
         eyebrow="Real-World Evidence"
         title="Tracing the observed mechanisms into real multimodal data"
-        subtitle="Scale effects observed in synthetic data recur in CREMA-D under Adam. UTD-MHAD introduces a boundary condition: strongly asymmetric modality utility. All findings are conditional on the tested configurations."
+        subtitle="On CREMA-D, forward scaling moves masked-accuracy dominance strongly while the decoupled metrics stay flat — a masking artifact. On a second dataset (UTD-MHAD) the masked shift overstates the real probe change ~5×, and the gradient arm equals baseline on every metric. The same dissociation holds under SGD stabilized by gradient clipping, and for a published rebalancing method (OGM-GE). All findings are conditional on the tested configurations."
       />
 
       {/* Cross-dataset synthesis */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="p-5">
-          <div className="label mb-1.5 text-forward">Forward pathway active</div>
+          <div className="label mb-1.5 text-forward">Masked dominance shifts</div>
           <div className="measure text-2xl font-semibold text-forward">
             {signed(fwd.dDom)}
           </div>
           <div className="mt-0.5 font-mono text-2xs text-muted">
-            forward Δ𝒟 · CREMA-D · d = {fwd.d.toFixed(2)}
+            masked Δ𝒟 · CREMA-D (Adam)
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted/90">
-            Under Adam, the forward arm replicates the ordinary scale effect on real audio-video
-            data, consistent with the synthetic result.
+            Forward scaling moves masked-accuracy dominance strongly — but no decoupled metric
+            follows, so on CREMA-D this is a masking artifact, not a genuine contribution change.
           </p>
         </Card>
 
@@ -433,21 +506,23 @@ export function RealWorld() {
         </Card>
 
         <Card className="p-5">
-          <div className="label mb-1.5 text-warning">Utility shapes response</div>
+          <div className="label mb-1.5 text-warning">UTD-MHAD · masked overstates</div>
           <div className="measure text-2xl font-semibold text-warning">
-            {fixed(utd.base.depthAcc, 3)} ≈ chance
+            {signed(decoupled.utdAdamW.masked)} vs {signed(decoupled.utdAdamW.probe)}
           </div>
           <div className="mt-0.5 font-mono text-2xs text-muted">
-            depth acc. · UTD-MHAD · boundary case
+            masked Δ𝒟 vs probe · UTD-MHAD (Adam)
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted/90">
-            Scaling a near-chance modality cannot manufacture contribution. This defines a
-            boundary on the mechanism: utility must be present for scale to matter.
+            On a second real dataset, forward scaling moves masked dominance ~5× more than the
+            frozen-encoder probe — and the gradient arm equals baseline on every metric, as Adam
+            predicts.
           </p>
         </Card>
       </div>
 
       {/* Dataset tabs */}
+      <div id="datasets" className="scroll-mt-24" />
       <Tabs tabs={TABS} active={tab} onChange={setTab} />
       {tab === "cremad" ? <CremadPanel /> : <UtdPanel />}
     </div>

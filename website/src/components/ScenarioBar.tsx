@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useResearch } from "../state/research-context";
 import { LABELS } from "../data/research";
+import { usePublishedPageContext } from "../state/page-context";
 
 function Chip({
   k,
@@ -32,15 +33,41 @@ const INNER =
 /**
  * Persistent bottom strip.
  *
- * On /disentanglement: shows the analytical context (dataset, scale, optimizer,
- * seed count) — not a single-arm scenario, because the page compares all three arms.
- *
- * On all other pages: shows the full scenario state (dataset, optimizer, arm,
- * scale, fusion, seed).
+ * A page whose figures come from fixed frozen experiments publishes its own context
+ * (usePageContext) and the bar shows exactly that. Otherwise the bar shows the
+ * Experiment Lab's scenario, labelled as such so it is never read as this page's data.
  */
 export function ScenarioBar() {
   const s = useResearch();
   const { pathname } = useLocation();
+  const page = usePublishedPageContext();
+
+  if (page) {
+    return (
+      <div className={SHELL} data-testid="context-bar">
+        <div className={INNER}>
+          <span className="hidden shrink-0 items-center gap-1.5 font-mono text-[0.6rem] uppercase tracking-label text-muted sm:flex">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-forward" />
+            {page.title}
+          </span>
+          <div className="flex flex-1 items-center gap-x-4 gap-y-1">
+            {page.chips.map((c, i) => (
+              <span key={c.k} className="contents">
+                {i > 0 && <span className="text-line">·</span>}
+                <Chip k={c.k} v={c.v} tone={c.tone} />
+              </span>
+            ))}
+            {page.note && (
+              <>
+                <span className="hidden text-line sm:inline">·</span>
+                <span className="hidden font-mono text-2xs text-muted/60 sm:inline">{page.note}</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (pathname === "/real-world") {
     return (
@@ -68,64 +95,6 @@ export function ScenarioBar() {
     );
   }
 
-  if (pathname === "/optimizer") {
-    return (
-      <div className={SHELL}>
-        <div className={INNER}>
-          <span className="hidden shrink-0 items-center gap-1.5 font-mono text-[0.6rem] uppercase tracking-label text-muted sm:flex">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-forward" />
-            Analysis Context
-          </span>
-          <div className="flex flex-1 items-center gap-x-4 gap-y-1">
-            <Chip k="Dataset" v="Synthetic" />
-            <span className="text-line">·</span>
-            <Chip k="Scale" v="α=100×" />
-            <span className="text-line">·</span>
-            <Chip k="Arm" v="Gradient-only" tone="gradient" />
-            <span className="text-line">·</span>
-            <Chip k="Evidence" v="5 seeds" />
-            <span className="text-line">·</span>
-            <Chip k="Optimizers" v="Adam ↔ SGD" />
-            <span className="hidden text-line sm:inline">·</span>
-            <span className="hidden font-mono text-2xs text-muted/60 sm:inline">
-              Frozen experimental results · No live training
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (pathname === "/disentanglement") {
-    return (
-      <div className={SHELL}>
-        <div className={INNER}>
-          <span className="hidden shrink-0 items-center gap-1.5 font-mono text-[0.6rem] uppercase tracking-label text-muted sm:flex">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-forward" />
-            Analysis Context
-          </span>
-          <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1">
-            <Chip k="Dataset" v="Synthetic" />
-            <span className="text-line">·</span>
-            <Chip k="Scale" v="α=100×" />
-            <span className="text-line">·</span>
-            <Chip
-              k="Optimizer"
-              v={LABELS.optimizer[s.optimizer]}
-              tone={s.optimizer === "adam" ? "forward" : "ink"}
-            />
-            <span className="text-line">·</span>
-            <Chip k="Evidence" v="5 seeds" />
-            <span className="hidden text-line sm:inline">·</span>
-            <span className="hidden font-mono text-2xs text-muted/60 sm:inline">
-              Frozen experimental results
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const interTone =
     s.intervention === "forward"
       ? "forward"
@@ -134,11 +103,11 @@ export function ScenarioBar() {
       : "ink";
 
   return (
-    <div className={SHELL}>
+    <div className={SHELL} data-testid="context-bar">
       <div className={INNER}>
         <span className="hidden shrink-0 items-center gap-1.5 font-mono text-[0.6rem] uppercase tracking-label text-muted sm:flex">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-forward" />
-          Scenario
+          {pathname === "/lab" ? "Scenario" : "Experiment Lab scenario"}
         </span>
         <div className="flex flex-1 items-center gap-x-4 gap-y-1">
           <Chip k="Data" v={LABELS.dataset[s.dataset]} />

@@ -1,21 +1,21 @@
 %% ============================================================
-%% IEEE MLSP conference paper -- Overleaf-compatible.
-%% Compile: pdflatex -> bibtex -> pdflatex -> pdflatex
-%% Target: exactly 6 pages, exactly 45 cited references.
+%% IEEE conference paper -- official IEEEtran template (v062824).
+%% Target venue: IEEE ICRCICN 2027 (6 pages, single-blind).
+%% Compile: pdflatex main && pdflatex main   (bibliography is embedded)
 %% ============================================================
 \documentclass[conference]{IEEEtran}
-\usepackage{cite}          % auto-sorts/compresses citation groups
-\usepackage{amsmath,amssymb}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{array}
+\usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
-\usepackage{url}
-\usepackage{balance}
-
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \graphicspath{{figures/}}
 
 % compact notation
@@ -28,27 +28,24 @@
 
 \begin{document}
 
-\title{Forward or Gradient? Disentangling\\ Training-Time Feature-Scale Effects on Modality Contribution}
+\title{Feature Scale as a Hidden Per-Modality Learning Rate:\\ When Masked-Accuracy Dominance Misleads}
 
-\author{\IEEEauthorblockN{Ankita Maji}
-\IEEEauthorblockA{Dept. of CSE\\
-LPU, Phagwara, India\\
-\texttt{ankitamaji7033@gmail.com}}
+\author{\IEEEauthorblockN{1\textsuperscript{st} Ankita Maji}
+\IEEEauthorblockA{\textit{School of Computing and Artificial Intelligence} \\
+\textit{Lovely Professional University}\\
+Phagwara, India \\
+ankitamaji7033@gmail.com}
 \and
-\IEEEauthorblockN{Komal Lamba}
-\IEEEauthorblockA{Dept. of CSE\\
-LPU, Phagwara, India\\
-\texttt{ankitamaji7033@gmail.com}}
-\and
-\IEEEauthorblockN{Prabhutee Neb}
-\IEEEauthorblockA{Dept. of CSE\\
-LPU, Phagwara, India\\
-\texttt{ankitamaji7033@gmail.com}}}
+\IEEEauthorblockN{2\textsuperscript{nd} Gona Lalith}
+\IEEEauthorblockA{\textit{School of Computing and Artificial Intelligence} \\
+\textit{Lovely Professional University}\\
+Phagwara, India \\
+gonalalith2005@gmail.com}}
 
 \maketitle
 
 \begin{abstract}
-Multimodal networks frequently underuse one modality, with feature-magnitude imbalance often invoked as an explanation. We ask a more specific, mechanistic question: how does a \emph{training-time}, modality-specific feature-scale intervention alter learned modality contribution, and through which pathway---forward representation magnitude, encoder-gradient magnitude, or both? Using custom autograd operators that rescale one modality's fused representation in the forward pass only, the backward pass only, or both, while leaving the objective unchanged, we isolate the two pathways and record the encoder parameter-update ratio as an optimization-level readout. Across a synthetic generator and two real datasets (CREMA-D, UTD-MHAD), a constant scale is largely compensated by trainable encoders, yet the training-time intervention still produces substantial contribution changes. Under the tested Adam configuration, forward scaling carries the effect while isolated gradient scaling produces little change despite $100$--$282\times$ gradient-norm ratios (update ratio $\approx\!1$); under SGD both pathways contribute (gradient-only update ratio $\approx\!96\times$ at $\alpha{=}100$). On CREMA-D, forward scaling closely matches the effect ($d\!\approx\!7.4$) and gradient scaling does not. As boundary conditions, the forward effect varies across fusion mechanisms (attenuated under gated fusion) while gradient-only stays approximately null, and in a utility-asymmetric setting (UTD-MHAD) the response differs sharply with modality utility. Normalization suppresses the imposed-scale difference but does not remove it.
+Multimodal networks often underuse one modality, and feature-magnitude imbalance is a common explanation. We study a controlled, training-time intervention---multiplying one modality's fused representation by a constant $\alpha$---split by custom autograd operators into forward-only, gradient-only, and ordinary variants that scale the forward activation, the encoder gradient, or both while leaving the objective fixed. A first-order, fixed-gradient analysis shows each variant acts as an effective per-modality learning-rate multiplier ($s_f s_g$ under SGD, $s_f$ under small-$\epsilon$ Adam, where the gradient gain cancels). On matched synthetic data ($10$ seeds) the results are consistent with these predictions: gradient-only is null under Adam (update ratio $1.00$) but transmitted under SGD ($95.8$); learning-rate-matched and $\eta/\alpha$ controls behave as predicted, and the forward effect is resolved on every complementary diagnostic (probe, Shapley, mean-ablation). We then separate the intervention from the measurement on real data, reporting paired Student-$t$ intervals over seeds. On CREMA-D (our actor-disjoint split, weak from-scratch encoders, Adam without weight decay) forward scaling moves masked-accuracy dominance by $+0.26$, while mean-ablation and Shapley show no statistically resolved change and the frozen-encoder probe a much smaller positive shift ($+0.02$); gradient-only is null. On a second dataset (UTD-MHAD) the masked-dominance shift is several times larger than the complementary-diagnostic shifts; the dissociation also holds under SGD stabilized by gradient clipping, and for an adapted rebalancing baseline (on-the-fly gradient modulation adapted to our sum-fusion setting), whose $+0.24$ masked shift its complementary diagnostics do not resolve. A positive control confirms the diagnostics detect genuine degradation. Feature scale thus acts as a hidden per-modality learning rate, and masked-accuracy dominance can substantially exceed the change indicated by complementary modality-utility diagnostics---so contribution claims need more than one measurement.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -56,33 +53,32 @@ Multimodal learning, modality imbalance, feature scaling, gradient dynamics, opt
 \end{IEEEkeywords}
 
 \section{Introduction}
-Combining complementary signals, such as audio and video or depth and inertial motion, is central to multimodal signal processing~\cite{ramachandram2017deep,baltrusaitis2019multimodal,atrey2010multimodal}. Yet jointly trained classifiers routinely underuse one modality, converging to solutions dominated by the other even when both carry task-relevant information~\cite{wang2020what,peng2022balanced,huang2022modality}. Because encoders can emit representations at different magnitudes, a common intuition is that feature-scale imbalance down-weights the weaker branch. This motivates normalization and rebalancing methods but is rarely tested by intervention: correlational evidence cannot separate whether scale acts through the \emph{forward} representation or the \emph{backward} gradient that updates each encoder.
+Combining complementary signals---audio and video, or depth and inertial motion---is central to multimodal signal processing~\cite{ramachandram2017deep,baltrusaitis2019multimodal}. Yet jointly trained classifiers routinely underuse one modality even when both carry task-relevant information~\cite{wang2020what,peng2022balanced,huang2022modality}. A common intuition is that feature-scale imbalance down-weights the weaker branch, motivating normalization and rebalancing methods, but it is rarely tested by intervention: correlational evidence cannot separate whether scale acts through the \emph{forward} representation or the \emph{backward} gradient that updates each encoder.
 
-We treat $\alpha$ as an externally controlled intervention rather than an observed correlate~\cite{pearl2009causality} and examine a single, well-defined manipulation: multiplying one modality's fused representation by a constant $\alpha$ at the fusion boundary while keeping both encoders trainable. The central question is whether this training-time, modality-specific feature-scale intervention acts through the forward-representation-magnitude pathway, the encoder-gradient pathway, or both, and how its effect depends on the optimizer, fusion mechanism, and modality utility.
+We manipulate $\alpha$ as a controlled intervention---multiplying one modality's fused representation by a constant $\alpha$ while keeping both encoders trainable---and ask two questions. First, through which pathway (forward magnitude, encoder gradient, or both) does the intervention act, and how does this depend on the optimizer? Second, does a shift in masked-accuracy contribution reflect a genuine change in what each encoder learned, or an artifact of the measurement?
 
-To address this, we introduce a controlled autograd intervention that separates the forward-representation and backward-gradient consequences of scaling under a fixed objective, using the encoder parameter-update ratio as an optimization-level readout. Our contribution is methodological rather than another rebalancing algorithm; specifically:
+Our contributions are:
 \begin{itemize}
-\item A controlled forward-only, gradient-only, and ordinary intervention that isolates the two pathways of a training-time feature-scale change under a fixed objective (Section~\ref{sec:formulation}).
-\item A mechanistic finding that the pathway carrying the effect depends on the optimizer---primarily forward under Adam, where isolated gradient scaling produces little change, and forward-plus-gradient under SGD---tracked by the parameter-update ratio (Section~\ref{sec:synthetic}).
-\item Real-data corroboration on CREMA-D, with boundary analyses of the fusion mechanism (sum/concat/gated), UTD-MHAD utility asymmetry, and normalization (Section~\ref{sec:real},~\ref{sec:boundary}).
+\item A forward/gradient operator decomposition that isolates the forward-activation and encoder-gradient consequences of a training-time feature-scale change under a fixed objective (Section~\ref{sec:formulation}). To our knowledge, the paired use of these operators to attribute modality contribution is new; the gradient operator generalizes the gradient-reversal layer~\cite{ganin2015domain}.
+\item A first-order effective per-modality learning-rate account (Proposition~1), consistent with maximal-update parametrization~\cite{yang2022tensor}, validated on synthetic data by a learning-rate-matched control and an exact $\eta/\alpha$ cancellation (Sections~\ref{sec:theory},~\ref{sec:synthetic}).
+\item A controlled separation of the intervention from the metric: the forward effect is resolved on the complementary diagnostics on synthetic data, but on CREMA-D masked-accuracy dominance shifts while the frozen-encoder probe, Shapley, and mean-ablation show no comparable change---so a masked-accuracy shift need not reflect a change in what each encoder learned (Section~\ref{sec:real}).
+\item Evidence across the evaluated settings (not a universal claim) that this dissociation is not specific to one dataset or optimizer: it appears on a second real dataset (UTD-MHAD), under SGD stabilized with gradient clipping, and for an adapted rebalancing baseline (on-the-fly gradient modulation~\cite{peng2022balanced}, adapted to our sum-fusion setting), whose masked-dominance shift its complementary diagnostics do not resolve (Section~\ref{sec:real}).
 \end{itemize}
+These two contributions play complementary roles: the operator decomposition identifies how a controlled feature-scale intervention propagates through optimization, while the complementary diagnostics independently test whether the resulting changes in masked accuracy correspond to changes in learned modality representations or fusion reliance.
 
 \section{Related Work}
-\textbf{Multimodal fusion.} Fusion strategies range from early- and late-fusion approaches~\cite{snoek2005early,ngiam2011multimodal} to tensor-based and attention mechanisms~\cite{zadeh2017tensor,nagrani2021attention}, with broader surveys examining the resulting design choices~\cite{baltrusaitis2019multimodal,liang2024foundations}. Multimodal training can also underperform the best unimodal model, motivating analyses of the conditions under which fusion is beneficial~\cite{wang2020what,huang2021what}.
-\textbf{Modality imbalance and rebalancing.} One modality often dominates optimization, as seen in greedy learning dynamics~\cite{wu2022characterizing}, modality competition~\cite{huang2022modality}, and unimodal feature under-learning~\cite{du2023unimodal}. Remedies modulate the learning signal---on-the-fly gradient modulation (OGM-GE)~\cite{peng2022balanced}, adaptive gradient modulation~\cite{li2023boosting}, prototypical rebalancing~\cite{fan2023pmr}, alternating unimodal adaptation~\cite{zhang2024mla}, per-modality learning-rate tracking~\cite{sun2021learning}, functional-entropy regularization~\cite{gat2020removing}, and calibration~\cite{ma2023calibrating}. These act on \emph{which loss or gradient trains the encoder}; unlike them, our intervention is a diagnostic: the objective stays fixed while the forward and backward consequences of the same perturbation are independently controlled to determine which pathway carries the effect.
+\textbf{Multimodal fusion and imbalance.} Fusion ranges from tensor-based to attention-based mechanisms~\cite{zadeh2017tensor,nagrani2021attention}, surveyed broadly in~\cite{baltrusaitis2019multimodal,liang2024foundations}. A recurring failure is that multimodal training can underperform the best unimodal model~\cite{wang2020what,huang2021what}: one modality dominates optimization through greedy learning dynamics~\cite{wu2022characterizing}, modality competition~\cite{huang2022modality}, and unimodal feature under-learning~\cite{du2023unimodal}.
 
-\textbf{Gradient balancing in multi-task learning.} These methods adjust per-task gradients by norm or direction~\cite{chen2018gradnorm,yu2020gradient,kendall2018multi}; by contrast, we use a single intervention to separate the two pathways under one fixed objective.
+\textbf{Rebalancing methods.} Remedies modulate the learning signal---on-the-fly gradient modulation (OGM-GE)~\cite{peng2022balanced}, adaptive gradient modulation~\cite{li2023boosting}, prototypical rebalancing (PMR)~\cite{fan2023pmr}, alternating unimodal adaptation (MLA)~\cite{zhang2024mla}, Pareto-balanced integration (MMPareto)~\cite{wei2024mmpareto}, per-modality learning-rate tracking~\cite{sun2021learning}, functional-entropy regularization~\cite{gat2020removing}, and calibration~\cite{ma2023calibrating}. These change \emph{which} loss or gradient trains each encoder; we instead hold the objective fixed and separate the forward and backward consequences of one perturbation to ask \emph{which pathway} carries the effect, rather than adapting updates to aid the weak modality, explaining why imbalance arises, or removing magnitude. Related multi-task methods balance per-task gradients by norm or direction~\cite{chen2018gradnorm,yu2020gradient}.
 
-\textbf{Optimization.} Whether per-modality gradient rescaling affects learning depends on the optimizer. Adam's~\cite{kingma2015adam} coordinate-wise second-moment normalization can attenuate a \emph{constant} gradient rescale, as examined through the sign and variance structure of adaptive updates~\cite{balles2018dissecting,bernstein2018signsgd,kunstner2023noise} and in work relating adaptive methods to SGD~\cite{wilson2017marginal,zhang2020why,reddi2018convergence,loshchilov2019decoupled}, whereas SGD with momentum~\cite{sutskever2013importance} passes gradient scale into the update. We use this literature to interpret---not claim---our findings: optimizer-level attenuation is not itself new; our contribution is to connect it, via matched pathway interventions, to modality-contribution changes under training-time feature scaling.
+\textbf{Optimization and effective learning rate.} Whether a per-modality gradient rescale affects learning depends on the optimizer: in the small-$\epsilon$ limit Adam's~\cite{kingma2015adam} coordinate-wise second-moment normalization attenuates a \emph{constant} gradient rescale~\cite{balles2018dissecting,bernstein2018signsgd,kunstner2023noise}, as does the gradient part of AdamW's update~\cite{loshchilov2019decoupled} (its decoupled weight-decay term is not rescaled); at finite $\epsilon$ this attenuation is only approximate, and SGD with momentum passes the gradient scale into the update. Maximal-update parametrization and related work on parameterization-dependent learning-rate scaling~\cite{yang2022tensor,everett2024scaling} formalize per-layer scalings (for SGD and Adam) that keep every layer learning at a stable rate; our effective learning-rate account is consistent with that view at fixed width, so we do not claim the idea as new. Our instrument is the forward/gradient operator split (the gradient operator generalizing the gradient-reversal layer~\cite{ganin2015domain}) and its use for contribution attribution.
 
-\textbf{Normalization.} Batch, layer, and group normalization~\cite{ioffe2015batch,ba2016layer,wu2018group} and analyses of their optimization effects~\cite{santurkar2018how} remove magnitude differences; we use per-modality standardization as a control on the imposed scale channel, not a cure. Quantifying each modality's contribution is itself subtle~\cite{hessel2020does}; we adopt an interventional stance~\cite{pearl2009causality} on standard audio-visual and multimodal-sensing benchmarks~\cite{cao2014crema,chen2015utd,arandjelovic2017look,owens2018audio,ephrat2018looking}.
+\textbf{Measuring contribution.} Normalization removes magnitude differences~\cite{santurkar2018how}; we use per-modality standardization only as a control. Attributing contribution is itself subtle~\cite{hessel2020does,wei2024valuation}: masked (modality-dropout) accuracy is common but off-distribution, so we complement it with a frozen-encoder probe, mean-ablation, and a two-modality Shapley value on a standard audio-visual benchmark~\cite{cao2014crema}.
 
 \section{Problem Formulation and Controlled Interventions}
 \label{sec:formulation}
 \subsection{Modality-Specific Feature-Scale Intervention}
-Let $h_A,h_B$ denote the modality representations entering the fusion function $f(\cdot)$, with a classifier head trained under cross-entropy. The intervention multiplies one branch (e.g., $A$) by a constant $\alpha$ at the fusion boundary, $h_A \leftarrow \alpha\,h_A$, while both encoders remain trainable. This is a training-time, not test-time, manipulation: the scaled representation influences the fusion, loss, and gradients at every step.
-
-Following an interventional view~\cite{pearl2009causality}, $\alpha$ is set exogenously, so contrasts across $\alpha$ quantify the response to the imposed scale, not an observational association with naturally occurring feature magnitude. This distinguishes exogenously assigned perturbations from observational correlations; we do not claim identification of a complete causal graph.
+Let $h_A,h_B$ denote the modality representations entering the fusion function $f(\cdot)$, with a classifier head trained under cross-entropy. The intervention multiplies one branch (e.g., $A$) by a constant $\alpha$ at the fusion boundary, $h_A \leftarrow \alpha\,h_A$, while both encoders remain trainable. This is a training-time, not test-time, manipulation: the scaled representation influences the fusion, loss, and gradients at every step. Because $\alpha$ is experimenter-set and fixed throughout, contrasts across $\alpha$ measure the response to the imposed scale, not an association with naturally occurring feature magnitude.
 
 \subsection{Forward and Gradient Pathways}
 Let $\tilde h_A$ be the representation entering fusion. For the ordinary map $\tilde h_A=\alpha h_A$, the chain rule couples two effects: the forward activation is scaled, while $\partial L/\partial h_A=\alpha\,\partial L/\partial\tilde h_A$, so the gradient, and hence the update, to encoder $A$ also carries $\alpha$. To disentangle them, we define two custom autograd operators with independent forward and backward maps:
@@ -90,208 +86,277 @@ Let $\tilde h_A$ be the representation entering fusion. For the ordinary map $\t
 \textsc{Fwd}_\alpha:&\quad \tilde h_A=\alpha h_A,\ \ \tfrac{\partial L}{\partial h_A}=\tfrac{\partial L}{\partial \tilde h_A}\ (\times 1),\\
 \textsc{Grad}_\alpha:&\quad \tilde h_A=h_A,\ \ \ \tfrac{\partial L}{\partial h_A}=\alpha\,\tfrac{\partial L}{\partial \tilde h_A}\ (\times \alpha).
 \end{align}
-All four arms share one objective: \emph{baseline} ($\tilde h_A=h_A$), \emph{forward-only} ($\textsc{Fwd}_\alpha$: forward scaled, gradient unscaled), \emph{gradient-only} ($\textsc{Grad}_\alpha$: forward unchanged, gradient scaled), and \emph{ordinary} ($\alpha h_A$: both), so ordinary is the composition of the two isolated maps. The operator acts at the fusion boundary---after each encoder (and its normalization), before fusion---on modality $A$ only. In the gradient-only arm the forward pass, loss, and head gradients are thus unchanged by construction ($\textsc{Grad}_\alpha$ is the identity in the forward pass); only modality $A$'s encoder gradient is multiplied by $\alpha$, entering the optimizer as a constant per-parameter rescale (no weight decay, clipping, or scheduler). A sanity gate verifies each operator's forward/backward multipliers (baseline $1{,}1$; forward $\alpha{,}1$; gradient $1{,}\alpha$; ordinary $\alpha{,}\alpha$) before training; runs that diverge are recorded and excluded (none did).
+All four arms share one objective: \emph{baseline} ($\tilde h_A=h_A$), \emph{forward-only} ($\textsc{Fwd}_\alpha$: forward scaled, gradient unscaled), \emph{gradient-only} ($\textsc{Grad}_\alpha$: forward unchanged, gradient scaled), and \emph{ordinary} ($\alpha h_A$: both), so ordinary is the composition of the two isolated maps. The operator acts at the fusion boundary---after each encoder (and its normalization), before fusion---on modality $A$ only. In the gradient-only arm the forward pass, loss, and head gradients are thus unchanged by construction ($\textsc{Grad}_\alpha$ is the identity in the forward pass); only modality $A$'s encoder gradient is multiplied by $\alpha$, entering the optimizer as a constant per-parameter rescale (no weight decay, clipping, or scheduler). A sanity gate verifies each operator's forward/backward multipliers before training; divergent runs are recorded and excluded (none did).
 
 \subsection{Modality Contribution Metrics}
-We use \emph{masked} unimodal accuracy as an operational measure of contribution: $\mathrm{Acc}_A$ is the joint model's accuracy when modality $B$'s fused input is zeroed, and vice versa. Because masking is not necessarily part of the training distribution, this is a diagnostic of retained modality-specific predictive utility, not a calibrated estimate of causal contribution. From these we report dominance $\dom=\mathrm{Acc}_A-\mathrm{Acc}_B$ and multimodal gain $\gain=\mathrm{Acc}_{AB}-\max(\mathrm{Acc}_A,\mathrm{Acc}_B)$, where $\mathrm{Acc}_{AB}$ is the joint accuracy.
+We use \emph{masked} unimodal accuracy as an operational contribution measure: $\mathrm{Acc}_A$ is the joint model's accuracy when modality $B$'s fused input is zeroed, giving \emph{masked dominance} $\dom_{\mathrm{mask}}=\mathrm{Acc}_A-\mathrm{Acc}_B$ and gain $\gain=\mathrm{Acc}_{AB}-\max(\mathrm{Acc}_A,\mathrm{Acc}_B)$. Zeroing a trained-in modality is off-distribution, so masked dominance mixes what the encoder learned with how the head reacts to an unseen input, and the scaling can move it mechanically. We therefore add three \emph{complementary} diagnostics that the scaling arithmetic alone cannot move---training under the intervention still can, which is the signal we want. Let $v(S)$ be test accuracy with the modalities outside $S$ replaced by their \emph{pre-scale}, per-modality training-set mean. (i) A \emph{frozen-encoder linear probe} $P_A$: a multinomial-logistic classifier on each encoder's standardized (scale-invariant) output, fit on the training split and scored on the test split, with a fixed $L_2$ coefficient ($10^{-4}$) held constant across all modalities and conditions (so probe differences are not an artifact of per-condition tuning), reading linearly decodable class information. (ii) \emph{Mean-ablation dominance} $\dom_{\mathrm{mean}}=v(\{A\})-v(\{B\})$. (iii) The two-modality \emph{Shapley} value of the scaled modality, $\phi_A=\tfrac{1}{2}\bigl[v(\{A\})-v(\emptyset)\bigr]+\tfrac{1}{2}\bigl[v(\{A,B\})-v(\{B\})\bigr]$, with the mean-ablated state as the empty coalition $\emptyset$. The probe reads encoder quality, $\dom_{\mathrm{mean}}$ and $\phi_A$ fusion reliance; these quantities differ, so we read their \emph{disagreement} with masked dominance, not any one as ground truth.
 
-As magnitude readouts we use the fusion-input norm ratio $\rhof=\lVert h_A\rVert/\lVert h_B\rVert$ (post-scale) and the pre-scale ratio $\rhoe$ (compensation), and record the encoder parameter-update ratio $\updr=\lVert\Delta\theta_A\rVert/\lVert\Delta\theta_B\rVert$ with the gradient-norm ratio $\gradr$. Because $\updr$ directly reflects what changes the weights, we use it as an optimization-level readout of how a gradient rescale becomes an update, not a formal mediation analysis.
+As magnitude readouts we use the fusion-input norm ratio $\rhof=\lVert h_A\rVert/\lVert h_B\rVert$ (post-scale) and the pre-scale ratio $\rhoe$ (compensation), and record the encoder parameter-update ratio $\updr=\lVert\Delta\theta_A\rVert/\lVert\Delta\theta_B\rVert$ with the gradient-norm ratio $\gradr$. Because $\updr$ directly reflects what changes the weights, we use it as an optimization-level readout of how a gradient rescale becomes an update, not a formal mediation analysis. To make compensation a measured quantity rather than a qualitative claim, we report, for $\alpha>1$, the \emph{compensation fraction} $c=1-\ln\!\big(\rhof(\alpha)/\rhof(1)\big)/\ln\alpha$, where $c{=}1$ means the encoders fully cancel the imposed log-scale and $c{=}0$ means no compensation (it is undefined at $\alpha{=}1$).
 
 \subsection{Experimental Hypotheses}
-Within the evaluated regimes, we test: (H1) a constant modality-specific scale held fixed throughout training, with trainable encoders, is substantially compensated, leaving only a small residual change in contribution; (H2) the training-time forward-scale intervention changes the learned contribution; (H3) under the tested Adam configuration, isolated gradient scaling produces a substantially weaker effect than forward scaling; (H4) under SGD, gradient/update scaling contributes more strongly; and (H5) the forward effect varies across the evaluated fusion mechanisms and differs qualitatively between the matched synthetic setting and the utility-asymmetric real-data setting tested.
+We test four claims. (H1) A constant modality-specific scale is partially compensated by the trainable encoders, by a fraction $c$ that is Adam-specific (near zero under SGD). (H2) Each arm acts as the effective learning-rate multiplier of Proposition~1: gradient-only is null under Adam and transmitted under SGD, and a learning-rate-matched control reproduces the forward effect. (H3) On matched synthetic data the forward effect is real under every decoupled metric. (H4) On real data, masked-accuracy dominance can shift substantially more than the decoupled metrics---across two datasets (CREMA-D, UTD-MHAD), both optimizers (SGD stabilized by clipping), and a published rebalancing baseline.
 
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[
-  font=\footnotesize,
-  box/.style={draw,rounded corners=2pt,align=center,inner sep=3pt,minimum height=6.5mm,fill=blue!5},
-  fwdbox/.style={box,fill=blue!8},
-  grdbox/.style={box,fill=red!8},
-  arr/.style={-{Latex[length=2mm]},thick},
-  >=Latex]
-\node[box] (scale) {feature\\scale $\alpha$};
-\node[fwdbox,right=7mm of scale,yshift=6.5mm] (fwd) {forward\\magnitude $\lVert h_A\rVert$};
-\node[grdbox,right=7mm of scale,yshift=-6.5mm] (grd) {encoder\\gradient};
-\node[fwdbox,right=6mm of fwd] (fus) {fusion\\ \& loss};
-\node[grdbox,right=6mm of grd] (upd) {param.\\update $\Delta\theta$};
-\node[box,right=6mm of fus,yshift=-6.5mm,fill=green!8,minimum height=9mm] (con) {learned\\modality\\contribution};
-\draw[arr] (scale) |- (fwd);
-\draw[arr] (scale) |- (grd);
-\draw[arr] (fwd) -- (fus);
-\draw[arr] (grd) -- (upd);
-\draw[arr] (fus) -| (con);
-\draw[arr] (upd) -| (con);
-\node[below=1.0mm of grd,red!70!black,font=\scriptsize] {optimizer (Adam/SGD)};
-\node[above=0.6mm of fus,blue!70!black,font=\scriptsize] {fusion mech.};
-\node[below=0.6mm of con,font=\scriptsize] {modality utility};
-\draw[dashed,gray] ($(fwd.north west)+(-1mm,4.2mm)$) -- ($(fus.north east)+(1mm,2.2mm)$)
-   node[midway,above,font=\scriptsize,black] {normalization suppresses scale difference};
-\end{tikzpicture}
-\caption{Conceptual decomposition of the training-time scale intervention (not an identified causal graph). A modality-specific scale factor can act through a forward-magnitude pathway (into fusion and loss) and a backward pathway (into the parameter update). Optimizer, fusion mechanism, and modality utility moderate the effect; per-modality normalization largely suppresses the imposed forward-scale difference.}
-\label{fig:causal}
-\end{figure}
+\section{An Effective Learning-Rate Account}
+\label{sec:theory}
+The two operators admit a first-order analysis that predicts all four arms under both optimizers from a single quantity, turning the empirical contrast into a quantitative prediction rather than a restatement of known Adam behavior. Consider sum fusion with logit $z=W(\tilde h_A+h_B)$ and a head $W$ treated as fixed over one step; let $J_A=\partial h_A/\partial\theta_A$ be modality $A$'s encoder Jacobian and $g=\partial L/\partial z$. Each arm applies a forward gain $s_f$ and a gradient gain $s_g$ to modality $A$: baseline $(1,1)$, forward-only $(\alpha,1)$, gradient-only $(1,\alpha)$, and ordinary $(\alpha,\alpha)$. To first order the per-step change in $A$'s logit contribution is
+\begin{equation}
+\Delta z_A \approx s_f\,W J_A\,\Delta\theta_A,
+\end{equation}
+and the encoder update differs by optimizer:
+\begin{align}
+\Delta\theta_A^{\mathrm{SGD}} &= -\eta\,s_g\,J_A^{\top}W^{\top}g,\\
+\Delta\theta_A^{\mathrm{Adam}} &\approx -\eta\,\mathrm{norm}(g_{\theta_A})\ \ (\text{independent of }s_g\text{ as }\epsilon\!\to\!0).
+\end{align}
+Substituting gives an effective function-space learning-rate multiplier $m$---the factor by which an arm scales $A$'s per-step logit update relative to baseline---of $m_{\mathrm{SGD}}=s_f s_g$ and $m_{\mathrm{Adam}}=s_f$.
 
-\section{Controlled Synthetic Study}
-\label{sec:synthetic}
-\subsection{Experimental Setup}
-Each modality is generated as $x_m=\alpha_m(\mu^m_y+\sigma_m\varepsilon)$, $\varepsilon\!\sim\!\mathcal{N}(0,I)$, using orthonormal class prototypes $\mu^m$ of norm (separation scale) $1.5$ from a fixed seed, with $C{=}8$ classes, $d_a{=}d_v{=}32$, $\sigma{=}1$, and $4000/1000/2000$ samples. Because a linear head can in principle absorb a constant $\alpha_m$, a fixed feature rescaling need not remove the information available to the classifier. Both modalities share the same prototype geometry and noise variance, giving matched generative signal-to-noise. The encoders are matched two-layer MLPs (hidden $64$, ReLU, rep dim $32$) with sum fusion unless stated otherwise, a linear head, Adam, batch $256$, $40$ epochs, and five seeds on the fixed split (Table~\ref{tab:protocol}); we use PyTorch~\cite{paszke2019pytorch}.
-
-Throughout, significance uses a two-sided paired $t$-test across the five seeds, and Cohen's $d_z$ is the paired mean difference over its standard deviation---the same pre-specified procedure for every comparison, without multiplicity correction. With $n{=}5$ on a \emph{fixed} split, effect sizes and $p$-values quantify within-split reproducibility, not population inference; a large $|d|$ reflects seed consistency, not a large population effect. None of the $60$ disentanglement or $60$ fusion runs diverged.
-
-\subsection{A Constant Scale Is Compensated}
-We first ask whether a \emph{constant} modality-specific scale---held fixed throughout training with both encoders trainable, not an inference-time rescale of a frozen encoder---has a persistent effect. The encoders adapt: as the imposed scale grows, $\rhoe$ shifts oppositely and contribution returns toward baseline, so under the evaluated synthetic regime a constant scale is substantially compensated, leaving only a small residual change across the tested range (H1).
-
-\subsection{Scale $\times$ Optimization Interaction}
-These controlled interventions let us distinguish the forward-scale and optimization pathways. We summarize persistence by a study-specific statistic $S_{\mathrm{loss}}=\mathrm{clip}(1-c_{\mathrm{weak}}/c_{\mathrm{weak}}^{\mathrm{base}},0,1)$ (fractional reduction of the weak modality's contribution below its balanced baseline), not proposed as a universal definition of modality collapse. A constant feature-scale imbalance stays compensable ($S_{\mathrm{loss}}$ within $0.04$--$0.08$ across $20$--$400\times$), whereas a learning-rate imbalance, or one aligned in scale and learning rate, produces persistent loss ($S_{\mathrm{loss}}\!\to\!0.88$ and $1.0$ at $400\times$)---here associated more with the optimization/learning-rate channel than with feature scale alone.
-
-\subsection{Forward-vs-Gradient Disentanglement}
-Under Adam~\cite{kingma2015adam} at $\alpha\!=\!100$ (Fig.~\ref{fig:disentangle}a, Table~\ref{tab:disentangle}), forward-only shifts dominance ($\Delta\dom\!=\!-0.070$, $d\!=\!-3.76$, $p\!=\!1.1\!\times\!10^{-3}$) and closely matches the ordinary intervention ($\Delta\dom\!=\!-0.069$; ordinary$\approx$forward). Gradient-only produces little change ($\Delta\dom\!=\!-5\!\times\!10^{-4}$, $d\!=\!-0.53$, $p\!=\!0.30$) even though it inflates the gradient-norm ratio by more than two orders of magnitude. The update readout tracks this (Fig.~\ref{fig:disentangle}b): under Adam the gradient-only arm leaves the parameter-update ratio at $\updr\!\approx\!1$, consistent with the attenuation expected from Adam's normalized update under approximately constant gradient rescaling~\cite{balles2018dissecting,bernstein2018signsgd,kunstner2023noise}.
-
- 
-\subsection{Optimizer Dependence}
-Repeating the decomposition under SGD with momentum $0.9$~\cite{sutskever2013importance} (same lr $10^{-3}$, $40$ epochs) changes the picture (Table~\ref{tab:disentangle}). Now gradient-only \emph{does} shift dominance ($\Delta\dom\!=\!+0.200$, $d\!=\!3.90$) with an $\approx\!96\times$ update ratio ($\updr\!=\!95.9$ at $\alpha{=}100$): the gradient scale is substantially transmitted to the update, behaving like a substantial effective per-modality learning-rate difference here. Forward-only also shifts dominance ($\Delta\dom\!=\!+0.244$, $d\!=\!3.93$), and ordinary ($\Delta\dom\!=\!+0.322$) exceeds forward ($d_{\text{ord vs fwd}}\!=\!2.86$, $p\!=\!3\!\times\!10^{-3}$).
-
-Both pathways therefore contribute, but the ordinary shift is smaller than the sum of the isolated forward and gradient shifts ($0.322<0.244+0.200$), indicating that the two effects do not combine additively in this setting. Within the tested configurations, optimizer behavior determines which pathway more strongly transmits the intervention (H3--H4).
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.56\textwidth]{fig_disentangle.pdf}
-\caption{Forward-vs-gradient decomposition at $\alpha\!=\!100$ across five seeds. (a) Signed dominance shift by intervention arm; the gradient-only bar is $\approx\!0$ under Adam (synthetic and CREMA-D) but large under SGD, while forward-only tracks the ordinary intervention. (b) Gradient-only arm showing the gradient-norm ratio versus the parameter-update ratio on a log scale: under Adam, a $100$--$283\times$ gradient ratio yields an update ratio of $\approx\!1$, whereas under SGD it is $\approx\!96\times$.}
-\label{fig:disentangle}
-\end{figure*}
-
-\section{Real-Data Evidence}
-\label{sec:real}
-\subsection{CREMA-D Setup}
-CREMA-D~\cite{cao2014crema} provides audio-video emotional utterances over six classes. We use an actor-disjoint split ($64/9/18$ actors $=5234/738/1470$ clips), reducing the chance that the effect is driven by actor overlap across splits. Audio is $16$\,kHz mono, $3$\,s, encoded as a $64$-bin log-mel spectrogram; video is $8$ uniformly sampled $64\times64$ grayscale frames. Both encoders are matched three-block CNNs~\cite{he2016deep} (Table~\ref{tab:protocol}) producing $64$-d representations combined by sum fusion with a linear head. Audio is the scaled modality, with $\alpha\!\in\!\{10,100\}$. The baseline is genuinely multimodal (Table~\ref{tab:cremad}): joint accuracy $0.493$, gain $0.248$, dominance $0.075$.
-
-\subsection{Training-Time Scaling Results}
-Scaling one modality during training monotonically reshapes contribution (Table~\ref{tab:cremad}): amplifying audio raises audio dominance ($0.075\!\to\!0.299\!\to\!0.328$ at $1/5/10\times$) and reduces multimodal gain from $0.248$ to $0.013$, while amplifying video does the opposite (dominance $\to\!0.009$, gain $\to\!0.295$); imposed scale and learned dominance are rank-correlated (Spearman $0.922$). The pre-scale ratio $\rhoe$ shifts oppositely, consistent with partial encoder compensation; per-modality $z$-scoring largely suppresses the imposed difference (audio $10\times$: dominance $0.328\!\to\!0.110$, $\rhof\ 3.24\!\to\!0.97$; Table~\ref{tab:cremad}), analyzed in \S\ref{sec:boundary}.
-
-
-\subsection{Real-Data Forward-vs-Gradient Disentanglement}
-The same four-arm decomposition on CREMA-D ($40$ runs, $0$ diverged) matches the Adam pattern (Fig.~\ref{fig:disentangle}, Table~\ref{tab:disentangle}). Forward-only produces the effect ($\Delta\dom\!=\!+0.259$, $d\!=\!7.39$, $p\!=\!8\!\times\!10^{-5}$) and closely matches ordinary ($d_{\text{ord vs fwd}}\!=\!0.59$, $p\!=\!0.26$); gradient-only produces no detectable shift (five seeds; $\Delta\dom\!=\!-0.001$, $d\!=\!-0.08$, $p\!=\!0.87$) despite a $282\times$ gradient-norm ratio, its update ratio only $1.61$.
-
-
-\section{Fusion and Modality-Utility Boundaries}
-\label{sec:boundary}
-\subsection{Fusion-Mechanism Robustness}
-We repeat the decomposition under three fusion mechanisms---sum, concatenation, and learned gated fusion with per-modality sigmoid self-gates---over $60$ runs, with $0$ diverged (Fig.~\ref{fig:fusion}). Across all three evaluated mechanisms, gradient-only scaling produces little measurable contribution shift ($|\Delta\dom|\!\le\!0.001$, update ratio $\approx\!1$). The forward effect, however, varies across mechanisms: strong under sum ($d\!=\!-3.76$, $p\!=\!1\!\times\!10^{-3}$) and concatenation ($d\!=\!-5.16$, $p\!=\!3\!\times\!10^{-4}$), but attenuated under gated fusion ($d\!=\!-0.70$), where it is \emph{not} individually significant ($p\!=\!0.19$). This is consistent with the possibility that the learned per-modality gates can partly absorb the imposed forward magnitude. These results indicate variation across the evaluated mechanisms, not architecture generality.
-
-
-\subsection{UTD-MHAD: A Modality-Utility Boundary}
-UTD-MHAD~\cite{chen2015utd} pairs depth and inertial sensing over $27$ actions ($861$ usable samples), subject-disjoint (Table~\ref{tab:protocol}). The modalities are strongly utility-asymmetric: masked depth accuracy is near the $27$-class chance level ($0.037$), at $0.036$ (so dominance is influenced by the large difference in unimodal utility), while inertial is informative ($0.227$), with strong multimodal accuracy ($0.632$, gain $0.405$). We thus include UTD as a boundary-condition experiment---a utility-asymmetry test, \emph{not} an independent replication of the pathway decomposition (Fig.~\ref{fig:utd}).
-
-The response to scaling differs sharply by modality. Amplifying the informative inertial modality further increases its relative contribution (dominance $-0.191\!\to\!-0.615$, gain $\to\!0.053$), whereas amplifying the near-chance depth modality barely changes contribution (dominance $\to\!-0.198$, gain $\approx\!0.40$). Because the test set is four fixed subjects, we report per-subject consistency and do not treat seed-level $p$-values as population inference.
-
-\subsection{Normalization Analysis}
-Per-modality standardization largely suppresses the imposed forward-scale difference ($\rhof\!\to\!\approx\!1$) and substantially reduces the resulting contribution shift, but it does not improve accuracy (and can slightly reduce it), nor does it directly alter the optimization imbalance seen in the scale$\times$LR experiments. It is thus a control on the imposed scale difference, not a general cure.
-
-\begin{table}[t]
-\caption{Forward-vs-gradient decomposition ($\alpha\!=\!100$, five seeds). $\Delta\dom$: dominance shift vs baseline; $\gradr,\updr$: gradient-norm and parameter-update ratios for the stated arm.}
-\label{tab:disentangle}
-\centering
-\footnotesize
-\begin{tabular}{@{}llrrr@{}}
-\toprule
-Setting & Arm & $\Delta\dom$ & Cohen's $d$ & $p$ \\
-\midrule
-\multirow{3}{*}{Adam, synthetic} & forward  & $-0.070$ & $-3.76$ & $1.1\!\times\!10^{-3}$ \\
-                                 & gradient & $-0.0005$ & $-0.53$ & $0.30$ \\
-                                 & ordinary & $-0.069$ & $-3.73$ & $1.1\!\times\!10^{-3}$ \\
-\midrule
-\multirow{3}{*}{Adam, CREMA-D}   & forward  & $+0.259$ & $+7.39$ & $8\!\times\!10^{-5}$ \\
-                                 & gradient & $-0.001$ & $-0.08$ & $0.87$ \\
-                                 & ordinary & $+0.266$ & $+8.51$ & $4\!\times\!10^{-5}$ \\
-\midrule
-\multirow{3}{*}{SGD, synthetic}  & forward  & $+0.244$ & $+3.93$ & $9\!\times\!10^{-4}$ \\
-                                 & gradient & $+0.200$ & $+3.90$ & $1\!\times\!10^{-3}$ \\
-                                 & ordinary & $+0.322$ & $+7.75$ & $7\!\times\!10^{-5}$ \\
-\midrule
-\multicolumn{2}{@{}l}{gradient-only $\updr$}: & Adam $1.61$ & \multicolumn{2}{r}{SGD $95.9$}\\
-\multicolumn{2}{@{}l}{gradient-only $\gradr$}: & Adam $282.7$ & \multicolumn{2}{r}{SGD $318.5$}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\caption{CREMA-D training-time scale (five seeds, Adam). Dominance $\dom$ (audio$-$video) and gain $\gain$; imposed scale and dominance are rank-correlated (Spearman $0.922$). Last row: per-modality $z$-scoring for audio-$10\times$.
-}
-\label{tab:cremad}
-\centering
-\footnotesize
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-Condition & $\dom$ & $\gain$ & $\rhof$ \\
-\midrule
-baseline ($1\times$)      & $0.075$ & $0.248$ & $1.22$ \\
-audio $\times5$           & $0.299$ & $0.045$ & $2.31$ \\
-audio $\times10$          & $0.328$ & $0.013$ & $3.24$ \\
-video $\times5$           & $0.056$ & $0.263$ & $1.18$ \\
-video $\times10$          & $0.009$ & $0.295$ & $1.02$ \\
-audio $\times10$ + $z$    & $0.110$ & --      & $0.97$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.60\columnwidth]{fig_fusion.pdf}
-\caption{Fusion-mechanism comparison at $\alpha\!=\!100$. Gradient-only is approximately null across all three mechanisms; the forward effect is strong under sum and concatenation, attenuated and non-significant under gated fusion.
-}
-\label{fig:fusion}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.60\columnwidth]{fig_utd.pdf}
-\caption{UTD-MHAD under modality-utility asymmetry. Amplifying the informative inertial modality further increases its relative contribution and reduces gain; amplifying the near-chance depth modality barely changes contribution.
-}
-\label{fig:utd}
-\end{figure}
-
-\begin{table}[t]
-\caption{Datasets and protocol (reproducibility). CNN encoders use three conv blocks (conv$\to$ReLU$\to2{\times}2$ max-pool; $2\times$ pooling for the 1D encoder), then global-average pooling and a linear projection to the representation dim: 2D $3{\times}3$ with $16/32/32$ channels (CREMA audio/video, UTD depth; video/depth mean-pooled over frames), 1D kernel-$5$ with $16/32/64$ channels (UTD inertial). Adam uses PyTorch defaults ($\beta{=}(0.9,0.999)$, $\epsilon{=}10^{-8}$); SGD uses momentum $0.9$; no weight decay, scheduler, or gradient clipping. Seeds index initialization/order on a fixed split; unimodal accuracy is masking-based. Code and configurations are prepared for release.
-}
-\label{tab:protocol}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
+\noindent\textbf{Proposition 1 (local, first-order, fixed-$g$).} \emph{Under sum fusion with a fixed shared head, local linearity, a loss gradient $g=\partial L/\partial z$ treated as fixed across arms, and $\epsilon\!\to\!0$, the per-step change in modality $A$'s logit contribution scales by the multipliers below.}
+\begin{center}\footnotesize
 \begin{tabular}{@{}lccc@{}}
 \toprule
- & Synthetic & CREMA-D & UTD-MHAD \\
+Arm & $(s_f,s_g)$ & SGD ($s_f s_g$) & Adam ($s_f$)\\
 \midrule
-Modalities    & 2 matched & audio/video   & depth/inertial \\
-Encoder       & 2-layer MLP & 2D-CNN      & 2D+1D-CNN \\
-Rep.\ dim     & 32        & 64            & 64 \\
-Split (fixed) & 4k/1k/2k  & actor 64/9/18 & subj.\ 1,3,5/7/2,4,6,8 \\
-Optimizer     & Adam, SGD & Adam          & Adam \\
-LR / batch    & $10^{-3}$/256 & $10^{-3}$/64 & $10^{-3}$/32 \\
-Epochs        & 40        & 30            & 60 \\
-Fusion        & sum/concat/gated & sum    & sum \\
-Seeds         & 5         & 5             & 5 \\
+Baseline      & $(1,1)$           & $1$        & $1$\\
+Forward-only  & $(\alpha,1)$      & $\alpha$   & $\alpha$\\
+Gradient-only & $(1,\alpha)$      & $\alpha$   & $1$\\
+Ordinary      & $(\alpha,\alpha)$ & $\alpha^2$ & $\alpha$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This is a first-order sketch, not a proof; our contribution is the operator split, not the per-layer-learning-rate idea. The account holds $g$ fixed, but forward scaling changes the logits and can therefore change $g$ itself; the multipliers thus describe the one-step response at fixed $g$. Proposition~1 is accordingly a \emph{local, direct-effect} account---a predicted per-step update multiplier, not the observed end-of-training effect, which also reflects the evolving loss gradient and optimizer state; we rely on the full-training synthetic experiments below (which hold nothing fixed) to show the picture survives. It makes four predictions, all tested on synthetic data (Section~\ref{sec:synthetic}). \textbf{(P1)} Under Adam, gradient-only has multiplier $1$ (null) and ordinary equals forward-only ($m{=}\alpha$)---these are $\epsilon\!\to\!0$ algorithmic identities, not independent tests. \textbf{(P2)} Under SGD, ordinary ($m{=}\alpha^2$) exceeds the isolated arms ($m{=}\alpha$): multiplicative, not additive, composition. \textbf{(P3)} With large $\epsilon$ Adam's cancellation fails; sweeping $\epsilon$ from $10^{-8}$ to $1$, the gradient-only parameter-update ratio rises from $1.00$ to $49$ and the contribution effect returns. \textbf{(P4)} Under SGD, gradient-only with encoder-$A$ learning rate $\eta/\alpha$ reproduces the baseline to within numerical tolerance---a unit test of the algebra.
+
+\section{Synthetic Validation}
+\label{sec:synthetic}
+\subsection{Setup}
+Each modality is $x_m=\alpha_m(\mu^m_y+\sigma_m\varepsilon)$, $\varepsilon\!\sim\!\mathcal{N}(0,I)$, with orthonormal class prototypes (norm $1.5$), $C{=}8$ classes, $d_a{=}d_v{=}32$, $\sigma{=}1$, and $4000/1000/2000$ samples. Both modalities share prototype geometry and noise variance (matched generative SNR), so the baseline is balanced. Encoders are matched two-layer MLPs (hidden $64$, rep dim $32$), sum fusion, a linear head, batch $256$, $40$ epochs; we sweep $\alpha\!\in\!\{1,3,10,30,100,300\}$ under Adam~\cite{kingma2015adam} and SGD-momentum ($\mathrm{lr}=10^{-3}$) with $10$ seeds. We report mean shifts versus the matched baseline (seeds control initialization, data order, and the per-seed \emph{redraw}---a fresh i.i.d.\ sample from the same generator with class-balanced sampling). PyTorch~\cite{paszke2019pytorch} default initialization; synthetic uses Adam~\cite{kingma2015adam} and SGD-momentum with weight decay $0$; $\beta{=}(0.9,0.999)$, $\epsilon{=}10^{-8}$, SGD momentum $0.9$; no scheduler, and clipping only in the stabilized-SGD run (Section~\ref{sec:real}). Baseline and every arm share the per-seed initialization and draw, so each interval is a \emph{paired Student-$t$} interval $\bar d\pm t_{0.975,n-1}\,s_d/\sqrt n$ over the seed-matched differences ($t{=}2.262,\,2.776,\,4.303$ for $n{=}10$ synthetic, $5$ real, $3$ noise-control). With so few seeds these are small-sample intervals, not population-level guarantees; the seed-level differences are released with the code. The probe is as defined in Section~\ref{sec:formulation}; the update ratio $\updr$ is the per-step $\lVert\Delta\theta_A\rVert/\lVert\Delta\theta_B\rVert$ over the first epoch, from the full parameter change (no decay term, as weight decay is $0$). Divergent runs are excluded and counted (none synthetic).
+
+\subsection{Compensation is Adam-specific}
+As $\alpha$ grows, the Adam encoder shrinks $A$'s output ($\rhoe$ falls), cancelling a fraction $c=1-\ln(\rhof(\alpha)/\rhof(1))/\ln\alpha$ of the imposed log-scale: $c$ decreases from $0.76$ ($\alpha{=}3$) to $0.44$ ($\alpha{=}300$). Under SGD the encoder barely compensates ($c\!\le\!0.06$ throughout), so the scale reaches fusion almost intact. Compensation (H1) is therefore Adam-specific.
+
+\subsection{Each arm is an effective learning rate}
+At $\alpha{=}100$ under Adam, gradient-only leaves the update ratio at $\updr=1.00\!\pm\!0.01$ and moves no metric (probe $+0.0001$, n.s.) despite a $100\times$ gradient-norm ratio; under SGD the same arm gives $\updr=95.8\!\pm\!4.0$ and a large dominance shift (P1). Two controls confirm the mechanism (H2). A \emph{learning-rate-matched} arm (no scaling, encoder-$A$'s Adam LR $\times\alpha$) reproduces the \emph{direction} of the forward effect and overshoots it ($-0.122$ vs $-0.063$), as expected since forward scaling also triggers buffering compensation. The \emph{$\eta/\alpha$ cancellation} (P4) reproduces the baseline ($+0.003$ vs $+0.003$), and a \emph{forward-for-first-$k$-epochs} arm returns to baseline for $k\!\le\!20$ of $40$: the effect needs sustained scaling, not an initial imbalance.
+
+\subsection{The forward effect is resolved on the complementary diagnostics}
+At $\alpha{=}100$ under Adam, forward scaling lowers $A$'s contribution on \emph{every} diagnostic, each $95\%$ $t$-interval excluding zero (Fig.~\ref{fig:synth}b): masked dominance $-0.063\!\pm\!0.011$, mean-ablation dominance $-0.056\!\pm\!0.005$, Shapley$_A$ $-0.043\!\pm\!0.003$, and frozen-encoder probe$_A$ $-0.034\!\pm\!0.006$. In this synthetic setting the shift also survives best-validation early stopping and redraw. In the matched setting the sign is \emph{negative}---raising $A$'s effective learning rate degrades $A$---a measured effect, not a near-zero-baseline artifact. Plotting each arm's dominance shift against its predicted multiplier confirms the multiplicative composition: forward and ordinary coincide at $m{=}\alpha$ with gradient null under Adam, while under SGD ordinary rises to $m{=}\alpha^2$ (Fig.~\ref{fig:synth}a, P2).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\columnwidth]{fig_synth.pdf}
+\caption{Synthetic data ($10$ seeds, paired $95\%$ $t$-CIs). (a) Dominance shift vs.\ the predicted multiplier $m$ (Proposition~1). (b) Forward arm at $\alpha{=}100$ under Adam on the four diagnostics; all $t$-intervals exclude zero.}
+\label{fig:synth}
+\end{figure}
+
+\section{Real Data: When the Metric Misleads}
+\label{sec:real}
+\subsection{Setup (deliberately scoped)}
+We test two real datasets with weak from-scratch encoders over five seeds (Table~\ref{tab:protocol}); this is modest power, not a standard-protocol benchmark. \textbf{CREMA-D}~\cite{cao2014crema} is audio-video emotional utterances (six classes, actor-disjoint split); we scale audio, $\alpha{=}100$. \textbf{UTD-MHAD}~\cite{chen2015utd} is depth-video and wearable-inertial action clips (27 classes, subject-disjoint split): depth is near-chance under a from-scratch CNN (probe $0.13$) and inertial is informative (probe $0.63$)---the reverse quality ordering to CREMA-D---so we scale the \emph{informative} inertial branch, $\alpha{=}100$, where the probe has headroom. All real-data runs except the positive control use weight decay $0$ (PyTorch Adam for the scaling arms; zero-decay AdamW, an identical update, for OGM-GE), so no decoupled decay term enters and the Adam account covers the full update; nonzero decay would add a $-\eta\lambda\theta$ term the gradient gain does not rescale. The positive control alone uses AdamW's default $\lambda{=}10^{-2}$, in all its arms, without scaling. For the real-data experiments in this section, all models train for a fixed number of epochs without early stopping or validation-based checkpoint selection (the synthetic early-stopping check is separate, Section~\ref{sec:synthetic}); validation served only to tune the SGD learning rate. We report baseline$\to$arm shifts with paired Student-$t$ CIs.
+
+\begin{table}[t]
+\caption{Real-data protocol. Samples are counts after preprocessing (train/val/test). CREMA-D validation actors: $1001,1018,1027,1039,1042,1047,1049,1068,1073$; UTD-MHAD validation subject $7$. Full configs and per-seed differences are in the code.}
+\label{tab:protocol}
+\centering
+\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & CREMA-D & UTD-MHAD \\
+\midrule
+Classes            & $6$ & $27$ \\
+Split (subjects)   & actor $64/9/18$ & $\{1,3,5\}/\{7\}/\{2,4,6,8\}$ \\
+Samples (tr/va/te) & $5234/738/1470$ & $323/108/430$ \\
+Mod.\ A / prep.    & audio, 64-mel & depth, $16$ fr.\ $32^2$ \\
+Mod.\ B / prep.    & video, $8{\times}64^2$ & inertial, $6$ ch $\to 128$ \\
+Encoders (A/B)     & 2D / 2D-CNN & 2D / 1D-CNN \\
+Rep.\ / fusion / seeds & $64$ / sum / $5$ & $64$ / sum / $5$ \\
+Optim.\ (wd) / lr / bs / ep & Adam ($0$) / $10^{-3}$ / $64$ / $30$ & Adam ($0$) / $10^{-3}$ / $32$ / $60$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Discussion and Limitations}
+\subsection{Masked dominance shifts; the complementary diagnostics do not}
+Forward scaling moves masked-accuracy dominance strongly ($+0.259\!\pm\!0.044$), reproducing the usual ``audio now dominates'' reading. The complementary diagnostics show no comparable change (Table~\ref{tab:metrics}, Fig.~\ref{fig:real}a): mean-ablation and Shapley are not statistically resolved, and the audio probe shows only a much smaller \emph{positive} shift ($+0.023\!\pm\!0.017$)---an order of magnitude below the masked shift and opposite to the degradation it would imply. Gradient-only moves nothing. The masked shift is thus not accompanied by a comparable change in the diagnostics here, consistent with the off-distribution effect of zeroing video when the fused logit is dominated by the scaled audio; the synthetic pattern, all diagnostics moving together, does \emph{not} appear.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.74\columnwidth]{fig_real.pdf}
+\caption{CREMA-D (our split, weak encoders; $5$ seeds, paired $95\%$ $t$-CIs). (a) Forward-scaling shifts on the four diagnostics. (b) Positive control (audio-input noise, $n{=}3$): the probe and Shapley fall.}
+\label{fig:real}
+\end{figure}
+
+\subsection{The diagnostics are not blind (positive control)}
+To show the complementary diagnostics can detect a real change, we add Gaussian noise to the audio input at two levels and retrain from scratch ($n{=}3$). Audio's probe falls monotonically ($-0.021\!\pm\!0.016$ then $-0.064\!\pm\!0.003$) and its Shapley value likewise ($-0.029\!\pm\!0.020$, $-0.051\!\pm\!0.012$), all $t$-intervals excluding zero (Fig.~\ref{fig:real}b). This provides evidence that the complementary diagnostics can detect the tested form of input-induced degradation; it does not establish sensitivity to every form of representational change.
+
+\subsection{A second-dataset evaluation (UTD-MHAD)}
+UTD-MHAD is a second-dataset \emph{evaluation}, not a replication: modalities, utilities, encoders, and preprocessing all differ. Gradient-only equals the baseline on \emph{every} diagnostic (none resolved)---the Adam scale-invariance, on a second dataset. Forward scaling the informative inertial branch moves masked dominance by $+0.525$ toward inertial while the inertial probe rises only $+0.102$: here the masked shift is several times the probe shift. Unlike on CREMA-D the complementary diagnostics \emph{do} move, because the scaled modality's probe has headroom---raising its effective learning rate under Adam (Proposition~1, $m{=}s_f$) genuinely improves an under-trained encoder. The invariant across both datasets is not that the complementary diagnostics are flat, but that masked-accuracy dominance responds several times more strongly than any of them; whether the probe moves depends on headroom.
+
+\subsection{Stable SGD, by clipping}
+The SGD gradient operator amplifies encoder-$A$'s gradient by $\alpha$, which makes the scaled arms diverge on real data ($5/5$ seeds for the gradient arm at $\alpha{=}100$). We add \emph{global} gradient-norm clipping: max-norm $1$ over all parameters, applied after the operator's backward and before the optimizer step, every step (SGD lr $10^{-2}$, momentum $0.9$). Because norm clipping multiplies all gradients by one scalar when the total norm exceeds the threshold, it preserves the per-modality gradient ratio exactly: over an epoch of the gradient arm that ratio is $1011$ before and after clipping (differing by $<\!10^{-4}$), the nominal $\times100$ operator gain compounded with the baseline audio-vs-video gradient-norm asymmetry ($\approx\!10\times$). Being global, clipping rescales \emph{all} gradients by one coefficient---preserving the relative encoder-gradient ratio but reducing the absolute update magnitude of both encoders and the shared head---so it caps the step and removes divergence ($0/5$ on all arms) without removing the $\times\alpha$ amplification. Under this stable SGD the mismatch persists and can invert in sign: gradient-only moves masked dominance $+0.200\!\pm\!0.050$ while mean-ablation, Shapley, and probe are all unresolved ($\le0.002$); forward moves masked dominance $+0.132\!\pm\!0.079$ yet the probe moves $-0.021\!\pm\!0.020$, so masked says audio \emph{gains} while the probe says it slightly \emph{loses}. The dissociation is thus not Adam-specific.
+
+\subsection{An adapted payoff baseline (OGM-GE)}
+Finally we apply the diagnostics to a published rebalancing method, on-the-fly gradient modulation (OGM-GE)~\cite{peng2022balanced}: each step we form a per-modality softmax-score discrepancy ratio from the shared sum-fusion head and attenuate the dominant modality's \emph{encoder} gradient by $k{=}1-\tanh(0.5\,\mathrm{ratio})$ (the weaker left at $1$), with the generalization-enhancement term as a Gaussian-noise approximation ($\gamma{=}0.5$) and the head unmodulated. This is an OGM-GE reimplementation adapted to our shared sum-fusion setting, with two implementation modifications: the per-modality score discrepancy is derived from the shared head (sum fusion has no split classifier), and the generalization-enhancement term is approximated with Gaussian noise. Trained with zero-decay AdamW, lr $10^{-3}$, $30$ epochs, seed-matched to vanilla, it attenuates audio ($k_{\text{audio}}{=}0.27$). Relative to vanilla it shifts masked dominance $+0.240$ while its complementary diagnostics are mostly unresolved (mean-ablation and Shapley include zero; probe $-0.014$; Table~\ref{tab:metrics}); a modality-specific learning rate (audio LR $\times5$) behaves similarly (masked $+0.117\!\pm\!0.110$; diagnostics unresolved). The discrepancy thus also appears in the evaluated OGM-GE reimplementation: judging it by masked-accuracy dominance alone would read a large effect its representation-level diagnostics do not resolve. We make no claim about OGM-GE's accuracy benefit, only about how its effect is \emph{measured}.
+
+\begin{table}[t]
+\caption{Forward-scaling arms ($\alpha{=}100$, top) and the adapted OGM-GE baseline (method$-$vanilla, bottom): baseline-relative shift per diagnostic (mean, paired Student-$t$ $95\%$ CI), signed so positive means the scaled/dominant modality gains. $\dom_{\mathrm{mask}}$ masked, $\dom_{\mathrm{mean}}$ mean-ablation, $\phi$ Shapley, $P$ probe. Interpretation in text; $n{=}10$ synthetic, else $5$.}
+\label{tab:metrics}
+\centering
+\footnotesize
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & $\Delta\dom_{\mathrm{mask}}$ & $\Delta\dom_{\mathrm{mean}}$ & $\phi$ & $P$ \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Forward scaling (baseline$\to$forward)}}\\
+Synthetic (Adam) & $-0.063$ & $-0.056$ & $-0.043$ & $-0.034$ \\
+                 & {\scriptsize$\pm.011$} & {\scriptsize$\pm.005$} & {\scriptsize$\pm.003$} & {\scriptsize$\pm.006$} \\
+CREMA-D (Adam)   & $+0.259$ & $+0.012$ & $+0.014$ & $+0.023$ \\
+                 & {\scriptsize$\pm.044$} & {\scriptsize$\pm.027$} & {\scriptsize$\pm.026$} & {\scriptsize$\pm.017$} \\
+CREMA-D (SGD, clip) & $+0.132$ & $-0.062$ & $-0.059$ & $-0.021$ \\
+                 & {\scriptsize$\pm.079$} & {\scriptsize$\pm.037$} & {\scriptsize$\pm.034$} & {\scriptsize$\pm.020$} \\
+UTD-MHAD (Adam)  & $+0.525$ & $+0.107$ & $+0.113$ & $+0.102$ \\
+                 & {\scriptsize$\pm.048$} & {\scriptsize$\pm.039$} & {\scriptsize$\pm.044$} & {\scriptsize$\pm.048$} \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Adapted OGM-GE baseline (method$-$vanilla, CREMA-D)}}\\
+OGM-GE~\cite{peng2022balanced} & $+0.240$ & $-0.023$ & $-0.026$ & $-0.014$ \\
+                 & {\scriptsize$\pm.042$} & {\scriptsize$\pm.024$} & {\scriptsize$\pm.030$} & {\scriptsize$\pm.012$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Scope}
 \label{sec:discussion}
-We separate what we observe, what we infer, and what we cannot claim.
-\emph{Observation.} Under the tested Adam configuration, isolated gradient scaling produced a $100$--$282\times$ gradient-norm ratio yet left $\updr\!\approx\!1$ with no measurable contribution shift, while forward scaling closely matched the ordinary effect; under SGD the same scaling gave $\updr\!\approx\!96\times$ and a substantial shift. This supports two separable pathways: a \emph{feature-scale channel} (forward magnitude, suppressed by normalization) and an \emph{optimization channel} (learning-rate/update imbalance) more strongly associated with persistent contribution loss in our synthetic study.
-
-\emph{Interpretation.} The parameter-update ratio, not the gradient-norm ratio, tracks the effect: consistent with Adam's normalization attenuating a constant gradient rescale whereas SGD transmits it to the update, so the effect of gradient-based rebalancing may depend on optimizer dynamics.
-
-\emph{We cannot claim} invariance across Adam variants, schedules, architectures, or gradient manipulations: the result shows attenuation at the update level but does not identify whether it arises from moment normalization, shared-head interactions, or both---a diagnostic, not a formal mediation.
-
-
-\textbf{Limitations.} Our conclusions are bounded by: (i) the tested optimizers (Adam, SGD-momentum) and hyperparameters above; (ii) the three evaluated fusion mechanisms; (iii) one synthetic generator and two real datasets on fixed splits; (iv) $n{=}5$ seeds, so inference is within-split reproducibility, not population-level; (v) the real-data decomposition evaluated only under Adam and the specified CNN architecture; (vi) UTD-MHAD's strong utility asymmetry (near-chance depth on four fixed subjects); (vii) untested SGD-on-real-data, $>\!40$-epoch persistence, other adaptive optimizers, and attention/transformer fusion; and (viii) masked unimodal accuracy being operational, not a complete attribution. Accordingly we do not claim feature scale is a sufficient cause of persistent collapse, that gradient imbalance is universally irrelevant, that normalization cures imbalance, that Adam is universally invariant to gradient scaling, or that the phenomenon generalizes across architectures/optimizers; instead we identify experimentally separable pathways within the evaluated regimes. OGM-GE~\cite{peng2022balanced} produced little effect only in the evaluated learning-rate-starvation configuration, a scoped negative result.
+The learning-rate reading is first-order (shared head, local linearity, $\epsilon\!\to\!0$, fixed $g$) and verified only on matched, balanced-by-construction synthetic data, and the gradient-cancellation holds under the tested constant-from-initialization scaling with small $\epsilon$ and zero weight decay, not as a universal optimizer property. On real data we report five-seed Student-$t$ intervals (small-sample, not population-level) on two datasets with weak from-scratch encoders---UTD-MHAD a second-dataset evaluation, not a replication---and the stabilized-SGD result depends on global clipping. We do not reproduce a standard protocol, pretrained encoders, attention-based fusion, large benchmarks (Kinetics-Sounds, AVE~\cite{tian2018ave}, VGGSound~\cite{chen2020vggsound}), or the full suite of rebalancing methods (PMR, AGM, MLA). The real-data claim is thus scoped: masked-accuracy dominance responds several times more strongly than the complementary diagnostics---under clipped SGD even with opposite sign---so it can substantially exceed the change those diagnostics indicate, which are themselves estimates, not ground truth. Whether the dissociation holds at benchmark scale with strong pretrained encoders is open.
 
 \section{Conclusion}
-We introduced a controlled autograd intervention that separates the forward-representation and encoder-gradient consequences of a training-time, modality-specific feature-scale change, recording the parameter-update ratio as an optimization-level readout. A constant scale is largely compensated by trainable encoders, yet the intervention still reshapes contribution: under Adam the effect is carried by the forward pathway while isolated gradient scaling produces little change ($\updr\!\approx\!1$), whereas under SGD both pathways contribute ($\updr\!\approx\!96\times$). CREMA-D corroborates the forward-dominant Adam pattern, the gradient-only arm stays approximately null across the three fusion mechanisms while the forward effect varies across them, and UTD-MHAD's response differs sharply with modality utility. These results motivate analyzing training-time modality imbalance jointly through forward representation scale and optimizer-dependent updates, not feature magnitude alone.
+Two autograd operators separate the forward-activation and encoder-gradient consequences of a training-time feature-scale change; a local first-order account and learning-rate-matched and $\eta/\alpha$ controls show each acts as an effective per-modality learning rate, cancelled under small-$\epsilon$ Adam for the gradient pathway and transmitted under SGD. On synthetic data the forward effect is resolved on every complementary diagnostic; on real data---two datasets, both optimizers (SGD stabilized by clipping), and an adapted rebalancing baseline---masked-accuracy dominance moves several times more than the probe, Shapley, and mean-ablation, and under clipped SGD even with opposite sign. The takeaway: masked-accuracy results should be read alongside complementary diagnostics---frozen-encoder probes, mean-ablation and Shapley estimates---with their distinct measurement assumptions made explicit, including when evaluating rebalancing methods.
 
 
-\balance
-\bibliographystyle{IEEEtran}
-\bibliography{references}
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{#1}
+\csname url@samestyle\endcsname
+\providecommand{\newblock}{\relax}
+\providecommand{\bibinfo}[2]{#2}
+\providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
+\providecommand{\BIBentryALTinterwordstretchfactor}{4}
+\providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
+\providecommand{\BIBforeignlanguage}[2]{{%
+\expandafter\ifx\csname l@#1\endcsname\relax
+\typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
+\typeout{** loaded for the language `#1'. Using the pattern for}%
+\typeout{** the default language instead.}%
+\else
+\language=\csname l@#1\endcsname
+\fi
+#2}}
+\providecommand{\BIBdecl}{\relax}
+\BIBdecl
+
+\bibitem{cao2014crema}
+H.~Cao, D.~G. Cooper, M.~K. Keutmann \emph{et~al.}, ``{CREMA-D}: Crowd-sourced emotional multimodal actors dataset,'' \emph{IEEE Trans. Affect. Comput.}, vol.~5, no.~4, 2014.
+
+\bibitem{chen2015utd}
+C.~Chen, R.~Jafari, and N.~Kehtarnavaz, ``{UTD-MHAD}: A multimodal dataset for human action recognition utilizing a depth camera and a wearable inertial sensor,'' in \emph{Proc. ICIP}, 2015, pp. 168--172.
+
+\bibitem{ganin2015domain}
+Y.~Ganin and V.~Lempitsky, ``Unsupervised domain adaptation by backpropagation,'' in \emph{Proc. International Conference on Machine Learning (ICML)}, 2015.
+
+\bibitem{kingma2015adam}
+D.~P. Kingma and J.~Ba, ``{Adam}: A method for stochastic optimization,'' in \emph{Proc. ICLR}, 2015.
+
+\bibitem{ramachandram2017deep}
+D.~Ramachandram and G.~W. Taylor, ``Deep multimodal learning: A survey on recent advances and trends,'' \emph{IEEE Signal Process. Mag.}, vol.~34, no.~6, 2017.
+
+\bibitem{zadeh2017tensor}
+A.~Zadeh, M.~Chen, S.~Poria \emph{et~al.}, ``Tensor fusion network for multimodal sentiment analysis,'' in \emph{Proc. EMNLP}, 2017.
+
+\bibitem{chen2018gradnorm}
+Z.~Chen, V.~Badrinarayanan, C.-Y. Lee, and A.~Rabinovich, ``{GradNorm}: Gradient normalization for adaptive loss balancing in deep multitask networks,'' in \emph{Proc. ICML}, 2018.
+
+\bibitem{balles2018dissecting}
+L.~Balles and P.~Hennig, ``Dissecting {Adam}: The sign, magnitude and variance of stochastic gradients,'' in \emph{Proc. ICML}, 2018.
+
+\bibitem{bernstein2018signsgd}
+J.~Bernstein, Y.-X. Wang, K.~Azizzadenesheli, and A.~Anandkumar, ``sign{SGD}: Compressed optimisation for non-convex problems,'' in \emph{Proc. ICML}, 2018.
+
+\bibitem{santurkar2018how}
+S.~Santurkar, D.~Tsipras, A.~Ilyas, and A.~Madry, ``How does batch normalization help optimization?'' in \emph{Proc. NeurIPS}, 2018.
+
+\bibitem{tian2018ave}
+Y.~Tian, J.~Shi, B.~Li \emph{et~al.}, ``Audio-visual event localization in unconstrained videos,'' in \emph{Proc. ECCV}, 2018.
+
+\bibitem{baltrusaitis2019multimodal}
+T.~Baltru{\v{s}}aitis, C.~Ahuja, and L.-P. Morency, ``Multimodal machine learning: A survey and taxonomy,'' \emph{IEEE TPAMI}, vol.~41, no.~2, pp. 423--443, 2019.
+
+\bibitem{loshchilov2019decoupled}
+I.~Loshchilov and F.~Hutter, ``Decoupled weight decay regularization,'' in \emph{Proc. ICLR}, 2019.
+
+\bibitem{paszke2019pytorch}
+A.~Paszke, S.~Gross, F.~Massa \emph{et~al.}, ``{PyTorch}: An imperative style, high-performance deep learning library,'' in \emph{Proc. NeurIPS}, 2019.
+
+\bibitem{wang2020what}
+W.~Wang, D.~Tran, and M.~Feiszli, ``What makes training multi-modal classification networks hard?'' in \emph{Proc. CVPR}, 2020.
+
+\bibitem{gat2020removing}
+I.~Gat, I.~Schwartz, A.~Schwing, and T.~Hazan, ``Removing bias in multi-modal classifiers: Regularization by maximizing functional entropies,'' in \emph{Proc. NeurIPS}, 2020.
+
+\bibitem{yu2020gradient}
+T.~Yu, S.~Kumar, A.~Gupta \emph{et~al.}, ``Gradient surgery for multi-task learning,'' in \emph{Proc. NeurIPS}, 2020.
+
+\bibitem{hessel2020does}
+J.~Hessel and L.~Lee, ``Does my multimodal model learn cross-modal interactions? it's harder to tell than you might think!'' in \emph{Proc. EMNLP}, 2020.
+
+\bibitem{chen2020vggsound}
+H.~Chen, W.~Xie, A.~Vedaldi, and A.~Zisserman, ``{VGGSound}: A large-scale audio-visual dataset,'' in \emph{Proc. ICASSP}, 2020.
+
+\bibitem{nagrani2021attention}
+A.~Nagrani, S.~Yang, A.~Arnab \emph{et~al.}, ``Attention bottlenecks for multimodal fusion,'' in \emph{Proc. NeurIPS}, 2021.
+
+\bibitem{huang2021what}
+Y.~Huang, C.~Du, Z.~Xue \emph{et~al.}, ``What makes multi-modal learning better than single (provably),'' in \emph{Proc. NeurIPS}, 2021.
+
+\bibitem{sun2021learning}
+Y.~Sun, S.~Mai, and H.~Hu, ``Learning to balance the learning rates between various modalities via adaptive tracking factor,'' \emph{IEEE Signal Process. Lett.}, vol.~28, 2021.
+
+\bibitem{peng2022balanced}
+X.~Peng, Y.~Wei, A.~Deng, D.~Wang, and D.~Hu, ``Balanced multimodal learning via on-the-fly gradient modulation,'' in \emph{Proc. CVPR}, 2022.
+
+\bibitem{huang2022modality}
+Y.~Huang, J.~Lin, C.~Zhou \emph{et~al.}, ``Modality competition: What makes joint training of multi-modal network fail in deep learning? (provably),'' in \emph{Proc. ICML}, 2022.
+
+\bibitem{yang2022tensor}
+G.~Yang, E.~J. Hu, I.~Babuschkin \emph{et~al.}, ``Tensor programs {V}: Tuning large neural networks via zero-shot hyperparameter transfer,'' \emph{arXiv:2203.03466}, 2022.
+
+\bibitem{wu2022characterizing}
+N.~Wu, S.~Jastrzebski, K.~Cho \emph{et~al.}, ``Characterizing and overcoming the greedy nature of learning in multi-modal deep neural networks,'' in \emph{Proc. ICML}, 2022.
+
+\bibitem{du2023unimodal}
+C.~Du, J.~Teng, T.~Li \emph{et~al.}, ``On uni-modal feature learning in supervised multi-modal learning,'' in \emph{Proc. ICML}, 2023.
+
+\bibitem{li2023boosting}
+H.~Li, X.~Li, P.~Hu \emph{et~al.}, ``Boosting multi-modal model performance with adaptive gradient modulation,'' in \emph{Proc. ICCV}, 2023.
+
+\bibitem{fan2023pmr}
+Y.~Fan, W.~Xu, H.~Wang \emph{et~al.}, ``{PMR}: Prototypical modal rebalance for multimodal learning,'' in \emph{Proc. CVPR}, 2023.
+
+\bibitem{ma2023calibrating}
+H.~Ma, Q.~Zhang, C.~Zhang \emph{et~al.}, ``Calibrating multimodal learning,'' in \emph{Proc. ICML}, 2023.
+
+\bibitem{kunstner2023noise}
+F.~Kunstner, J.~Chen, J.~W. Lavington \emph{et~al.}, ``Noise is not the main factor behind the gap between {SGD} and {Adam} on transformers, but sign descent might be,'' in \emph{Proc. ICLR}, 2023.
+
+\bibitem{liang2024foundations}
+P.~P. Liang, A.~Zadeh, and L.-P. Morency, ``Foundations {\&} trends in multimodal machine learning: Principles, challenges, and open questions,'' \emph{ACM Comput. Surv.}, vol.~56, no.~10, 2024.
+
+\bibitem{zhang2024mla}
+X.~Zhang, J.~Yoon, M.~Bansal \emph{et~al.}, ``Multimodal representation learning by alternating unimodal adaptation,'' in \emph{Proc. CVPR}, 2024.
+
+\bibitem{wei2024mmpareto}
+Y.~Wei and D.~Hu, ``{MMPareto}: Boosting multimodal learning with innovative unimodal learning,'' in \emph{Proc. International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem{wei2024valuation}
+Y.~Wei, R.~Feng, Z.~Wang \emph{et~al.}, ``Enhancing multimodal cooperation via sample-level modality valuation,'' in \emph{Proc. CVPR}, 2024.
+
+\bibitem{everett2024scaling}
+K.~Everett, L.~Xiao, M.~Wortsman \emph{et~al.}, ``Scaling exponents across parameterizations and optimizers,'' in \emph{Proc. ICML}, 2024.
+
+\end{thebibliography}
 
 \end{document}

@@ -84,5 +84,5 @@ CI, monotonicity; normalization Δρ, Δ|imbalance|, Δgain, Δacc, ΔF1. No met
 ## Outputs (Phase 23)
 `data/cremad/cremad_manifest.csv`, `results/cremad/{cremad_manifest,cremad_primary,
 cremad_scale_intervention,cremad_aggregated}.csv`, `cremad_config.json`;
-figures per Phase 17; `reports/CREMAD_FINAL_REPORT.md`. Commit separately. Then STOP
+figures per Phase 17; `docs/experiments/CREMAD_FINAL_REPORT.md`. Commit separately. Then STOP
 (no INCLUDE-50 / other dataset / architecture / paper auto-run).

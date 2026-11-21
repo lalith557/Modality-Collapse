@@ -44,24 +44,26 @@ export function Home() {
         <div className="relative z-10 grid items-center gap-12 px-8 py-14 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <BlurFade delay={0} inView>
-              <div className="label mb-5">Forward or Gradient?</div>
+              <div className="label mb-5">Feature scale as a hidden learning rate</div>
             </BlurFade>
             <BlurFade delay={0.08} inView>
               <h1 className="font-display text-[2.9rem] font-semibold leading-[1.02] tracking-tight text-ink sm:text-[3.6rem]">
-                Forward or
+                A Hidden Per-Modality
                 <br />
-                Gradient?
+                Learning Rate
               </h1>
             </BlurFade>
             <BlurFade delay={0.16} inView>
               <p className="mt-5 max-w-md font-display text-lg font-medium leading-snug text-ink/80">
-                Disentangling training-time feature-scale effects on modality contribution.
+                A training-time feature scale acts as an effective per-modality learning rate — and
+                masked-accuracy dominance can mislead.
               </p>
             </BlurFade>
             <BlurFade delay={0.22} inView>
               <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-muted">
-                An experimental study of how modality-specific feature scaling propagates through
-                representation magnitude, gradients, and parameter updates.
+                A controlled study that splits a feature-scale intervention into its forward-magnitude
+                and gradient pathways, then tests whether a shift in masked-accuracy dominance reflects
+                a genuine change in modality contribution — or an artifact of the measurement.
               </p>
             </BlurFade>
             <BlurFade delay={0.28} inView>

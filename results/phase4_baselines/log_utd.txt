@@ -1,0 +1,33 @@
+Device: {'device': 'cuda', 'name': 'NVIDIA GeForce RTX 4070 Laptop GPU', 'capability': [8, 9], 'total_mem_mb': 8585.2, 'torch_version': '2.11.0+cu128', 'cuda_version': '12.8'}
+shapes: {'train': (323, 16, 1, 32, 32), 'test': (430, 16, 1, 32, 32)} scaled modality: v
+  baseline  seed=0: dom=-0.181 probe_depth=0.147 probe_inert=0.586 (9s)
+  baseline  seed=1: dom=-0.228 probe_depth=0.140 probe_inert=0.607 (15s)
+  baseline  seed=2: dom=-0.144 probe_depth=0.133 probe_inert=0.605 (21s)
+  baseline  seed=3: dom=-0.247 probe_depth=0.153 probe_inert=0.686 (26s)
+  baseline  seed=4: dom=-0.153 probe_depth=0.081 probe_inert=0.681 (32s)
+  forward   seed=0: dom=-0.700 probe_depth=0.112 probe_inert=0.737 (38s)
+  forward   seed=1: dom=-0.705 probe_depth=0.093 probe_inert=0.698 (44s)
+  forward   seed=2: dom=-0.705 probe_depth=0.160 probe_inert=0.735 (50s)
+  forward   seed=3: dom=-0.747 probe_depth=0.119 probe_inert=0.767 (58s)
+  forward   seed=4: dom=-0.721 probe_depth=0.114 probe_inert=0.737 (66s)
+  gradient  seed=0: dom=-0.184 probe_depth=0.144 probe_inert=0.584 (73s)
+  gradient  seed=1: dom=-0.207 probe_depth=0.126 probe_inert=0.602 (80s)
+  gradient  seed=2: dom=-0.142 probe_depth=0.114 probe_inert=0.605 (86s)
+  gradient  seed=3: dom=-0.244 probe_depth=0.140 probe_inert=0.688 (93s)
+  gradient  seed=4: dom=-0.163 probe_depth=0.081 probe_inert=0.681 (100s)
+
+=== UTD-MHAD baseline->arm shift (paired 95% CI). Second real dataset: masked moves but decoupled don't? ===
+-- forward (scaled inertial, alpha=100) --
+   dominance         : -0.5247 ± 0.0341 (n=5)
+   meanabl_dominance : -0.1074 ± 0.0277 (n=5)
+   shapley_scaled    : +0.1128 ± 0.0313 (n=5)
+   probe_depth       : -0.0112 ± 0.0334 (n=5)
+   probe_inertial    : +0.1019 ± 0.0337 (n=5)
+-- gradient (scaled inertial, alpha=100) --
+   dominance         : +0.0028 ± 0.0098 (n=5)
+   meanabl_dominance : +0.0042 ± 0.0058 (n=5)
+   shapley_scaled    : -0.0021 ± 0.0038 (n=5)
+   probe_depth       : -0.0098 ± 0.0071 (n=5)
+   probe_inertial    : -0.0009 ± 0.0023 (n=5)
+
+WALL 99.8s -> C:\Users\Lalith Gona\HTML\Deep Learning Project 2\modality-scale-collapse\results\phase4_baselines/phase4_utd.csv

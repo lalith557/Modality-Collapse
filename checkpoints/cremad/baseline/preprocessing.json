@@ -1,0 +1,58 @@
+{
+  "version": "cremad-train-identical-v1",
+  "source_files_sha256": {
+    "data/crema_d.py": "9ad6dee16f213b8937fe4d9d31284c3b0959f9f2f897f576957df44c006671ea",
+    "experiments/cremad_extract.py": "b3b61795a9c2301b1940aee1c21e902e55fad9f76eb12706743cbcc9f018089f"
+  },
+  "audio": {
+    "function": "data.crema_d.load_audio_logmel",
+    "decoder": "scipy.io.wavfile (WAV); other containers are first decoded by PyAV to 16-bit PCM WAV",
+    "mono": "mean over channels",
+    "int16_scaling": "divide by 32768 if max|x|>1",
+    "sample_rate": 16000,
+    "resampler": "torchaudio.functional.resample (defaults)",
+    "duration_s": 3.0,
+    "crop": "first 3.0 s; zero-pad at end if shorter",
+    "mel": {
+      "n_fft": 1024,
+      "hop_length": 256,
+      "n_mels": 64,
+      "win_length": 1024,
+      "power": 2.0,
+      "center": true
+    },
+    "log": "log(mel + 1e-6)",
+    "time_frames": 188,
+    "cache_dtype": "float16",
+    "tensor_shape": [
+      1,
+      64,
+      188
+    ],
+    "normalization": "none",
+    "augmentation": "none"
+  },
+  "video": {
+    "function": "data.crema_d.load_video_frames",
+    "decoder": "cv2.VideoCapture (FFmpeg)",
+    "frames": 8,
+    "frame_index": "np.linspace(0, n-1, 8).astype(int) over all frames",
+    "color": "BGR->GRAY",
+    "crop": "centre square min(h,w)",
+    "resize": [
+      64,
+      64
+    ],
+    "interpolation": "INTER_AREA",
+    "scale": "/255",
+    "cache_dtype": "float16",
+    "tensor_shape": [
+      8,
+      1,
+      64,
+      64
+    ],
+    "normalization": "none",
+    "augmentation": "none"
+  }
+}

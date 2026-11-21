@@ -1,0 +1,44 @@
+Device: {'device': 'cuda', 'name': 'NVIDIA GeForce RTX 4070 Laptop GPU', 'capability': [8, 9], 'total_mem_mb': 8585.2, 'torch_version': '2.11.0+cu128', 'cuda_version': '12.8'}
+  vanilla      seed=0: dom=+0.061 probe_a=0.520 probe_v=0.196 (119s)
+  vanilla      seed=1: dom=+0.033 probe_a=0.523 probe_v=0.175 (229s)
+  vanilla      seed=2: dom=+0.118 probe_a=0.523 probe_v=0.190 (333s)
+  vanilla      seed=3: dom=+0.086 probe_a=0.516 probe_v=0.185 (426s)
+  vanilla      seed=4: dom=+0.076 probe_a=0.529 probe_v=0.186 (523s)
+  ogm          seed=0: dom=+0.304 probe_a=0.492 probe_v=0.195 (640s)
+  ogm          seed=1: dom=+0.318 probe_a=0.520 probe_v=0.202 (743s)
+  ogm          seed=2: dom=+0.314 probe_a=0.510 probe_v=0.188 (843s)
+  ogm          seed=3: dom=+0.305 probe_a=0.497 probe_v=0.184 (943s)
+  ogm          seed=4: dom=+0.332 probe_a=0.521 probe_v=0.208 (1048s)
+  modlr_video  seed=0: dom=+0.107 probe_a=0.525 probe_v=0.171 (1139s)
+  modlr_video  seed=1: dom=+0.080 probe_a=0.518 probe_v=0.174 (1234s)
+  modlr_video  seed=2: dom=+0.104 probe_a=0.522 probe_v=0.171 (1325s)
+  modlr_video  seed=3: dom=+0.144 probe_a=0.522 probe_v=0.171 (1417s)
+  modlr_video  seed=4: dom=+0.034 probe_a=0.521 probe_v=0.176 (1507s)
+  modlr_audio  seed=0: dom=+0.170 probe_a=0.527 probe_v=0.178 (1610s)
+  modlr_audio  seed=1: dom=+0.110 probe_a=0.546 probe_v=0.190 (1709s)
+  modlr_audio  seed=2: dom=+0.295 probe_a=0.537 probe_v=0.183 (1804s)
+  modlr_audio  seed=3: dom=+0.083 probe_a=0.520 probe_v=0.193 (1899s)
+  modlr_audio  seed=4: dom=+0.300 probe_a=0.504 probe_v=0.202 (1997s)
+
+=== Phase 4: method - vanilla shift (paired 95% CI). Does a rebalancing/LR method move the DECOUPLED metrics or only masked? ===
+-- ogm --
+   dominance         : +0.2399 ± 0.0298 (n=5)
+   meanabl_dominance : -0.0231 ± 0.0166 (n=5)
+   shapley_audio     : -0.0258 ± 0.0209 (n=5)
+   probe_audio       : -0.0144 ± 0.0085 (n=5)
+   probe_video       : +0.0090 ± 0.0125 (n=5)
+-- modlr_video --
+   dominance         : +0.0193 ± 0.0387 (n=5)
+   meanabl_dominance : -0.0039 ± 0.0145 (n=5)
+   shapley_audio     : -0.0015 ± 0.0152 (n=5)
+   probe_audio       : -0.0004 ± 0.0055 (n=5)
+   probe_video       : -0.0140 ± 0.0081 (n=5)
+-- modlr_audio --
+   dominance         : +0.1171 ± 0.0774 (n=5)
+   meanabl_dominance : +0.0073 ± 0.0162 (n=5)
+   shapley_audio     : +0.0116 ± 0.0191 (n=5)
+   probe_audio       : +0.0045 ± 0.0158 (n=5)
+   probe_video       : +0.0029 ± 0.0129 (n=5)
+   OGM modulation active? mean k_audio=0.273 k_video=0.999 (k<1 => that modality attenuated)
+
+WALL 1997.1s -> C:\Users\Lalith Gona\HTML\Deep Learning Project 2\modality-scale-collapse\results\phase4_baselines/phase4_cremad.csv

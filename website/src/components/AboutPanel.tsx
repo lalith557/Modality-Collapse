@@ -4,7 +4,7 @@ import { X, ArrowRight } from "lucide-react";
 import { paper, headline } from "../data/research";
 import { nav } from "../data/nav";
 
-const NEXT_PATHS = ["/overview", "/lab", "/disentanglement", "/findings", "/paper"];
+const NEXT_PATHS = ["/overview", "/lab", "/disentanglement", "/overview?section=findings", "/paper"];
 
 interface Props {
   onClose: () => void;

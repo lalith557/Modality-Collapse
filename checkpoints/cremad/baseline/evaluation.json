@@ -1,0 +1,138 @@
+{
+  "note": "Test-split numbers are evaluation-only; nothing was tuned on test.",
+  "parity_with_frozen_artifact": {
+    "artifact": "results/phase2_mechanism/phase2_cremad_probe.csv",
+    "row": {
+      "seed": 0,
+      "arm": "baseline"
+    },
+    "probe_audio": {
+      "retrained": 0.519727885723114,
+      "frozen": 0.519727885723114,
+      "abs_diff": 0.0
+    },
+    "probe_video": {
+      "retrained": 0.19591836631298065,
+      "frozen": 0.1959183663129806,
+      "abs_diff": 5.551115123125783e-17
+    },
+    "acc_audio": {
+      "retrained": 0.2312925159931183,
+      "frozen": 0.2312925159931183,
+      "abs_diff": 0.0
+    },
+    "acc_video": {
+      "retrained": 0.17074830830097198,
+      "frozen": 0.1707483083009719,
+      "abs_diff": 8.326672684688674e-17
+    },
+    "dominance": {
+      "retrained": 0.0605442076921463,
+      "frozen": 0.0605442076921463,
+      "abs_diff": 0.0
+    },
+    "meanabl_dominance": {
+      "retrained": 0.3421768397092819,
+      "frozen": 0.3421768397092819,
+      "abs_diff": 0.0
+    },
+    "shapley_audio": {
+      "retrained": 0.33979590237140656,
+      "frozen": 0.3397959023714065,
+      "abs_diff": 5.551115123125783e-17
+    },
+    "max_abs_diff": 8.326672684688674e-17,
+    "exact_match": true
+  },
+  "multimodal_joint_head": {
+    "validation": {
+      "accuracy": 0.5338753387533876,
+      "macro_f1": 0.5232204208671973,
+      "ece_15bin": 0.050258009172067415,
+      "n": 738,
+      "mean_max_softmax": 0.519003689289093
+    },
+    "test_evaluation_only": {
+      "accuracy": 0.5081632653061224,
+      "macro_f1": 0.4938020738316357,
+      "ece_15bin": 0.030902981190454402,
+      "n": 1470,
+      "mean_max_softmax": 0.5171327590942383
+    }
+  },
+  "unimodal_frozen_encoder_probes": {
+    "audio": {
+      "validation": {
+        "accuracy": 0.5609756097560976,
+        "macro_f1": 0.5582631541754746,
+        "ece_15bin": 0.048058757815903755,
+        "n": 738,
+        "mean_max_softmax": 0.5554179549217224
+      },
+      "test_evaluation_only": {
+        "accuracy": 0.5183673469387755,
+        "macro_f1": 0.5128867823783828,
+        "ece_15bin": 0.04363574347122996,
+        "n": 1470,
+        "mean_max_softmax": 0.5533354878425598
+      }
+    },
+    "video": {
+      "validation": {
+        "accuracy": 0.18157181571815717,
+        "macro_f1": 0.126978019424382,
+        "ece_15bin": 0.047110841728161344,
+        "n": 738,
+        "mean_max_softmax": 0.21004773676395416
+      },
+      "test_evaluation_only": {
+        "accuracy": 0.19319727891156463,
+        "macro_f1": 0.1396482425506048,
+        "ece_15bin": 0.03917563845511197,
+        "n": 1470,
+        "mean_max_softmax": 0.22134797275066376
+      }
+    }
+  },
+  "ood_detector": {
+    "audio": {
+      "fit_on": "train",
+      "threshold_from": "validation 95th percentile",
+      "threshold": 56.62750478163311,
+      "validation_score_quantiles": {
+        "q50": 17.143599251070587,
+        "q90": 42.859964527798674,
+        "q95": 56.62750478163311,
+        "q99": 108.80075693094267
+      },
+      "validation_flag_rate": 0.05,
+      "test_flag_rate_evaluation_only": 0.0761904761904762
+    },
+    "video": {
+      "fit_on": "train",
+      "threshold_from": "validation 95th percentile",
+      "threshold": 40.450092138194606,
+      "validation_score_quantiles": {
+        "q50": 10.940512312998962,
+        "q90": 35.16939677018398,
+        "q95": 40.450092138194606,
+        "q99": 65.3042545823435
+      },
+      "validation_flag_rate": 0.05,
+      "test_flag_rate_evaluation_only": 0.055782312925170066
+    },
+    "joint": {
+      "fit_on": "train",
+      "threshold_from": "validation 95th percentile",
+      "threshold": 73.1567962573921,
+      "validation_score_quantiles": {
+        "q50": 27.606431973232848,
+        "q90": 57.03343290080227,
+        "q95": 73.1567962573921,
+        "q99": 125.94828462911767
+      },
+      "validation_flag_rate": 0.05,
+      "test_flag_rate_evaluation_only": 0.0945578231292517
+    }
+  }
+}

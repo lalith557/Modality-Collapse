@@ -82,5 +82,5 @@ contributions." Not the broad sufficiency claim.
 ## Outputs
 `results/cremad/cremad_train_scale_primary.csv`, `_trajectories.csv`, `_agg.csv`,
 `_analysis.json`, `_config.json`; figures `cremad_TS_{rho,gradratio,contribution,gain,compensation}.png`;
-report `reports/CREMAD_TRAINING_SCALE_REPORT.md`. Commit separately. Raw media + feature cache
+report `docs/experiments/CREMAD_TRAINING_SCALE_REPORT.md`. Commit separately. Raw media + feature cache
 NOT committed. Then STOP (no INCLUDE-50 / OGM-GE / other datasets / paper).

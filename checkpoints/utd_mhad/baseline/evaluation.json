@@ -1,0 +1,138 @@
+{
+  "note": "Test-split numbers are evaluation-only; nothing was tuned on test.",
+  "parity_with_frozen_artifact": {
+    "artifact": "results/phase4_baselines/phase4_utd.csv",
+    "row": {
+      "seed": 0,
+      "arm": "baseline"
+    },
+    "probe_depth": {
+      "retrained": 0.14651162922382355,
+      "frozen": 0.1465116292238235,
+      "abs_diff": 5.551115123125783e-17
+    },
+    "probe_inertial": {
+      "retrained": 0.5860465168952942,
+      "frozen": 0.5860465168952942,
+      "abs_diff": 0.0
+    },
+    "acc_depth": {
+      "retrained": 0.03720930218696594,
+      "frozen": 0.0372093021869659,
+      "abs_diff": 4.163336342344337e-17
+    },
+    "acc_inertial": {
+      "retrained": 0.2186046540737152,
+      "frozen": 0.2186046540737152,
+      "abs_diff": 0.0
+    },
+    "dominance": {
+      "retrained": -0.18139535188674927,
+      "frozen": -0.1813953518867492,
+      "abs_diff": 5.551115123125783e-17
+    },
+    "meanabl_dominance": {
+      "retrained": -0.5581395328044891,
+      "frozen": -0.5581395328044891,
+      "abs_diff": 0.0
+    },
+    "shapley_scaled": {
+      "retrained": 0.5453488230705261,
+      "frozen": 0.5453488230705261,
+      "abs_diff": 0.0
+    },
+    "max_abs_diff": 5.551115123125783e-17,
+    "exact_match": true
+  },
+  "multimodal_joint_head": {
+    "validation": {
+      "accuracy": 0.5092592592592593,
+      "macro_f1": 0.4674477785588897,
+      "ece_15bin": 0.3398045210374726,
+      "n": 108,
+      "mean_max_softmax": 0.8260279893875122
+    },
+    "test_evaluation_only": {
+      "accuracy": 0.5697674418604651,
+      "macro_f1": 0.5553391256897894,
+      "ece_15bin": 0.2652199795772863,
+      "n": 430,
+      "mean_max_softmax": 0.834987461566925
+    }
+  },
+  "unimodal_frozen_encoder_probes": {
+    "depth": {
+      "validation": {
+        "accuracy": 0.14814814814814814,
+        "macro_f1": 0.08624810193437644,
+        "ece_15bin": 0.232286736369133,
+        "n": 108,
+        "mean_max_softmax": 0.36797651648521423
+      },
+      "test_evaluation_only": {
+        "accuracy": 0.14651162790697675,
+        "macro_f1": 0.11494379390599103,
+        "ece_15bin": 0.31331221336542175,
+        "n": 430,
+        "mean_max_softmax": 0.4540141522884369
+      }
+    },
+    "inertial": {
+      "validation": {
+        "accuracy": 0.4537037037037037,
+        "macro_f1": 0.4380471380471381,
+        "ece_15bin": 0.3849530429751785,
+        "n": 108,
+        "mean_max_softmax": 0.8386569023132324
+      },
+      "test_evaluation_only": {
+        "accuracy": 0.586046511627907,
+        "macro_f1": 0.5696090349092299,
+        "ece_15bin": 0.2809411394041638,
+        "n": 430,
+        "mean_max_softmax": 0.8669876456260681
+      }
+    }
+  },
+  "ood_detector": {
+    "depth": {
+      "fit_on": "train",
+      "threshold_from": "validation 95th percentile",
+      "threshold": 18.094463283972992,
+      "validation_score_quantiles": {
+        "q50": 4.452490437390566,
+        "q90": 13.535934212903863,
+        "q95": 18.094463283972992,
+        "q99": 21.821312702312124
+      },
+      "validation_flag_rate": 0.05,
+      "test_flag_rate_evaluation_only": 0.3302325581395349
+    },
+    "inertial": {
+      "fit_on": "train",
+      "threshold_from": "validation 95th percentile",
+      "threshold": 182.0984824640827,
+      "validation_score_quantiles": {
+        "q50": 53.211360947832794,
+        "q90": 141.35513808513477,
+        "q95": 182.0984824640827,
+        "q99": 225.0584727886852
+      },
+      "validation_flag_rate": 0.05,
+      "test_flag_rate_evaluation_only": 0.023255813953488372
+    },
+    "joint": {
+      "fit_on": "train",
+      "threshold_from": "validation 95th percentile",
+      "threshold": 228.6911788002275,
+      "validation_score_quantiles": {
+        "q50": 69.99948222669319,
+        "q90": 191.82813165518627,
+        "q95": 228.6911788002275,
+        "q99": 290.311241766073
+      },
+      "validation_flag_rate": 0.05,
+      "test_flag_rate_evaluation_only": 0.027906976744186046
+    }
+  }
+}

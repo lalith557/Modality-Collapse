@@ -1,53 +1,53 @@
-# Forward or Gradient? — IEEE MLSP paper (Overleaf project)
+# Papers
 
-Overleaf-ready LaTeX source for the paper *"Forward or Gradient? A Controlled
-Causal Study of Training-Time Feature-Scale Effects on Modality Contribution."*
+Two IEEE conference manuscripts (IEEEtran, `\documentclass[conference]`) describe this work.
 
-## Contents
+| Source | Title | Pages | Covers |
+|---|---|---|---|
+| `main.tex` / `main.pdf` | *Feature Scale as a Hidden Per-Modality Learning Rate: When Masked-Accuracy Dominance Misleads* | 6 | Phases 1 to 4: the operator decomposition, Proposition 1, synthetic mechanism tests, CREMA-D with decoupled metrics, positive control |
+| `ca_paper.tex` | *When Scale Silences a Modality: Disentangling Representation Magnitude, Optimization Dynamics, and Evaluation Artifacts in Multimodal Collapse* | 7 | Phases 0 to 3, early-ratio diagnostics, the Adam/SGD contrast, the zero-masking artifact on CREMA-D |
+
+The website's Paper page serves a compiled copy of the second manuscript from
+`../website/public/ca_research_paper.pdf`.
+
 ```
 research_paper/
-├── main.tex            # IEEEtran conference paper (6 pages)
-├── references.bib      # 45 references (BibTeX)
-├── BUILD_REPORT.md     # compile + audit results (page count, refs, citation order)
-├── main.pdf            # compiled 6-page PDF (regenerable)
-├── MANUSCRIPT_REVISION_AUDIT.md   # pre-revision audit vs experiment artifacts
-├── FINAL_REVIEW_REPORT.md         # post-revision review + verification checklist
-├── figures/            # vector figures used by the paper
-│   ├── fig_disentangle.pdf   (Fig. 2, full width)
-│   ├── fig_fusion.pdf        (Fig. 3)
-│   └── fig_utd.pdf           (Fig. 4)
+├── main.tex, main.pdf     # 6-page manuscript; bibliography embedded (thebibliography)
+├── ca_paper.tex           # 7-page manuscript; plots are pgfplots with values taken from results/
+├── references.bib         # BibTeX source of main.tex's embedded bibliography
+├── IEEEtran.cls           # IEEE conference class, v062824
+├── figures/
+│   ├── architecture_diagram.jpg                     # ca_paper Fig. 1 (conceptual overview)
+│   ├── fig_synth.pdf, fig_real.pdf                  # main.tex Figs. 2 and 3
+│   └── fig_disentangle.pdf, fig_fusion.pdf, fig_utd.pdf
 └── scripts/
-    └── make_figs.py    # regenerates figures/ from ../results/**/*.json
+    ├── make_paper_figs.py # fig_synth / fig_real from results/phase2_mechanism and results/phase3_cremad
+    └── make_figs.py       # fig_disentangle / fig_fusion / fig_utd from the decomposition and UTD-MHAD runs
 ```
-Figure 1 is drawn inline with TikZ (no external file). `make_figs.py` can also emit
-`fig_phase.pdf` and `fig_cremad.pdf` (data-sourced), which are not included in the
-6-page version; their results are reported in the text and Tables II–III.
 
 ## Build
-On Overleaf: upload the folder, set the compiler to **pdfLaTeX**, main document
-`main.tex`, and compile (Overleaf runs BibTeX automatically).
 
-Locally:
 ```bash
-pdflatex main
-bibtex   main
-pdflatex main
-pdflatex main
-# or: latexmk -pdf main.tex
+cd research_paper
+pdflatex main && pdflatex main
+pdflatex ca_paper && pdflatex ca_paper
 ```
 
-## Regenerate figures (optional)
-Figures are produced only from the machine-readable experiment results and
-contain no hand-entered data. From the repository root:
+`main.tex` embeds its bibliography, so BibTeX is not needed. To regenerate it from
+`references.bib`, replace the `thebibliography` block with `\bibliography{references}` and run
+`pdflatex`, `bibtex`, `pdflatex`, `pdflatex`. Two entries in `references.bib` are marked
+`VERIFY`; check their bibliographic details against the originals before submission.
+
+## Figures
+
+The figures contain no hand-entered values. From the repository root:
+
 ```bash
+python research_paper/scripts/make_paper_figs.py
 python research_paper/scripts/make_figs.py
 ```
-This reads `results/**/*.json` (e.g. `results/cremad_disentangle/…`,
-`results/sgd_disentangle/…`, `results/fusion_robustness/…`,
-`results/utd_mhad/…`, `results/e4/…`) and writes `research_paper/figures/*.pdf`.
 
-## Notes
-- Author name/affiliation and citation details are provided as-is; edit the
-  `\author{...}` block and `references.bib` for camera-ready submission.
-- Every numerical result traces to a committed result artifact; see
-  `BUILD_REPORT.md` and the project-level `EXPERIMENT_FREEZE_AUDIT.md`.
+The plots inside `ca_paper.tex` are drawn with pgfplots; comments in the source name the
+result files behind the plotted values. Every number in both manuscripts traces to
+[`../docs/CLAIMS_LEDGER.md`](../docs/CLAIMS_LEDGER.md) and the commands in
+[`../docs/REPRODUCING.md`](../docs/REPRODUCING.md).

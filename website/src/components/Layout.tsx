@@ -4,10 +4,13 @@ import { TopNavbar } from "./ui/top-navbar";
 import { ScenarioBar } from "./ScenarioBar";
 
 export function Layout() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const studio = pathname === "/studio";
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
+    // pages opened at a section (?section=...) scroll themselves (useSectionScroll)
+    if (!new URLSearchParams(search).has("section")) window.scrollTo({ top: 0, behavior: "auto" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   return (
@@ -25,12 +28,18 @@ export function Layout() {
             className="flex flex-col gap-2 font-mono text-2xs sm:flex-row sm:items-center sm:justify-between"
             style={{ color: "var(--muted)" }}
           >
-            <span>Forward or Gradient? — interactive research artifact</span>
-            <span>Values transcribed from the manuscript · not a live experiment</span>
+            <span>Feature Scale as a Hidden Learning Rate — interactive research artifact</span>
+            <span>
+              {studio
+                ? "Live inference from saved baseline checkpoints · research prototype"
+                : pathname === "/architecture"
+                  ? "Architecture generated from the model code and checkpoints · no inference on this page"
+                  : "Values transcribed from the manuscript and frozen result artifacts · not a live experiment"}
+            </span>
           </div>
         </footer>
       </main>
-      <ScenarioBar />
+      {!studio && <ScenarioBar />}
     </div>
   );
 }
