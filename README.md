@@ -87,8 +87,8 @@ newer for the website. The results were produced on an NVIDIA RTX 4070 Laptop GP
 Python 3.13, PyTorch 2.11 and CUDA 12.8.
 
 ```bash
-git clone <repository-url> modality-scale-collapse
-cd modality-scale-collapse
+git clone https://github.com/lalith557/Modality-Collapse.git
+cd Modality-Collapse
 pip install torch --index-url https://download.pytorch.org/whl/cu128   # choose the index for your CUDA version
 pip install -r requirements.txt
 pip install -r requirements-studio.txt                                # Studio, media decoding, test dependencies
